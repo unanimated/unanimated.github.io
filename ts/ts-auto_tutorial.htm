@@ -1,4 +1,5 @@
-<html><head><title>Creating Lua Automation Scripts for Aegisub</title>
+Ôªø<html><head><title>Creating Lua Automation Scripts for Aegisub</title>
+<meta charset="utf-8">
 <style>
 td {font-family:Verdana; font-size:12; text-align:justify}
 a {font-weight:bold; text-decoration:none}
@@ -26,11 +27,11 @@ A:hover {color:e0e3e6}
 
 (last revision: 6/3/2013)
 <br><br>
-This tutorial is meant to serve as a basic guide to creating Lua automations for use in Aegisub. If youíve worked on an advanced substation alpha script, especially if youíre a typesetter, youíve probably encountered tasks that are tedious, repetitive, and/or require more calculations than youíre willing to do. In most cases, these tasks can be automated using macros written in Lua code, and often quite easily.
+This tutorial is meant to serve as a basic guide to creating Lua automations for use in Aegisub. If you‚Äôve worked on an advanced substation alpha script, especially if you‚Äôre a typesetter, you‚Äôve probably encountered tasks that are tedious, repetitive, and/or require more calculations than you‚Äôre willing to do. In most cases, these tasks can be automated using macros written in Lua code, and often quite easily.
 <br><br>
 This tutorial is based on my own knowledge and experience. There are many features of the Lua language and the Aegisub API that I've never used and won't cover. This tutorial should provide a solid starting point, but advanced users will have to do their own research. 
 <br><br>
-The next section will cover basic programming concepts for people who have never programmed before. If you already know a programming language (HTML doesnít count), you can skip to <a href="#experienced">"Lua for Experienced Programmers"</a>. If you already know Lua, or if you'd rather start writing macros right away and learn Lua as you go, then you can skip to <a href="#environment">"The Aegisub Environment"</a>.
+The next section will cover basic programming concepts for people who have never programmed before. If you already know a programming language (HTML doesn‚Äôt count), you can skip to <a href="#experienced">"Lua for Experienced Programmers"</a>. If you already know Lua, or if you'd rather start writing macros right away and learn Lua as you go, then you can skip to <a href="#environment">"The Aegisub Environment"</a>.
 <br><br>
 I recommend frequently referencing the <a href="http://docs.aegisub.org/3.0/Automation/">documentation</a> provided in the Aegisub user manual. 
 <br><br>
@@ -65,7 +66,7 @@ Another data type is the <strong>Boolean</strong>, which can only have two value
 <code>
 is_happy=true<br>
 if is_happy then<br>
-&nbsp;&nbsp;&nbsp;&nbsp;print("Iím happy too!")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;print("I‚Äôm happy too!")<br>
 end
 </code>
 <br><br>
@@ -293,7 +294,7 @@ Lua supports multiple return values and arbitrary numbers of function parameters
 <br><br>
 Lua does not have a full regular expression implementation. Lua uses a bare-bones kind of regex known as "patterns". <a href="http://lua-users.org/wiki/PatternsTutorial">This tutorial</a> and Google should teach you all you need to know. Patterns will come up again later when I introduce the string library. For strings, the escape character is the backslash (<code>\</code>). Remember to escape slashes when writing .ass override tags.
 <br><br>
-In Lua, functions are "first-class citizens". That means you can toss around a function as if it were a variable. Pass a function as a parameter, store a function in an arrayógo wild.
+In Lua, functions are "first-class citizens". That means you can toss around a function as if it were a variable. Pass a function as a parameter, store a function in an array‚Äîgo wild.
 <br><br>
 Boolean operators are <code>and</code> and <code>or</code>. "Not equals to" is <code>~=</code>. String concatenation is <code>..</code>. You don't need semicolons at the ends of lines, and superfluous whitespace is ignored.
 <br><br>
@@ -537,7 +538,7 @@ Let's work backwards. The function that actually displays your dialog box is <co
 <br><br>
 The first parameter is the real meat of the GUI. This is the dialog definition table, which will describe how your GUI is laid out, what options the user has, and what their default values are. You can see all the options available to you <a href="http://docs.aegisub.org/3.0/Automation/Lua/Dialogs/#configurationdialoginterface">here</a>.
 <br><br>
-You position components using a grid of rows and columns. Imagine each component is a cell in a spreadsheet. The top left corner is (0,0). To the right of it is (1,0), and below is (0,1). If you want a component to occupy more than one cell, then set its coordinates to the top left cell, and use "width" and "height" to tell it how many columns and rows it takes up. You can make your GUI as many columns wide and as many rows tall as you want, and the window will stretch to fitóbut keep it within reason.
+You position components using a grid of rows and columns. Imagine each component is a cell in a spreadsheet. The top left corner is (0,0). To the right of it is (1,0), and below is (0,1). If you want a component to occupy more than one cell, then set its coordinates to the top left cell, and use "width" and "height" to tell it how many columns and rows it takes up. You can make your GUI as many columns wide and as many rows tall as you want, and the window will stretch to fit‚Äîbut keep it within reason.
 <br><br>
 The type of component is defined by the "class" property. You can have labels, which simply provide instruction text, you can have checkboxes, dropdowns, color selectors, text fields, and so forth. Components that take user input also need a "name" so that your automation can retrieve the results later on. Additional properties will depend on the class of the component. Checkboxes can be set to "true" or "false" by default, and can also have their own labels. Dropdowns will contain a list of the options to include in the dropdown menu, and so forth.
 <br><br>
@@ -990,7 +991,7 @@ Now, we make use of this data structure to help us properly refactor the font si
 </td></tr>
 <tr>
 	<td colspan=2 style="text-align:left">
-	Å&#x2191;<br>
+	¬Å&#x2191;<br>
 	<code>
 	cur_fs=20<br>
 	cur_fscx=100<br>
@@ -1160,7 +1161,7 @@ Then we enter the for loop and begin looking at the first override tag. We'll de
 </td></tr>
 <tr>
 	<td style="text-align:left;padding-left:15px">
-	Å&#x2191;<br>
+	¬Å&#x2191;<br>
 	<code>
 	cur_fs=40<br>
 	cur_fscx=120<br>
@@ -1331,7 +1332,7 @@ Using these values, we can calculate that the new font size should be 4. In the 
 <tr>
 	<td></td>
 	<td style="text-align:left;padding-left:15px">
-	Å&#x2191;<br>
+	¬Å&#x2191;<br>
 	<code>
 	cur_fs=40<br>
 	cur_fscx=120<br>
@@ -1503,7 +1504,7 @@ This time, there are no font size or scale tags in this override block. The text
 	<td></td>
 	<td></td>
 	<td style="text-align:left;padding-left:15px">
-	Å&#x2191;<br>
+	¬Å&#x2191;<br>
 	<code>
 	cur_fs=80<br>
 	cur_fscx=120<br>
@@ -1676,7 +1677,7 @@ The macro detects the font size change, adds the relevant tags, and moves on.
 	<td></td>
 	<td></td>
 	<td style="text-align:left;padding-left:15px">
-	Å&#x2191;<br>
+	¬Å&#x2191;<br>
 	<code>
 	cur_fs=80<br>
 	cur_fscx=120<br>
@@ -1848,7 +1849,7 @@ The macro detects the font size change, adds the relevant tags, and moves on.
 	<td></td>
 	<td></td>
 	<td style="text-align:left;padding-left:15px">
-	Å&#x2191;<br>
+	¬Å&#x2191;<br>
 	<code>
 	cur_fs=69<br>
 	cur_fscx=40<br>

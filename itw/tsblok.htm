@@ -1,5 +1,5 @@
-<html><head><title>ITW - Typesetting Blog?!</title>
-<meta charset="ISO-8859-1">
+ï»¿<html><head><title>ITW - Typesetting Blog?!</title>
+<meta charset="utf-8">
 <style>
 td {font-family:Verdana; font-size:12; text-align:justify}
 a {font-weight:bold; text-decoration:none; color:556677}
@@ -212,7 +212,7 @@ If the other lines have different text, nothing will happen with them.<br><br>
 
 Now, the way it works is that it splits the line you see in the GUI into 3 parts: [before *][*][after *].<br>
 Then it makes a replacement of [before *][*][after *] with [before *][your new tags][after *].<br>
-This means that if you already have some other inline tags, like before the word "with", it won't work, because the pattern "tags with Hydra" doesn't actually exist — it's really "tags {\some tags here}with Hydra".<br>
+This means that if you already have some other inline tags, like before the word "with", it won't work, because the pattern "tags with Hydra" doesn't actually exist â€” it's really "tags {\some tags here}with Hydra".<br>
 You can simply bypass this by deleting the start of the line in the GUI and leaving only "with *Hydra".<br>
 The function will then replace "with *Hydra" with "with {\your new tags}Hydra".<br>
 So you see it just works on any pattern you give it that can be found in the line. If you just ignore the line's text completely, you can type "*a" in the GUI, and the new tags will be placed before every letter "a".<br>
@@ -273,13 +273,13 @@ Now, let's get back to the GUI and explain all the options.
 
 <b>Match this</b> is where you type the string. It remembers last search (unless you rescan scripts) and has a few checkbox options associated with it.<br><br>
 
-<b>case-sensitive / regexp / exact match</b> — I hope I don't need to explain the first and last one. Regexp is limited because it's the lua regexp the automation scripts use. The only change I made to it is to allow \ where lua uses % (either will work). To be honest, I don't know how well this is working, but I seriously doubt that you will ever need more complex regexp than it can handle. Note: due to reasons, if you use \l or \u, you need to check "case-sensitive".<br><br>
+<b>case-sensitive / regexp / exact match</b> â€” I hope I don't need to explain the first and last one. Regexp is limited because it's the lua regexp the automation scripts use. The only change I made to it is to allow \ where lua uses % (either will work). To be honest, I don't know how well this is working, but I seriously doubt that you will ever need more complex regexp than it can handle. Note: due to reasons, if you use \l or \u, you need to check "case-sensitive".<br><br>
 
-<b>exclude commented lines</b> — By default, commented lines will not be selected, since you usually don't work with those, but you can uncheck this to include them.<br><br>
+<b>exclude commented lines</b> â€” By default, commented lines will not be selected, since you usually don't work with those, but you can uncheck this to include them.<br><br>
 
-<b>load results in an editor</b> — Selectricks has the whole Multi-line Editor built in, so if you check it, it will load the matched selection in it, and you can for example use the Replace function on the selected lines. (I'll probably write more about the MultiEditor next time.)<br><br>
+<b>load results in an editor</b> â€” Selectricks has the whole Multi-line Editor built in, so if you check it, it will load the matched selection in it, and you can for example use the Replace function on the selected lines. (I'll probably write more about the MultiEditor next time.)<br><br>
 
-<b>Numbers</b> — I skipped this before. There are two types of strings to select by — text and numbers. While for text you have "matches / doesn't match" and the checkbox options on the right, for numbers you have ==, >=, and <=. This is easy to understand on the example of layers: you can select lines on layer 3, lines on layer 3 and below, or lines on layer 3 and above.<br><br>
+<b>Numbers</b> â€” I skipped this before. There are two types of strings to select by â€” text and numbers. While for text you have "matches / doesn't match" and the checkbox options on the right, for numbers you have ==, >=, and <=. This is easy to understand on the example of layers: you can select lines on layer 3, lines on layer 3 and below, or lines on layer 3 and above.<br><br>
 <br>
 
 The main two functions, selecting and sorting, each have its own button. The Preset button is for selecting only. I'll get to Sorting and Presets later.<br><br>
@@ -290,21 +290,21 @@ Now, let's get to all the options for "Select by".
 <br><br><br>
 <img src="selectrix2.png"><br><br>
 
-<b>Style, actor, effect, text</b> — These should all be clear. Sorting by effect can be handy if you use the effect field as marker for various things. The <a href="../ts/import.lua">Unimportant</a> script can number/mark lines with various patterns in the actor or effect field, which you can then use to distinguish between lines for easier separation.<br><br>
+<b>Style, actor, effect, text</b> â€” These should all be clear. Sorting by effect can be handy if you use the effect field as marker for various things. The <a href="../ts/import.lua">Unimportant</a> script can number/mark lines with various patterns in the actor or effect field, which you can then use to distinguish between lines for easier separation.<br><br>
 
-<b>visible text (no tags)</b> — This pretty much only searches text you'd see on the screen. It's applied to the Text field after all {\tags} and {comments} have been removed. The minor discrepancy is that it will include text that's after {\alpha&HFF&}, which is not really visible.<br><br>
+<b>visible text (no tags)</b> â€” This pretty much only searches text you'd see on the screen. It's applied to the Text field after all {\tags} and {comments} have been removed. The minor discrepancy is that it will include text that's after {\alpha&HFF&}, which is not really visible.<br><br>
 
-<b>layer</b> — Obvious.<br><br>
+<b>layer</b> â€” Obvious.<br><br>
 
-<b>duration</b> — Duration of a line in milliseconds.<br><br>
+<b>duration</b> â€” Duration of a line in milliseconds.<br><br>
 
-<b>word count</b> — Pretty obvious. Excludes comments/tags. A "word" is a string containing letters and apostrophes. Hyphenated composites are counted as multiple words.<br><br>
+<b>word count</b> â€” Pretty obvious. Excludes comments/tags. A "word" is a string containing letters and apostrophes. Hyphenated composites are counted as multiple words.<br><br>
 
-<b>character count</b> — Excludes linebreaks, spaces, and some punctuation.<br><br>
+<b>character count</b> â€” Excludes linebreaks, spaces, and some punctuation.<br><br>
 
-<b>character per second</b> — This may help you find lines that are hard to read.<br><br>
+<b>character per second</b> â€” This may help you find lines that are hard to read.<br><br>
 
-<b>blur</b> — Reads the value from the first blur tag in the line, but 0 will also match lines with no blur tag.<br><br>
+<b>blur</b> â€” Reads the value from the first blur tag in the line, but 0 will also match lines with no blur tag.<br><br>
 
 Don't forget that these can all be used with >= and <=.<br><br><br>
 
@@ -318,44 +318,44 @@ There are a few "sorting only" options, which don't apply to selecting.<br><br>
 
 <b>sort by time</b> is clear. There's no sorting by "end time" because I've never needed it, and neither do you.<br><br>
 
-<b>reverse</b> — Simply reverses the line order.<br><br>
+<b>reverse</b> â€” Simply reverses the line order.<br><br>
 
-<b>dialogue first</b> — Dialogue lines go to the top, signs (and OP/ED) below. Dialogue lines are those with "Defa" or "Alt" in style.<br><br>
+<b>dialogue first</b> â€” Dialogue lines go to the top, signs (and OP/ED) below. Dialogue lines are those with "Defa" or "Alt" in style.<br><br>
 
-<b>dialogue last</b> — The reverse of the previous.<br><br>
+<b>dialogue last</b> â€” The reverse of the previous.<br><br>
 
-<b>ts/dialogue/oped</b> — Signs to the top, anything matching "Defa" or "Alt" after that, and anything matching "OP" or "ED" at the end. While you may call your styles whatever you want, I recommend that the dialogue and OP/ED style names stick to this pattern, as many scripts can distinguish between them this way. Also note that everything in lua is case-sensitive unless specifically made not to be so, so OP/ED must be capitalized, as well as the D and A. Of course, a style named STOP will be matched as OP, and BORED as ED, so try to avoid that if you want to make good use of the scripts. (Some of my other scripts only match OP and ED at the start of the name, but not this one.)<br><br>
+<b>ts/dialogue/oped</b> â€” Signs to the top, anything matching "Defa" or "Alt" after that, and anything matching "OP" or "ED" at the end. While you may call your styles whatever you want, I recommend that the dialogue and OP/ED style names stick to this pattern, as many scripts can distinguish between them this way. Also note that everything in lua is case-sensitive unless specifically made not to be so, so OP/ED must be capitalized, as well as the D and A. Of course, a style named STOP will be matched as OP, and BORED as ED, so try to avoid that if you want to make good use of the scripts. (Some of my other scripts only match OP and ED at the start of the name, but not this one.)<br><br>
 
-<b>{TS} to the top</b> — This, of course, does what it says it does. In the unlikely case that it doesn't do what it says it does, it's doing something that it's not supposed to do and should be reported to me so that I can make it do what it should have been doing all along.<br><br>
+<b>{TS} to the top</b> â€” This, of course, does what it says it does. In the unlikely case that it doesn't do what it says it does, it's doing something that it's not supposed to do and should be reported to me so that I can make it do what it should have been doing all along.<br><br>
 
-<b>masks to the bottom</b> — I dunno, Hdr asked for it.<br><br>
+<b>masks to the bottom</b> â€” I dunno, Hdr asked for it.<br><br>
 
-<b>by comments</b> — This means {this kind of }comments. Matches the first one in the line. You may thus use comments as additional markers for specific lines.<br>
+<b>by comments</b> â€” This means {this kind of }comments. Matches the first one in the line. You may thus use comments as additional markers for specific lines.<br>
 
 <br><br><br>
 <img src="selectrix3.png"><br><br>
 
 What's left is the Presets.<br><br>
 
-<b>Default style - All</b> — This selects dialogue style (Defa/Alt) from the entire script. I use this when I open last week's episode, select the dialogue like this, delete it, and then I have OP/ED and episode-title typesets ready for shifting to the new episode.<br><br>
+<b>Default style - All</b> â€” This selects dialogue style (Defa/Alt) from the entire script. I use this when I open last week's episode, select the dialogue like this, delete it, and then I have OP/ED and episode-title typesets ready for shifting to the new episode.<br><br>
 
-<b>nonDefault - All</b> — The opposite.<br><br>
+<b>nonDefault - All</b> â€” The opposite.<br><br>
 
-<b>OP / ED in style</b> — Selects all lines that match OP/ED in style. Pretty useful for shifting OP/ED, unless you name some other styles confusingly or name your OP style "LOL".<br><br>
+<b>OP / ED in style</b> â€” Selects all lines that match OP/ED in style. Pretty useful for shifting OP/ED, unless you name some other styles confusingly or name your OP style "LOL".<br><br>
 
-<b>layer 0</b> — Selects all lines on layer 0. Not really sure how it's useful, but for some unclear reasons I included it.<br><br>
+<b>layer 0</b> â€” Selects all lines on layer 0. Not really sure how it's useful, but for some unclear reasons I included it.<br><br>
 
-<b>skiddiks, your their?</b> — Requested by skiddiks, this selects all lines containing the words <i>your, you're, their, there, they're</i>. Something to do with him editing when sleep-deprived.<br><br>
+<b>skiddiks, your their?</b> â€” Requested by skiddiks, this selects all lines containing the words <i>your, you're, their, there, they're</i>. Something to do with him editing when sleep-deprived.<br><br>
 
 All the options above select from the whole script. The two below select from current selection.<br><br>
 
-<b>no-blur signs</b> — As I'm sure you didn't expect at all, this selects signs with no blur.<br><br>
+<b>no-blur signs</b> â€” As I'm sure you didn't expect at all, this selects signs with no blur.<br><br>
 
-<b>commented lines</b> — Yes. It selects commented lines. If you need to select only not-commented lines, just open Selectricks and click Set Selection with default settings. It will match an empty string (ie, all lines) but "exclude commented lines".<br><br><br>
+<b>commented lines</b> â€” Yes. It selects commented lines. If you need to select only not-commented lines, just open Selectricks and click Set Selection with default settings. It will match an empty string (ie, all lines) but "exclude commented lines".<br><br><br>
 
 To give a few examples of how you can use this, let's look back at that screenshot of NouCome script.<br><br>
 
-If you want to select the lines that have "q" as text — {\bord0\blur0.8\c&HFFFFFF&\fscx165\fscy165\3c&HA65029&\pos(340,110)}q — you match just "q", check "exact match", and select by "visible text (no tags)".<br><br>
+If you want to select the lines that have "q" as text â€” {\bord0\blur0.8\c&HFFFFFF&\fscx165\fscy165\3c&HA65029&\pos(340,110)}q â€” you match just "q", check "exact match", and select by "visible text (no tags)".<br><br>
 
 There are a bunch of lines with "qtttttteeep" as text. (Those are masks made with a special font.) If you need to select specific ones, you first select all the lines and then narrow it down. First by text "qtttttteeep", then by style (there are 4 different ones), and if you need only one of the two that are always together, the difference is positive and negative \yshad, so you could go by "ad2" or "ad-2" in Text.<br><br>
 
@@ -399,7 +399,7 @@ Shifting is simple, also in ms. Left is backward, right is forward, because, you
 <b>Prevent overlaps from adding lead in/out.</b> This should be the default setting, which makes sure that adding leads won't make lines overlap, but in case you really want to add lead out to a bunch of lines disregarding overlaps with lines after them, you can uncheck this. It can be useful for song styling where overlaps may not be a bad thing.<br><br>
 
 <b>Line linking.</b> This is like in TPP. Bias 0.8 is 80% to the right, or in other words, 80% of the gap will become lead out and 20% will be lead in for the next line.<br>
-Fixing overlaps is something extra I added, though now Aegisub has it too (but as far as I can tell it's either broken or I'm not sure what exactly it's doing). If you just set it to 50, it will fix one-frame overlaps. 500 means it will not allow overlaps up to 500 ms, so if it finds one, it does the opposite of line linking — it joins the lines based on the Bias setting.<br>
+Fixing overlaps is something extra I added, though now Aegisub has it too (but as far as I can tell it's either broken or I'm not sure what exactly it's doing). If you just set it to 50, it will fix one-frame overlaps. 500 means it will not allow overlaps up to 500 ms, so if it finds one, it does the opposite of line linking â€” it joins the lines based on the Bias setting.<br>
 If you want to only fix overlaps, without line linking, set the gap for linking to 0.<br><br>
 
 <b>Keyframes.</b> This is pretty much the same as in TPP, except the presets and preventing overlaps. If in TPP your ends_before setting is higher than starts_before, it will cause overlaps, which is kinda dumb because you probably don't want that unless you're dumb too. So the prevent_overlaps setting is pretty useful.<br>
@@ -419,7 +419,7 @@ So in summary, what you have here in addition to regualr TPP stuff: cutting lead
 <h2>Calculating Origin Point</h2>
 <h4>2013-11-27</h4><br>
 
-Continuing with aligning signs. I thought I'd try to actually calculate the origin point from given coordinates — an idea that jfs has been playing with for a while. After a few hours of trial and error I came up with a script half of which I don't really understand, but somehow magically it seems to work. I hope nobody finds bugs in it, because the code is sheer chaos to me.<br><br>
+Continuing with aligning signs. I thought I'd try to actually calculate the origin point from given coordinates â€” an idea that jfs has been playing with for a while. After a few hours of trial and error I came up with a script half of which I don't really understand, but somehow magically it seems to work. I hope nobody finds bugs in it, because the code is sheer chaos to me.<br><br>
 
 The usage is pretty simple though. You mark 4 points with the vectorial clip, and the script calculates where \org should be.
 
@@ -504,7 +504,7 @@ Use <a href="../ts/relocator.lua">Hyperdimensional Relocator</a> / Cloning Labor
 
 <br><br><br>
 <img src="ts-align-hr.png"><br><br>
-In case you don't know how this works — the first line has to be the grid, the second the sign, you select both, and it copies the checked things from line 1 to all other selected lines, in this case line 2.
+In case you don't know how this works â€” the first line has to be the grid, the second the sign, you select both, and it copies the checked things from line 1 to all other selected lines, in this case line 2.
 
 
 <br><br><br>
