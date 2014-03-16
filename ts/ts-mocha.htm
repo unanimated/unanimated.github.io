@@ -1,0 +1,343 @@
+ï»¿<html><head><title>Mocha - Tracking Signs</title>
+<meta charset="utf-8">
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold; text-decoration:none}
+A:hover {color:e0e3e6}
+</style></head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=668899 vlink=668899 alink=668899>
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=836>
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>Tracking Signs with Mocha</font>
+</center></td></tr>
+<tr><td bgcolor=000000>
+
+
+<b><font color=446677>
+What you need to install:<br><br></b></font>
+
+1. Mocha for After Effects. Any version should be fine. You don't need After Effects.<br>
+2. Quicktime or Quicktime Lite (Otherwise Mocha won't load mp4)<br>
+3. <a href="https://github.com/torque/Aegisub-Motion">Aegisub-Motion.lua</a>. Place it in \Aegisub\automation\autoload\. <br>
+4. <a href="http://www.x264.nl/x264_main.php">x264 8bit-depth</a> (Mocha can't read 10-bit)<br><br>
+
+Now you need a folder where the clips for mocha will go, and a folder where your x264.exe will be. To make it simple, use the same folder for both. Let's say we'll use D:\mocha\.<br><br>
+
+Open Aegisub and go to the Automation menu.<br><br>
+
+<img src="mocha-menu.png"><br><br>
+
+First you need to set up the config.<br><br>
+
+<table cellpadding=0><tr><td><img src="mocha-config.png"></td><td width=10></td><td valign=top>
+
+If you chose "D:\mocha\" as your folder, you'll put that in the top part (don't forget the trailing slash),<br>
+and the same with x264.exe in the middle box, like you see here.<br>
+I recommend to uncheck the scaling and border/shadow for default settings.<br><br>
+
+Let's mention what all the options do now, but you can get back to this later.<br><br>
+
+Sort method: Default - If you apply data to 2 lines, you'll get line 1 tracked first and line 2 tracked after it.<br>
+Sort method: Time - Resulting lines will be sorted by time.<br><br>
+
+x, y - track \pos horizontally/vertically.<br>
+Origin - track \org.<br>
+Clip - track \clip.<br>
+Scale - track scaling/zooming, ie. \fscx and \fscy.<br>
+Border/Shadow - apply scaling to border / shadow.<br>
+Rotation - track \frz.<br>
+Blur - scale \blur.<br>
+Rounding - how many decimals you'll have for each tracked value.<br><br>
+
+x264 - I never thought of changing this, so... ???<br><br>
+
+Relative - This is a very useful thing. If it's hard to position the sign on the first frame, you can do so on the last frame and set this to -1. Or you can style the sign on frame 6 and set this to 6, etc.<br><br>
+
+Linear - this will use \move and \t instead of frame-by-frame tracking.<br><br>
+
+Delete - Delete the source lines instead of commenting them out.<br>
+Autocopy - Automatically copy from clipboard into the tracking data box.<br>
+Copy Filter - Only autocopy if the clipboard appears to contain tracking data.<br>
+Enable trim GUI - show GUI for trimming.
+</td></tr></table>
+<br>
+\clip... - This allows you to use different tracking data for clip than for the sign itself. (Remember this. You'll need it one day.)<br><br><br>
+
+Let's look at a sign that needs tracking.<br><br>
+
+<img src="sekits02.jpg"><img src="sekits01.jpg"><br><br>
+This is what it looks like on the first frame..........................................................and this is the last frame.<br><br>
+
+This is the kind of sign that's easier to track from last frame, and it's better to create it on the last frame too.<br>
+So we'll start with this:<br><br>
+
+<img src="sekits03.jpg"><br><br>
+
+Time to encode clip for mocha. Click on "Motion Data - Trim" in the automation menu. Unless you have the GUI enabled, it'll just encode without needing any further action.<br><br>
+
+If it didn't work and it's your first try, restart Aegisub and see if it works after that.
+<br><br><br><br>
+
+
+
+<font color=708090>
+If it worked, then you can skip this next section. In case it doesn't, I'll explain <b>an alternative method for encoding the clips. </b>What sometimes also happens is that the script encodes a clip that looks like this:<br><br>
+
+<img src="mocha-trimfail.jpg"><br><br>
+
+You can try encoding from a previous keyframe, but sometimes even that doesn't help, so I use this other method.<br>
+(Though in some cases the sign is still trackable even on that shitty encode.)<br><br>
+
+Create mocha.bat with this text in it:<br>
+<pre><font color=608060>x264 --profile baseline --level 1.0 --crf 18 --fps 24000/1001 --seek %2 --frames %3 -o %1_%2.mp4 %1</font></pre>
+
+This is with 23.976 fps, so obviously change if needed.<br>
+Put the mocha.bat where your premux is, along with x264.exe.<br>
+Open cmd.exe and navigate to the folder with these files (or open it from there in the first place).<br>
+Then type this command:
+<pre><font color=608060>mocha seki02_premux.mkv 4193 40</font></pre>
+"mocha" is mocha.bat, seki02_premux.mkv is the video you're encoding from, 4193 is the frame where it starts, and it will encode 40 frames.<br>
+It's actually 33 frames, so you can be precise if you want, but I think you need to encode one more than it shows in Aegisub.<br>
+I usually just encode more and then move the red marker for the end frame in mocha.
+</font><br><br><br>
+
+When you have your clip encoded, start up mocha.<br>
+Open a New Project:<br><br>
+
+<img src="moka-01.png"><br><br>
+
+Import a clip:<br><br>
+
+<img src="moka-02.png"><br><br>
+
+After you select your clip, hit Enter 4 or 5 times, until all the menus go away. (No need to change anything there.)<br><br><br><br>
+
+
+
+<b><font color=446688>NOW YOU TRACK THE SIGN.</font></b> (I'll get back to the tracking itself in a bit. Let's just finish the whole process now.)<br><br><br><br>
+
+
+
+
+To export the data, you click on "Export Tracking Data",<br><br>
+
+<img src="moka-export1.png"><br><br>
+
+change the format to "After Effects Transform Data",<br><br>
+
+<img src="moka-export2.png"><br><br>
+
+and click on "Copy to Clipboard".<br><br>
+
+Move over to Aegisub, Automation menu, Motion Data - Apply.<br>
+If the data isn't autopasted, paste it into the top box. I explained the options earlier, so check what you need, and click "Go".<br>
+Tracking data gets applied to the selected lines, and you're done (as long as you didn't fuck anything up).<br>
+That's all regarding the Aegisub-Motion.lua. Now for Mocha itself...<br><br><br><br><br>
+
+
+
+
+<font color=446677 size=4><b>Tracking a Sign in Mocha</b></font><br><br><br>
+
+
+So you have your video loaded. Now you need to create a spline to track.<br><br>
+
+<img src="moka-tools.png"><br><br>
+
+I'm using an old version, but the new ones shouldn't look all that different.<br>
+You will mostly be using the icon with an X (9th from left). Next to it is X+, then B, and B+.<br>
+Click on the one with X, and draw a spline like this:<br><br>
+
+<img src="moka-spline.png"><br><br>
+
+Now you can start tracking. There are 4 buttons you can use...
+
+<br><br>
+<img src="moka-start.png"><br><br>
+Track backwards | Track to previous frame | Track to next frame | Track forwards<br><br>
+
+It doesn't matter in which direction you track or where you start from.<br>
+We're tracking this one from the last frame, and on the first frame we should end up with something like this:<br><br>
+
+<img src="moka-spline2.png"><br><br>
+
+And when you apply the data, the first and last frame will look like this:
+
+<br><br>
+<img src="sekits04.jpg"><img src="sekits03.jpg"><br><br>
+You can try scaling the blur with the script, but it may not match the size scaling, so I usually change the blur by hand. Normally it's only a few frames that need more blur. This sign had some rotations in the middle part, so we track and apply position, scaling, and rotation.<br><br>
+
+For simple signs, you often don't need anything else than to draw a spline and track.<br>
+If there's no scaling, things usually work out fine.<br><br>
+
+If the tracking isn't going well, you have to tweak the options here:
+
+<br><br>
+<img src="moka-tweaking.png"><br><br>
+
+<b>Luminance / Autochannel:</b> Luminance follows overall brightness/contrast. Autochannel picks red/green/blue channel, depending on which has more contrast (or so I imagine it works). Usually Luminance works, but then there are signs like this:<br><br>
+
+
+<table cellpadding=0><tr><td><img src="moka-spline3.png"></td><td width=10></td><td valign=top>
+The blue sign is jumping around, but so are some other lines in the background, so the whole thing can be pretty messy, and since the blue and purple have about the same brightness, they're not so easy to distinguish, so Luminance would mainly see the black lines, but since there's some black in the background too, it can influence the tracking. If you choose Autochannel, mocha will (I assume) track the blue channel since it shows clear contrast, and the thing you need to track is all blue and the background isn't, so it works out well.<br>
+I have no way of knowing what mocha actually does track, but for example for this sign switching to Autochannel helped, so I imagine it works something like I explained. But really all you need to know is that if you fail to track a frame correctly and you think it might be related to colours, undo the frame, switch to Autochannel and try again. Either it'll help, or it won't.
+</td></tr></table><br>
+
+<b>Min % Pixels Used:</b> To be honest, I don't remember a single time when changing this value would help me track anything.<br>
+If your spline is going off, you can try increasing or decreasing this value and see if it helps, but I wouldn't bet on it.<br><br>
+
+<b>Smoothing Level:</b> I have no idea what this does, and I've never heard anyone mentioning it either, so probably not important.<br><br>
+
+<b>Translation:</b> This equals position and is always checked.<br>
+<b>Scale:</b> Check this if the sign gets bigger/smaller, ie. zooms, etc.<br>
+<b>Rotation:</b> Check this if the sign rotates like what \frz does.<br>
+<br>
+Do NOT check the options you don't need, because they'll only make tracking harder in such a case.<br>
+The other two options are not applicable for Aegisub, so don't check those.<br><br>
+
+<b>Large / Small / Manual...</b> I almost never change this. Just know that you can track manually, adjusting the spline on each frame by hand.<br><br>
+
+<b>Horizontal / Vertical:</b> If a sign makes long-distance jumps, like a fast pan, you may need to increase this value. On the other hand, if the spline jumps off somewhere far when it shouldn't, you can set smaller numbers to limit the area it searches. With simple, continuous, short-distance movement, Auto usually works.<br><br>
+
+<b>Angle / Zoom:</b> Similarly to previous, use larger values if there's more zooming/rotations, and smaller values if the spline is going too crazy.<br><br><br><br>
+
+
+That would be the basics of tracking. Now more about what if it's not working and what tricks you can use.<br><br><br>
+
+
+
+<br><br>
+<img src="moka-zoomfail.png"><br><br>
+If you compare to the previous pictures, you'll see this spline is too small. That means it didn't scale enough, so you need to increase the Zoom value. It should supposedly be in %, but from experience I can tell you that that's bullshit. I have no idea what exactly the number is, but larger value allows for more scaling, so you just have to try. If the difference seems small, try 10. I usually get the results I need with values between 10 and 20. If it's zooming a lot, then maybe 30. You probably won't need to go over that.<br>
+If you set some value and the spline actually gets bigger than it should, decrease the value bit by bit until it seems right. It's a bit of a trial-and-error game, but after tracking 100 signs you'll have some idea from experience what values you should use.<br>
+Tweaking the Angle for rotations follows the same principles as Zoom.<br><br><br>
+
+
+Here's an example of what usually happens with zooming signs, and how to fix it.<br>
+
+<br><br>
+<img src="moka-it01.jpg"><br><br>
+This is the starting spline.<br>
+
+<br><br>
+<img src="moka-it02.jpg"><br><br>
+This is what happens with default settings. (1 frame tracked.)<br>
+You can't see the whole frame, but the sign hasn't really moved much. It just got bigger.<br>
+Since the spline is jumping far off, we can limit the movement, so I set Horizontal/Vertical to 20. Ctrl+Z; retrack.<br>
+
+<br><br>
+<img src="moka-it03.jpg"><br><br>
+And this is what I get. You see it didn't scale enough, but limiting the movement helped to keep the spline in the right area.<br>
+So I change the zoom to 20. Ctrl+Z; retrack.<br>
+
+<br><br>
+<img src="moka-it04.jpg"><br><br>
+And here we go. I got exactly what I need.<br><br><br><br>
+
+
+If a sign changes on one end more than on the other (zoom, blur, etc.), it's probably easier to track it from the end that changes less, and leave the most difficult frames as last. Or, if needed, you can track it from the middle to the ends. This helps for example with fades.
+
+
+<br><br><br><br>
+Here you need to track the red sign, moving from right to left...
+<br><br>
+<img src="moka-pan01.jpg">
+<br><br>
+<img src="moka-pan02.jpg">
+<br><br>
+<img src="moka-pan03.jpg">
+<br><br>
+<img src="moka-pan04.jpg">
+<br><br>
+<img src="moka-pan05.jpg"><br><br>
+The sign jumps in fast, then moves slowly across the middle, and then jumps out fast again.<br>
+It moves horizontally a lot, and vertically a little. The first two and last two pictures are the actual first and last two frames.<br>
+The middle picture is where it slows down for about 10 frames.<br>
+Tracking from frame 1 to frame 2 would be hard because there isn't much to select on frame 1, so it's better the other way.<br>
+The main thing about this sign is that you need to set Horizontal to the max - 500, and Vertical to something like 50.<br>
+Less Horizontal won't track far enough, and more Vertical will only give mocha more useless area to search and possibly confuse it.
+<br><br><br><br>
+
+
+
+<br><br>
+<img src="moka-tools.png"><br><br>
+Remember those X, X+, B, and B+ icons? The B ones are for Bezier curves. It's usually faster to just make many points with the regular X one, so you can pretty much ignore the Bs. But what about the X+? That one is very useful. It allows you to add another spline to the one you're already tracking, or even replace the old one, like when it starts going off the frame.<br><br>
+
+Let's say you have a pan like this:
+<br><br>
+<img src="moka-nou01.jpg">
+<img src="moka-nou02.jpg"><br><br>
+
+You can start with tracking the text on the left. When it starts going off the screen, you use the X+ tool, and draw another spline on the right. You can either continue tracking like that, or you can now select and delete the left spline. (You have to draw the new one first before you can delete the old one.)<br>
+
+<br><br>
+<img src="moka-nou03.jpg">
+
+<br><br>
+<img src="moka-tools.png"><br><br>
+Alternatively, you can press the Q key (or use the icon on the far right) and move the spline to a new place:
+<br><br>
+<img src="moka-nou04.jpg"><br><br>
+And you can continue tracking.<br><br><br>
+
+Another trick for whole-screen pans is this:<br>
+
+<br><br>
+<img src="moka-link-none.png"><br><br>
+
+Set "Link to track" to "None" instead of the layer you're tracking. If it's a whole-screen pan, you can draw the spline anywhere, even over the whole screen. The spline won't move when tracking, but it tracks the pixels moving within it, so when you have very long pans, it tracks them well while the spline stays in place.<br><br><br>
+
+Sometimes things are in the way of the tracked sign.
+<br><br>
+<img src="moka-hand1.jpg"><br><br>
+You want to track this sign...
+<br><br>
+<img src="moka-hand2.jpg"><br><br>
+...but it goes under this hand. In this case it actually tracked perfectly well, but that's not always the case.
+<br><br>
+<img src="moka-hand3.jpg"><br><br>
+Use the regular X tool to draw a new spline around the hand.
+
+<br><br>
+<img src="moka-layers.png"><br><br>
+New layers will be placed above the old ones. When they overlap, the bottom layer will not track areas that the top layer is "blocking". If the hand doesn't move, you can click on the middle icon next to "Layer 4" so that it doesn't track the layer. If the hand moves, you can just track with focus on layer 3. Layer 4 will track the hand, and layer 3 will track its spline except the areas covered by layer 4.<br>
+
+<br><br>
+<img src="moka-hand4.jpg"><br><br>
+If you enable the "Mattes" in this menu, you'll see the splines filled with colours. Layer 3 will track only the red area here.<br>
+So for example if you have a slow pan of a building with a sign on it that you're tracking, and a car goes by in front of the building, you can make a new spline for the car to make sure the car won't throw off the sign you're tracking.<br><br><br>
+
+While we have this menu here, you can also notice the Stabilize button. If you click on that, the focus won't be on the whole frame, but on your sign, so the sign will stay in place while the rest of the stuff moves around it. When you "play" the tracked sign with Stabilize on, you can see more easily how well the spline sticks to the sign.<br><br><br>
+
+If a sign lasts 30 frames and moves only on the first 5, you don't need to track the remaining 25 frames. Just track the 5 and apply the data. For the typical Japanese animation where stuff moves only every 3rd frame, you can just track every 3rd frame.<br>
+
+<br><br>
+<img src="moka-partrack.png" width=800><br><br>
+This is tracking data that I actually used, since the sign only moved on those 5 frames. No need to flood the script with hundreds of static lines, plus the tracking can actually make the sign wobble a little, while this way you ensure that it doesn't move on the static frames.<br><br>
+
+While we have this image here... If the sign's duration is shorter than the whole clip, you can move the red markers at the ends to set the start and end for the tracked data. The exported data is only what's between the red markers.
+<br><br><br>
+
+
+A problem you may run into is that the video loads stretched vertically in mocha, as in, it shows wrong aspect ratio. If that happens, look to the bottom-left part of the screen, and switch from Track to Clip. Then instead of those things like Search Area, you will see other stuff, including this dropdown menu:<br>
+
+<br><br>
+<img src="moka-aspectratio.png"><br><br>
+Changing to one of those Anamorphic will probably do the trick. If not, just switch to whatever will look right.<br>
+(Press * to center the screen after.)<br><br><br>
+
+That's about all I can think of now. This should explain how it all works. Learning to track difficult signs is largely a matter of experience, so you have to practice. This guide is mainly to explain how to make a video clip, get it into mocha, track a sign, and get the data back to Aegisub, so you should now be able to do that.<br><br><br>
+
+
+For more help, you can check some mocha videos on youtube and other places.<br><br>
+
+<a href="http://www.imagineersystems.com/videos/04_advanced_tracking.m4v/view">Here's how to use "Adjust Track".</a>
+
+<br><br><br><br>
+
+<center><a href="index.htm"><b>« Back to Typesetting Main
+<br><br><br>
+

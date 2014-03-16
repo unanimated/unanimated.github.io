@@ -1,0 +1,20 @@
+Script Cleanup
+
+v2.1 ... [2013-09-02]	- added some useful buttons.
+
+v2.0 ... [2013-07-16]	- added a few more things etc.
+
+v1.9 ... [2013-06-24]	- fixing overlaps now detects keyframes
+
+v1.8 ... [2013-06-17]	- added fixing of disjointed tags - }{ [not comments]
+
+v1.7 ... [2013-06-17]	- rewritten code, added fixing timing mistakes, removing rogue backslashes
+
+v1.6 ... [2013-06-14]	- added a new function "Kill tags" - removes selected tags from lines
+
+v1.5 ... [2013-06-12] 	- fixed bugs in deleting commented or empty lines [thx to lyger for help]
+			- changed "set dialogue to layer 3" to "raise dialogue layer by 3" to avoid breaking layered dialogue
+
+v1.4 ... [2013-06-09] 	added more options, like removing linebreaks
+
+v1.3 ... idr

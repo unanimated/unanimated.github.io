@@ -1,0 +1,343 @@
+<html><head><title>Timing: Additional Notes</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+A:hover {color:e0e3e6}
+
+</style>
+</head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=668899 vlink=668899 alink=668899>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=1020>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>Additional Notes for Timing
+</center></td></tr>
+
+
+<tr><td bgcolor=000000><br>
+
+Once you learn the basics of timing, there are several more things you should learn, or at least take note of.<br><br><br>
+
+First thing you will definitely need is <b>shifting</b>, mostly for OP/ED.<br><br>
+Regarding OP/ED, you copy them from a previous episode. Each episode has the OP/ED at different timecodes, usually.<br>
+So you need to shift them in the right place. There are two methods. The second one, described further below, is much better.<br>
+This is the basic one, probably more suitable for shifting the whole script:<br><br>
+
+You'll go to "Timing > Shift Times..." in the menu or use this icon:<br>
+&nbsp; v
+
+
+<br>
+<img src="px/timing-shifting.png"><br><br>
+Set how much time you want to shift it by, whether backward or forward, and for OP/ED it will be only the selected rows.<br>
+So obviously first you select the OP lines, shift, then same with ED.<br>
+How to know how much you need to shift?<br>
+Find where the first line should start and compare with the timecode of the line from previous ep.<br>
+Then shift roughly by that time, to get close enough. Then select first line, and go frame by frame to where exactly you want it to start.<br>
+
+<br><br>
+<img src="ts/fadetime.png"><br><br>
+Check the first value highlighted here. That's how much you need to shift & in what direction^<br>
+So you'll be shifting by 0:00:00.90 forward. <b>Check a few lines to make sure it worked right.</b> [This is important!]<br>
+If the song is only timed to audio, this should be easy enough. Some may be <b>frame-timed</b> though, ie. at least some lines are <b>timed to specific frames,</b><br>
+either scene changes or to some text appearing on screen. Here you have to shift <b>precisely to the right frame.</b><br>
+So if you check a few lines and see you're off, go frame by frame to see how many frames you're off.<br>
+One frame would be 0:00:00.04 or you can use the Frames mode.<br><br>
+
+<b>Always check your work after you're done.</b><br><br>
+
+If you have a CR script and need to shift it to your raw, it's similar, but you shift all lines. [I strongly recommend to time from scratch, though. CR = horrible.]<br>
+There may be that 10-second screen after OP that CR has and your raw doesn't, so before OP you may be just a few frames off, but after OP 10 seconds.<br>
+So select each part and shift accordingly.<br>
+If you do this with the whole script, some lines may end up 1 frame off while others will be ok.<br>
+I recommend running the TPP with these settings on Default style:
+<br><br>
+<img src="px/tpp-kf.png"><br><br>
+This will snap to keyframes anything that's 1 or 2 frames off. (This is from old aegisub. Use 80ms instead.)<br>
+As for signs, you should check them all and fix manually as needed. <br><br>
+
+Two notes:<br>
+- Often CR scripts have such bad timing that it's better to zero the times and time it from scratch. Like I said, I recommend to always do that.<br>
+- Every time you shift any large chunk of script, you need to <b>fine time it</b>.<br><br>
+<br><br>
+
+
+<b>Shifting - Method 2:</b><br><br>
+
+This method should be used whenever possible. Usually it's easier anyway.<br>
+Select the whole OP [or ED, or whatever you're shifting], find the frame where you think the active line should start on this raw...<br>
+and click this icon:
+<br><br>
+<img src="px/timing-shifting2.png"><br><br>
+That will shift the whole OP, making the active line start at your current frame.<br>
+If again you find you're a frame or two off, select the whole OP, go that frame or two forward or back, and click that icon again.<br>
+<br>
+
+If the OP/ED is frame-timed, you should <b>recheck all lines,</b> because even if the whole thing is shifted correctly, a random line may end up 1 frame off<br>
+due to video interlacing [or something like that]. So you need to fix any such lines manually [sucks].<br><br>
+
+<br><br>
+
+
+
+
+
+<b>Line Linking</b><br><br>
+
+If you need to link two lines, you can either do it on the audio track, or you can select the lines, right click, and choose "Make times continuous."<br>
+
+<br><br>
+<img src="px/timing-linking.png"><br><br>
+There are 2 options: 1 of them moves the end time of the first line to the start time of the second, the other does the opposite.<br>
+This works even when selecting more than 2 lines.<br>
+It also works not only when the lines aren't linked, but also when they're overlapping [thus getting rid of the overlap].<br><br>
+
+<br><br>
+
+
+
+
+
+
+<b>Line Splitting / Joining</b><br><br>
+
+If you get a crappy script, which may be fairly often, you may have to split/join some [or even many] lines.<br>
+This will be fairly common with CR scripts, or scripts from some translators who focus on translating and pay little attention to line lengths.<br>
+<br>
+
+Some lines are too long and should be split in 2, other times there are 2 lines where there should only be one, for no apparent reason.<br>
+Take a look at this example:
+
+
+<br><br>
+<img src="px/timing-splitting.png"><br><br>
+You can see on the audio track that there's a pause in the audio, about 600ms. You can also see a comma separating 2 clauses in the sentence.<br>
+So that's a good example where you can split the line. You right click at the mark after the comma and select Split like you see.<br>
+It will estimate the splitting point based on the length of the sentences, so in 99% cases you'll have to correct that.<br><br>
+
+<br>
+
+
+When to split lines?<br><br>
+
+1. Whenever you get a 3-liner. No 3-liners allowed, ever.<br>
+2. When there are 2 full sentences in the line. [Unless they're both short and no significant pause between them.]<br>
+3. When it's a long sentence with a clear pause in the middle and a suitable place to split in the English line [example in picture ^].<br>
+4. When the audio is really long, with pauses, even if the TL is relatively short. There shouldn't be any pauses over 1 second in a line.<br><br>
+
+<br>
+
+
+Where to split lines?<br><br>
+
+You should split where it makes sense. If there's a period, it's clear. Same with a comma. Or ellipsis, dash, etc.<br>
+If not, then any place where you might pause in the English sentence.<br>
+If you split a line in two, either of those two shouldn't look too retarded on its own.<br>
+When you split, don't add ellipses everywhere! If there's no comma or anything, you <i>may</i> add an ellipsis at the end of the first, but leave the 2nd line as is.<br>
+Personally I wouldn't add them anywhere. Ellipsis is the kind of thing crappy editors put everywhere because they don't know any better.<br><br>
+<br>
+
+
+Sometimes you want to do the opposite and join two lines.<br><br>
+
+When to join lines?<br><br>
+
+This is not as common as splitting but there are some cases.<br><br>
+
+1. When there's no pause in audio and both lines are short enough to be joined comfortably. Sometimes CR splits lines for no good reason.<br>
+It is awkward when lines change with no pause in audio, so try to avoid that.<br>
+2. When one or both the lines don't get enough screen time for reading. If you join them, it will be easier to read the whole thing.<br>
+Of course this has to work without ending up with a 3-liner.<br><br>
+
+How to join:
+
+<br><br>
+<img src="px/timing-joining.png"><br><br>
+
+Select the 2 lines, right click, "Join (concatenate)".<br>
+This here is an example for illustration - not to say these lines should be joined. They could be, but they're ok as they are. Matter of preference.
+<br><br><br>
+
+You may also take note of the other options in this menu and try them out. "Create audio clip" saves a wav sample of audio for selected lines.<br>
+<br><br>
+<br><br>
+
+
+
+
+
+
+
+<b>Overlapping Lines</b><br><br>
+
+Something you'll be dealing with every now and then is overlapping dialogue. What to do when 2 people are speaking at the same time?<br>
+If at all possible, avoid overlaps. If one person gets cut off by another and the overlap is short, make the lines switch exactly when the 2nd one starts.<br>
+Whenever you can time the lines so that they're all readable without overlapping, do it that way.<br><br>
+
+When there are two separate conversations going on at the same time, or there's TV or train announcements in the background,<br>
+use {\an8} for the less important one. If this is the case, I recommend rearranging the lines not by time, but one conversation first and then the other.<br>
+Otherwise TPP will mess it up - line linking won't work because 2 consecutive lines will be from 2 different dialogues.<br>
+You can use Swap from the right-click menu to swap 2 lines, or just copy one or more lines, paste them in the place you need, and delete the originals.<br><br>
+
+When two people talk at the same time and it's not two different conversations, like when they're talking to each other without really listening,<br>
+you'll have overlaps. Just as this kind of a thing is difficult for you to time, it is also difficult for the viewer to read, especially if badly timed,<br>
+so you need to time this to make it as readable as possible, which means you'll have to bend some rules.<br>
+For one, the lines should probably last a bit longer than usual. They shouldn't start/end a few frames after one another, as that looks bad.<br>
+It is up to you to figure out how to do it so that it's clear which line belongs to which character.<br>
+You should also try to not have a line hanging in the overlapping position while there's no line in the regular position under it. At least not for long.<br><br>
+
+If you have some typesetting skills, there are various ways to make this easier for the viewer.<br>
+You can temporarily change the outline color for one speaker - but only slightly, no fireworks. Just make it a bit brighter or something.<br><br>
+
+En elegant way to deal with this is to always have a new line show up in the default, bottom position, and move the previous, still visible line above it.<br>
+Yoy would use \move for the first line, with start time a bit before the 2nd line appears, and end time when the 2nd appears.<br>
+Make sure the tag has precise coordinates, X is always the same [normally 640], and Y moves from default position to where a 2nd line would normally be.<br>
+For example you have a line from 01:20.10 to 01:23.50, and another from 01:22:10 to 01:25.60. They overlap from 1:22.10 to 1:23.50, ie. 1.4 seconds.<br>
+The first one would then have something like \move(640,685,640,637,1500,2000). The 2nd line starts 2 seconds after the first,<br>
+so by that time the first one has to be out of the way, therefore the 2000. You need about 500ms to make the movement not too slow and not too fast.<br>
+This way you always know which line is which because they will always appear at the bottom, timed to audio.<br>
+The movement also tells viewers that a new line is coming & the old one will stay for a bit more, so they know roughly how much time they have for reading.<br>
+You can have regular lead-ins and let the lines that move up have more lead-out.<br>
+If you use TPP, then this whole thing should be done after that because hell knows what TPP would do to this.<br><br>
+
+If both overlapping lines are very short, like 1 character screaming "Idiot!" and the other "Moron!", you can use margins to have each on one side.<br>
+Change left margin to ~500 for one and right margin for the other, and you'll have each line under the character saying it.<br><br>
+
+Or if you're creative, you can do all kinds of other things. [See horizon 09, Aoi Toori & "Diving"]
+
+<br><br>
+<br><br>
+
+
+
+
+
+
+
+<b>Timing Signs</b><br><br>
+If you only do timing and not typesetting, you should at least know how to time signs correctly.<br>
+They need to be frame-timed precisely. From the typesetting guide:<br><br>
+
+<p style="margin : 15pt">
+...you rough-time the sign first, whether on the audio or by inputing the timecode you got from the translator/typist/editor.<br>
+Then you go frame by frame with arrow keys till you find the first frame where the sign appears [the relevant line must be selected in the script].<br>
+Then you click the first of the blue icons here:
+
+
+<br><br>
+<img src="ts/frametiming.png"><br><br>
+That sets the start time. Use arrow keys to check if you did it right. Then navigate to the last frame the sign is visible on, and click the second one.<br>
+Again try if it's right. The first one sets the time at the start of the visible frame, the second one at the end, so if you use both at the <i>same</i> frame,<br>
+the sign will be visible on that frame, in other words the duration of the sign will <b>not</b> be zero.<br>
+...<br><br>
+
+Many signs start/end at a keyframe so you can use the audio track for those, for others you'll need this method.</p><br>
+
+
+If a sign is fading in/out, you time it from the start of fade-in to the end of fade-out.<br>
+When you're only timing and not typesetting, comment the signs after timing them. [If you don't know how to comment, check the <a href="aegisub.htm">Aegisub</a> page]<br><br><br><br>
+
+
+
+
+
+
+
+<b>Pasting Over</b><br><br>
+
+Pasting over means you paste several lines of text onto a timed script in Aegisub, replacing the text, but keeping the timing.<br>
+This is usually needed when you're timing an unedited script and the editor is editing on the pad at the same time.<br>
+When both are done, you have timed and unedited script in Aegi, and edited untimed script on the pad. You need to paste the edit over the timed one.<br>
+<br>
+To do this you either go to "Edit > Paste Lines Over..." in the top menu or use Ctrl+Shift+V. You only need to select the first of the lines you're pasting over.<br>
+Aegisub will give you a menu where you can choose what you want to paste. Usually you'll just need Text.<br>
+If there were no changes made to the line count - splitting or joining, this will be easy. Usually there is some of that, though.<br>
+In that case, you'll have to do it piece by piece, like 20 lines at a time, and always check if you still have the same line at the end.<br>
+You can use Ctrl+Z / Ctrl+Y to see clearly what has changed.<br><br>
+
+If needed, you can paste over some of the other things in the menu, like Start Time / End Time. Should be self-explanatory.
+<br><br><br><br>
+
+
+
+
+
+<b>Workraw / Keyframe file</b><br><br>
+
+Something that will be quite useful to you as a timer is to encode a workraw or create keyframes.<br>
+If you only have a premux, there may be many scene changes without keyframes on your audio track in aegisub, which makes fine timing more difficult.<br>
+Workraw is encoded with different settings, among other things to have more keyframes.<br><br>
+
+Here's how you encode <a href="scxvid.htm">scxvid keyframes</a>.<br><br>
+
+After some experimentation I'd say x264 works almost just as well as xvid with good settings [but xvid should be a bit better].<br><br>
+
+If you wanna use x264, use this:<br><font color=666666>
+
+x264 --video-filter resize:848,480 --crf 28 --ref 1 --bframes 1 --me hex --subme 1 --scenecut 98 --min-keyint 1 --keyint infinite -o %1_wr.mkv %1
+</font><br><br>
+
+Create a batch file, for example wr.bat, and put this line ^ in it. Put this in your working folder for timing, along with x264.exe [8-bit].<br>
+Then open cmd.exe from the folder and type "wr another01_premux.mkv" where another01_premux.mkv is your premux, obviously.<br><br>
+
+
+If your PC is really slow and this takes more than 10 minutes to encode, use this:<br><font color=666666>
+x264 --video-filter resize:640,360,method=bilinear --qp 30 --preset ultrafast --scenecut 98 --min-keyint 1 --keyint infinite -o %1_wr.mkv %1</font><br><br>
+
+If that doesn't use 100% of your CPU, you can make it faster by encoding in 2 threads. <a href="wr-2threads.htm">Read more here.</a>
+
+<br><br>
+
+
+
+
+
+
+<br><br>
+
+<b>Thresholds</b><br><br>
+
+Some quick answers / brief summary.<br>
+This is not what you should just put in TPP and think you're OK. This is what the <b>results</b> should be.<br><br><br>
+
+Keyframe means an actual scene change, whether there's a purple line on the audio track or not.<br><br><br>
+
+
+
+
+<b><font color=446677>Lead in: <font color=557788>80-120</font>ms.</b><br><br>
+
+<b>Lead out: <font color=557788>250-350</font>ms.</b></font> Can be made longer when needed.<br><br>
+<br>
+
+
+<b><font color=446677>Line linking: <font color=557788>450-500</font>ms</b></font> [ie if the gap is under that, link; if there's a keyframe in between, the following 2 apply]<br><br>
+
+<b><font color=446677>From End Time to keyframe: <font color=557788>400-500</font>ms</b></font> [ie if the gap is smaller, snap to keyframe]<br><br>
+
+<b><font color=446677>From keyframe to Start Time: <font color=557788>300-350</font>ms</b></font> [ie if the gap is smaller, snap to kf; if larger, leave at least 300ms gap before lead-in]<br><br>
+
+<b><font color=800000>You should never have a gap under 300ms between any 2 lines!</b></font><br><br><br>
+
+
+
+<b><font color=446677>Line ends just after keyframe: <font color=557788>500</font>ms.</b></font> Snap these as much as possible. If it's just one syllable over the keyframe, snap.<br>
+If it's a short word, try if you can read the line when snapped. If you <i>can</i> read it, snap. Snapped always looks better.<br><br>
+
+<b><font color=800000>You shouldn't have lines ending within 500ms after a keyframe!</b></font><br><br><br>
+
+
+
+
+<br><br><br><br>
+
+
+
+
+
+
+

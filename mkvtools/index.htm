@@ -1,0 +1,154 @@
+<html><head><title>How to use MKV Tools</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+A:hover {color:e0e3e6}
+
+</style>
+</head>
+<body bgcolor=000000 text=808386 topmargin=0 link=668899 vlink=668899 alink=668899>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=800>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>How to use MKV Tools
+</center></td></tr>
+
+
+<tr><td bgcolor=000000>
+<br>
+This is a simple guide for using MKV tools, as should be apparent from the title.<br><br>
+
+Download MKVtoolnix version 4.1.1, for example
+<a href="http://www.videohelp.com/tools/MKVtoolnix/old-versions#download">here</a>. Yes, 4.1.1, because newer ones have issues and no benefits.<br>
+You will see that I'm using 4.4.0, but unlike you, I know what I'm doing.<br>
+I know you don't know what you're doing 'cause you're reading a guide that explains how to do what you wanna do.
+<br><br>
+
+Install/unpack. The 2 files that you'll use are MKVextractGUI.exe and mmg.exe.<br><br>
+
+MKVextract is for getting things out of MKVs. Open it, load an mkv file and you'll see this:
+
+<br><br>
+<img src="mkvextract.png"><br><br>
+
+As you may guess (unless you're really dumb), you check boxes, click 'Extract,' and it extracts the streams you checked.<br>
+Here you can see the subtitle stream checked (in case you couldn't tell).<br><br>
+
+That's all nice and stuff, but fuck that. MKVextract only lets you open one file at a time, so if you want to extract subs from 26 files, it'll bug the hell out of you. So instead you'll just use a search engine to locate this thing called mkvcleaver and download that.<br><br>
+
+Several minutes (hopefully seconds, but w/e) later...
+
+<br><br>
+<img src="cleaver.png"><br><br>
+
+Under each file you have pretty much the same menu as in mkvextract. On the right is a menu for all the files you have loaded. Right now, this will extract audio and subtitles from all 6 files.<br>
+If you want for example subtitles from all files and from one of them audio too, check subtitles on the right, and under the file you want audio from, check both audio and subtitles. That's all. Now you know how it works.<br><br>
+
+<br><br>
+
+Let's move to mkvmerge - mmg.exe.<br><br>
+
+This is where you put MKVs together and where you can do other stuff too.<br>
+Putting stuff together is easy - you just add all the streams you need and mux.
+
+<br><br>
+<img src="mmg01.png"><br><br>
+
+Here I loaded a raw video. It has a video stream, audio stream, and chapters.<br>
+Audio stream is selected, so in the lower half it shows you some properties of the audio, like language.<br>
+Down under 'Output filename' you can choose where to save it. 'Start muxing' will... you can guess.
+<br><br>
+
+<br><br>
+<img src="mmg02.png"><br><br>
+
+Now I used the 'add' button to add two subtitle streams, as in .ass files.<br>
+I unchecked the chapters because RHExcelion's chapters are useless because he's too lazy to do them right.<br>
+Second subtitle stream is selected, language set to eng.<br>
+You don't have to fill this shit out, but menus in players display this, so it can be useful.<br>
+If you wonder why there's a second subtitle track called 'No fun allowed,' it is incidentally also RHExcelion's fault.<br>
+The first of several streams of the same kind will be set as default. If you want the second one default, change it.
+<br><br>
+
+
+<br><br>
+<img src="mmg03.png"><br><br>
+
+Now you need to add fonts. OK, maybe you don't, but I'm gonna tell you how to do it anyway because this is a guide.<br>
+Go to the second tab - Attachments - like you see in the picture.<br>
+The upper half shows files that are already in the mkv. In this cases none, because the raw doesn't have any.<br>
+The bottom half is where you add your fonts.
+<br><br>
+
+<br><br>
+<img src="mmg04.png"><br><br>
+
+Go to the third tab - Global. That's where you add the real chapters, specifically where shown here.
+<br><br>
+
+<br><br>
+<img src="mmg05.png"><br><br>
+
+That's about all most of you will ever need, but if by any chance you ever become useful, you may wanna learn more.<br>
+Under the Global tab there's also 'Splitting.' This allows you to... surprise... split mkvs.<br>
+If you're wondering how they're split, it means splitting by time, like say, if some idiot leaves commercials in the encode,<br>
+you'll probably wanna cut that part out, if possible. Unfortunatelly it's not always possible.<br>
+The limitation is keyframes. The video can only be split at those.<br>
+Anyway, you're gonna find where the part that needs to be cut out starts and ends, like the 1:30 and 2:00 in the picture.<br>
+This will seek to 1:30, look for the first keyframe after that, split there, and same with 2:00.<br>
+The end result will be three mkvs, the middle one being the part between 1:30 and 2:00.<br>
+Make sure to get the timecodes right, ie in the format shown in the picture, as it's not gonna work otherwise.<br>
+If it gets split further than you wanted, there was no keyframe between your timecode and that place.<br>
+You'll have to set the timecode lower to get to the previous keyframe, but the split probably won't be where you need.<br>
+As you can see, you can also split by filesize, so you can chop the file into 50MB segments or something.<br>
+Now you may be wondering, since you cut out that commercial, how to put the 1st and 3rd part back together.<br>
+You'll go back to the first tab, add the first part, and use the 'append' button [ie not the 'add' one] to add the third part.<br>
+Then you mux, and if you're lucky, you get rid of that commercial and nothing breaks in the process.
+<br><br>
+
+<br><br>
+<img src="mmg06.png"><br><br>
+
+While we're back in the first tab, let's check some of the options we have here.<br>
+This image shows the video options. You can tell it is so from the video being selected.<br>
+The useful things here are the framerate and aspect ratio. FPS sets framerate at which the video should play.<br>
+It will not change the video if you set a different framerate. It will just play at a different speed.<br>
+Only touch this if you really know what you're doing, otherwise you'll just end up screwing something up.<br>
+Aspect ratio and width/height are just different ways of defining the same thing.<br>
+Width/height just defines the aspect ratio, not the actual size of the video. 128x72 will do the same as 1280x720.
+<br><br>
+
+<br><br>
+<img src="mmg07.png"><br><br>
+
+As for the audio options, if audio/video is out of sync, you can set delay on the audio here.<br>
+I believe you can set negative delay to shift it backwards, but I'm too lazy to try it right now,<br>
+and since you have nothing better to do, you might as well try it yourself.
+
+<br><br><br><br>
+
+If you somehow wanted to learn how to make chapters, you can go... <a href="http://commiesubs.com/this-is-a-guide/">here</a>.
+
+
+
+<br><br><br><br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br><br><br><br><br>

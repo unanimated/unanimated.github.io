@@ -1,0 +1,141 @@
+<html><head><title>Typesetting: Moving & Animated Signs</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold; text-decoration:none}
+A:hover {color:e0e3e6}
+
+</style>
+</head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=557788 vlink=557788 alink=557788>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=1000>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>Typesetting: Moving & Animated Signs
+</center></td></tr>
+
+<tr><td bgcolor=000000><br>
+
+There are several kinds of moving signs.<br>
+Ones that are moving in a constant linear fashion, ones that are accelerating/decelerating, and ones that do various other things - rotate, shake, etc.<br><br>
+
+Linear movement is simple. You use \move(x1,y1, x2, y2).<br>
+Let's say you want that fish on the bottom right follow the kanji moving to the left.
+
+<br><br>
+<img src="move1.jpg"><br><br>
+First you use the Drag tool and position the fish in the first frame. Then you click the blue arrow that the other blue arrow is pointing at.<br>
+That switches from \pos to \move. Then you click on the right green arrow the other green arrow is pointing at. That gets you to the last frame of this fish.<br>
+That is assuming you've timed your fish correctly. If you haven't, then you're dumb, because what are you gonna do with a timeless fish? Anyway...<br>
+When on the last frame, you grab the circle that appeared over the square (on the fish's belly) and drag the fish to where it's supposed to have swum.<br>
+
+
+<br><br>
+<img src="move2.jpg"><br><br>
+Like there^. You'll get a tag like this: {\move(1195,650,1009,652,0,799)}<°)))><<br>
+Now when you see the vertical coordinates are 650 and 652, you did it wrong.<br>
+The fish is supposed to be swimming just horizontally, not up and down, so the coordinates have to be the same. So you'll correct whichever one is wrong.<br><br>
+
+The last 2 numbers are the start frame and end frame timecodes. They are useful if the movement occurs only over a part of the sign's duration.<br>
+For example if the fish changes its mind in the middle and stops swimming, the timecodes will be "0,400".<br>
+If you're using the whole duration, then I suggest you remove those last 2 numbers once you've done the positioning,<br>
+since they tend to make the fish 'slow down' at the last frame. It may throw the positioning off a bit, so you'll correct it by typing,<br>
+because if you use the tool again, it will add those numbers again, and you'd be chasing your tail like... a fish? (or whatever animal does that, I dunno)<br>
+[As far as I can tell those last 2 numbers don't seem to cause any such issues in Aegisub 3.0. I got used to leaving them in and everything works fine.]<br>
+If the movement doesn't cover the whole duration of the sign, then whatever frame you click the square on sets the start time, <br>
+and whatever frame you click the circle on sets the end time. Again you can adjust that by typing if needed.<br><br>
+
+
+Speaking of Aegisub 3.0, here's a trick for making the movement precise [doesn't work in 2.1.9]:<br>
+First place the sign next to something that makes it easy to define the position precisely. For example make the fish's nose touch a corner of a letter.<br>
+Or you could overlay the fish's eye with the circle/period at the end of the moving text. Then go to the last frame and do the same there.<br>
+The point is to choose a reference point where you can easily tell it's positioned precisely the same on the last frame as on the first.<br>
+Then go back to first frame, switch to standard mode [above the drag tool on the left], and double click somewhere on the screen.<br>
+This will place the starting point of the fish there, while keeping the movement the same [keeping the distance and direction].<br>
+Then just click a few times until you get it positioned exactly where you need it.<br><br><br>
+
+
+
+Make sure to check the video once you're finished so that you don't end up like dickpants with the sign starting god knows where<br>
+and moving in the opposite direction than it was supposed to...<br>
+
+<br><br>
+<img src="movejdp.jpg"><br><br>
+If you haven't done anything incredibly dumb like this, you'll still check if the fish is swimming at the right speed.<br>
+If it seems like it's getting closer to the kanji, then you change the ending X coordinate to higher value [ie. more to the right]. If fast then other way round.<br>
+<br>
+
+OK, so... that was the easy part.<br>
+The trouble comes when the movement is not constant and linear. If that happens, you have several options.<br><br>
+
+1. Quit fansubbing.<br>
+2. \an8<br>
+3. Ignore the inconsistencies and use linear movement even if it doesn't match.<br>
+4. Use \move but split it into several phases to decrease the inconsistencies to minimum.<br>
+5. Do it right, ie. frame by frame, either using a tracking software or by hand.<br><br>
+
+ad 1. Good Bye<br><br>
+
+ad 2. Nope. See point 1.<br><br>
+
+ad 3. This may be ok when the actual movement is not too far from a linear one and there won't be significant inconsistencies.<br>
+For example if the movement is generally linear but a bit twitchy. Otherwise this option would be pretty dumb.<br><br>
+
+ad 4. This is kind of the middle way. The more phases you split it into, the better it'll look, so it's just up to you and how much time you wanna spend on it.<br>
+This will mostly be useful for movement that is pretty much linear in direction, but accelerates/decelerates.<br>
+What you do is duplicate the line a few times, and time all the lines to make a sequence. So if it's 5 seconds, you can split into 5 lines,<br>
+and time them (in seconds) 00-01, 01-02, etc. In reality you will need like 2-3 segments per second to make it look somewhat decent.<br>
+Then you just use linear movement for each line, the next line always starting where the previous ended (or a little bit farther).<br><br>
+
+You'll get something like this:
+<pre>
+Dialogue: 0,0:17:15.94,0:17:16.44,Default,,0000,0000,0000,,{\move(238,315,373,315)}text
+Dialogue: 0,0:17:16.44,0:17:17.05,Default,,0000,0000,0000,,{\move(377,315,465,315)}text
+Dialogue: 0,0:17:17.05,0:17:17.61,Default,,0000,0000,0000,,{\move(467,315,508,315)}text
+Dialogue: 0,0:17:17.61,0:17:18.16,Default,,0000,0000,0000,,{\move(511,315,542,315)}text
+Dialogue: 0,0:17:18.16,0:17:18.68,Default,,0000,0000,0000,,{\move(544,315,552,315)}text
+</pre>
+
+[Note: It's 2013. We don't do this shit anymore. Use mocha.]<br><br>
+
+ad 5a - using tracking software. We use this thing called Mocha, and we now have a guide for using it <b><a href="ts-mocha.htm">here.</a></b><br>
+At this point this is pretty much a must.<br><br>
+
+ad 5b - by hand. This should rarely be needed, but there are times when mocha fails.<br>
+Instead of splitting into just several segments and using \move, you'll split it into as many segments as there are frames for the sign,<br>
+and you'll be changing the \pos coordinates for each frame. As the japanese save on animation, often 2-3 consecutive frames are the same,<br>
+so sometimes you can have 2-3 frames per line instead of 1. If it's 2-3, then you'll need regular frame timing, if it's each frame,<br>
+you can time the 1st line to 1 frame, right click on the line and select "Duplicate and shift by 1 frame" [or Ctrl+D].<br>
+This way you'll be getting consecutive frames, each timed to 1 frame, which is exactly what you need.<br>
+[If each 2-3 frames are the same, you can still do ctrl+D and then "Join (keep first)" the lines that are the same.]<br>
+After that you go through all the frames and adjust position with the Drag tool.<br><br>
+
+The interesting thing is that while this method produces the best results, it's not even difficult. Pretty much all you need to be able to do<br>
+is time the lines and set \pos, which is really the very basics. The problem is that it's quite time consuming and somewhat tedious.<br><br>
+<br>
+
+
+
+One more thing to cover is signs that rotate, expand etc. You could still do this frame by frame, but usually there's a better option.<br>
+You can use the \t tag, which allows you to apply gradual change for specific tags. How it works is described <a target="_blank"href="http://docs.aegisub.org/manual/ASS_Tags"><b>here.</b></a><br>
+If you need the sign to spin 360 degrees, you'll use \t(\frz360). If you need it to spin twice, it's \t(\frz720).<br>
+To spin and stop after 1 second it's \t(0,1000,\frz360). To do the same but start spinning slowly and accelerate it's \t(0,1000,3,\frz360).<br>
+So you have \t(start time, end time, acceleration,\tag1\tag2\tag3...) as explained in the link.<br>
+If you need it to rotate around a different point, you'll use \org for that (described in <a href="ts-alignment.htm"><b>Aligning Signs</a></b>).<br>
+You can combine this with \move, so it can be moving and spinning.<br><br>
+
+Other tags you can use with \t are \fscx \fscy \fsp \fs \blur and a few others, including colors. It doesn't work with everything, like \pos \org etc.<br>
+Experiment with this to find out what works well and what doesn't. You can use several tags at once.<br>
+You can achieve all kinds of things with the \t tag. The main downside is that if you use too much of it, playback will lag. And it can lag A LOT.<br><br>
+
+A few more related things wil be explained further.
+
+
+<br><br><br><br>
+
+<center><a href="index.htm"><b>« Back to Typesetting Main
+<br><br><br>

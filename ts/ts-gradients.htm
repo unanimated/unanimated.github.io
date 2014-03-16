@@ -1,0 +1,182 @@
+<html><head><title>Typesetting: Creating Gradients</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold; text-decoration:none}
+A:hover {color:e0e3e6}
+
+</style>
+</head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=557788 vlink=557788 alink=557788>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=1010>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>Typesetting: Creating Gradients
+</center></td></tr>
+
+<tr><td bgcolor=000000><br>
+Creating gradients is simple in principle, but since the <a href="gradientfactory-for-3.0.lua">Gradient Factory</a> script is a bit lame, you can run into some problems.<br>
+First of all, what's even a gradient?
+
+
+
+<br><br>
+<img src="maria-grad1.jpg"><br><br>
+
+Here you can see the color goes from light blue at the top to dark blue at the bottom.<br>
+The way to replicate this in typesetting is to chop the sign into a large number of clipped lines,<br>
+each with a different shade of the color, like this:
+
+<br><br>
+<img src="maria-grad6.jpg"><br><br>
+
+Here I have one line selected, containing this {\bord0\blur0.6\clip(120,173,411,174)\pos(266,209)\1c&HCE8189&}FLUSTERED<br>
+You can see that vertically the clip goes from 173 to 174, ie the strip is only one pixel wide.<br>
+You can do 2- or 3-pixel-wide ones, but of course the more pixels per line, the worse it looks.<br>
+On the other hand, the less pixels per line, the more lines, and the more lag.<br><br>
+
+What Gradient Factory does is create all these lines and give each one a different color.<br>
+With 1 pixel per line this can look great, but may lag, especially with fades and stuff.<br>
+In this example you would choose the top color, the bottom color, and the width of the clips.<br>
+The script does the rest... or that's the idea anyway. It has its own problems though.<br>
+Now how to start:
+
+<br><br>
+<img src="maria-grad2.jpg"><br><br>
+
+Create your basic typeset and set the sizes and colors in the style rather than with tags.<br>
+Grad Factory nukes all tags from the line except \pos, and creates the clips and colors,<br>
+which means all your scaling, borders, and other things will be nuked.<br>
+You can re-add them later, but for several reasons it's best to have as much set in the style as you can.<br>
+I commonly create a special style just for the gradient I'm making.<br>
+One reason for that is that the area of the gradient is calculated from the font size in the style.<br>
+If the style has \fs20 and your typeset has a tag with \fs50, the gradient will create lines for \fs20 and you're fucked.<br>
+So I recommend setting the style as close to the required result as you can.<br>
+In the image above, I picked a font and set the colors, borders, layers and blur.<br>
+The blue color can be anything, as it will be overwritten by the gradient anyway.
+
+<br><br>
+<img src="maria-grad4.png"><br><br>
+
+When you have that, run the GradFactory script on the blue layer.<br>
+Settings are as you see: apply to this one line, vertical gradient, 1 pixel strip, and you only need 2 colors here.<br>
+If you need more than 3 colors, you use that +colors button. The rest should be self-explanatory.<br>
+Aside from the font size from the style and nuking the tags, there's another "problem."<br>
+The gradient isn't calculated for the visible part of the font, but for the whole "box."<br>
+That means the gradient usually starts a few pixels above the letters and ends a few pixels below,<br>
+so the start/end colors you selected will be outside the visible range.<br>
+To compensate for that, you could select a bit lighter color for the top and a bit darker for the bottom.<br>
+It may take a few tries and personally I find it the most annoying thing about this script.<br>
+However, this can be bypassed, and the colors can be tuned with the <a href="fbf-transform.lua">transform</a> script.
+
+
+<br><br>
+<img src="maria-grad3.jpg"><br><br>
+
+Like I said, the GradFactory will nuke other tags than \pos, \clip and colors, so you'll have to re-add things like blur,<br>
+but when you do, the final typeset will look something like this^.<br><br>
+
+You may also need fades or whatever, but you get the idea.<br>
+This is what the gradient will look like in your .ass file:
+
+<br><br>
+<img src="maria-grad5.png"><br><br>
+
+Each line is a clip with a different color.<br><br>
+
+
+As I mentioned before, you can use the transform script to tune the colors.<br>
+Find the top and bottom VISIBLE lines.<br>
+You'll find that several of the first and last lines actually aren't visible on screen,<br>
+because, like I said, the gradient is created for the whole "box" of the font.<br>
+You can delete the extra lines.<br><br>
+
+Then you can set exact colors on the first and last line and run the transform script between them.<br>
+The transform script even allows you to have different color gradients for different letters etc.<br>
+Refer to the info inside the script for how it works.<br><br>
+
+
+Another problem is gradients for typesets with \frz.<br>
+The gradient will only be vertical or horizontal, but you may want to rotate the actual text.<br>
+Since the Factory uses only the style for calculations, the clips wouldn't extend across the whole rotated text.<br>
+The way to bypass it is to change font size in the style to larger, run the gradient, change size back, and rotate the text.<br>
+<br><br>
+
+
+Since larget typesets can mean that you'll have over 100 lines for the gradient, there's a danger of lag.<br>
+If the typeset is static and has no fade, you can get away with 1-pixel strips. It looks awesome.
+
+<br><br>
+<img src="maria-grad7.jpg"><br><br>
+
+Fades are a killer so I'd suggest at least 2-pixel strips. [Also the big "!?" was part of the video and is not a rotated typeset gradient.]<br><br>
+
+Here's one of those \frz ones:
+
+<br><br>
+<img src="jojo-grad2.jpg"><br><br>
+
+You can also do one with multiple colors:
+
+<br><br>
+<img src="maria-grad8.jpg"><br><br>
+
+
+Yeah, this is a bit laggy but... looks pretty good.<br><br>
+
+
+<br><br><br><br>
+Now that I wrote all this... lyger has made creating gradients much easier, so just <a href="https://github.com/lyger/Aegisub_automation_scripts">go here</a> to get the gradient scripts.<br><br>
+<br>
+
+
+Let's just quickly explain how to use "Gradient everything" on this example:
+
+
+<br><br>
+<img src="gradisland.jpg"><br><br>
+1. Create a regular 2-layer sign with blur and set the primary color to the green at the top.<br>
+2. Duplicate the top, green layer.<br>
+3. Change the second of the two lines to the blue color at the bottom.<br>
+4. Draw a clip around the text on either the green or the blue layer.<br>
+5. Select both lines and run the script with these settings: 
+<br><br>
+<img src="gradeve.png"><br><br>
+As you can see, with this script you can use gradient with a lot of things.<br><br>
+
+Simple gradients are really easy to make:
+<br><br>
+<img src="simplegrad.jpg"><br><br>
+
+<br><br>
+<img src="muromi01.jpg" width=960><br><br>
+
+An example with gradients on multiple layers.<br>
+
+
+<br><br>
+<img src="hellfire.jpg"><br><br>
+Aside from the obvious - colors - there's more going on here.<br>
+There's an extra, white layer, which transforms from alpha 00 to FF both up and down.<br>
+Since the white is only at the top half, the yellow border needs to be larger there than the red border at the bottom.<br>
+You can see the border difference on the jp sign too. So there's also a gradient for border on my sign.<br>
+By the way, you don't have to do all this with the gradient script. Do the basics and use "frame-by-frame transform" to tune the rest.
+
+
+
+
+<br><br><br><br>
+
+<center><a href="index.htm"><b>« Back to Typesetting Main
+
+
+<br><br><br>
+
+
+
+
+

@@ -1,0 +1,210 @@
+<html><head><title>Tasks</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+A:hover {color:e0e3e6}
+
+</style>
+</head>
+
+<body bgcolor=000000 text=805555 topmargin=0 link=800000 vlink=800000 alink=800000>
+
+
+
+<center><br>
+<table align=center bgcolor=500000 cellpadding=15 cellspacing=2 width=650>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=60000><b>Tasks for Timers and Typesetters
+</center></td></tr>
+
+
+<tr><td bgcolor=000000><br>
+
+
+
+<font size=4 color=60000>
+<b>Timers</b></font>
+
+<br><br><br>
+
+Things you should always do when timing an episode.<br>
+Make sure you know how to do all of this.<br>
+<br><br>
+
+
+<font color=70000><b>
+• Import styles
+</b></font><br><br>
+You should always import AT LEAST the <b>default</b> style from the previous episode, otherwise you can't check for 3-liners. Usually you should import styles for  OP/ED and titles as well.<br>
+If the show has a lot of other styles, leave it to the typesetter to decide which ones will be used for any particular episode.<br>
+In simple terms you should import styles that will <i>certainly</i> be used, and not import ones you're not sure about.
+
+<br><br><br>
+
+<font color=70000><b>
+• Set correct script resolution
+</b></font><br><br>
+This goes together with the first point, otherwise it won't work. Make sure you know how to do this right. Don't ever use "resample resolution" unless explicitly told to. [never seen that happen]
+
+<br><br><br>
+
+<font color=70000><b>
+• Time and comment out signs
+</b></font><br><br>
+Always time signs, unless the typesetter tells you that you don't have to for that specific episode [because he does that himself]. If you time and not typeset, comment out the signs.
+
+<br><br><br>
+
+<font color=70000><b>
+• Import & shift OP/ED
+</b></font><br><br>
+Import from <i>previous</i> episode, not a random older one. These things tend to change sometimes, so you need to use the most up-to-date version. Get script either from the release or from the previous episode folder on the ftp.<br>
+Make sure to shift <i>scene timed</i> OP/ED correctly so that there are no bleeds on any lines.
+
+<br><br><br>
+
+<font color=70000><b>
+• Avoid overlapping with scrolling jp text
+</b></font><br><br>
+If there's scrolling japanese text on screen [usually after OP/eyecatch], move the subtitles so that they don't overlap with it, which would make them difficult to read.
+
+<br><br><br>
+
+<font color=70000><b>
+• Use fades where needed
+</b></font><br><br>
+When a scene fades in or out and subs start/end there, use \fad with appropriate values.<br>
+Most commonly {\fad(500,0)} or {\fad(0,500)}.
+
+<br><br><br>
+
+
+
+
+<font color=70000><b>
+• Make chapters
+</b></font><br><br>
+Don't forget about chapters. Follow the instructions in the guide.
+
+<br><br><br>
+
+<font color=70000><b>
+• Name files properly
+</b></font><br><br>
+We don't want to see any more scripts named "shana.ass" like some derps are capable of.<br>
+ALWAYS include show name AND episode number at least. Until you get used to our system and can do everything without mistakes, avoid overwriting existing files. Instead add -timed to your filename and leave the old one alone.<br>
+In fact it would be good if you got the untimed one, opened and saved under new name immediately, and <i>kept</i> the old one just in case something fucks up. Never underestimate the usefulness of having backups. In case of scripts it's only a few KB anyway.<br>
+If you upload a script and RHE tells you later to fix something in it, you <i>take the script from the ftp</i> [yes, even if you still have it on your HD], because he may have made changes to it already, keep a backup of it, fix what you were told to fix, and upload with a new name [add -fixed or something] to make sure you don't overwrite something he's working on.<br>
+We've seen people overwriting scripts that had 2 hours of work done on them, all gone in a second. Don't do that. Make sure your naming makes sense. Preferably inform the person in question what file exactly you have uploaded.
+
+<br><br><br>
+
+<font color=70000><b>
+• Import TS for titles
+</b></font><br><br>
+This may not be necessary but you should be <i>able</i> to do it when asked. This means taking the tags for the title typesets from the previous episode and using them for the current titles. In other words tags and style will be from previous ep, timing and text will be from the current one.<br>
+If you're not sure how to do this right, you can copy the <i>whole</i> lines from the previous script and paste them into the current one so that you see both current and previous titles, then copypaste from line to line to get the desired result [then delete the prev. ep. ones].
+
+<br><br><br>
+
+<font color=70000><b>
+• Do a 0 frame shift backwards at the completion of timing
+</b></font><br><br>
+Shifting - frame mode - zero, backward, all lines. Make sure you know what you're doing.<br>
+This should fix most 0.01 or 0.02s overlaps/gaps.
+
+<br><br><br>
+
+
+<font color=70000><b>
+• Italicize internal dialogue that the editor misses
+</b></font><br><br>
+Whether the editor forgets or it happens because of line splitting, if you notice internal dialogue not italicized, fix it.
+
+<br><br><br>
+
+<font color=70000><b>
+Make sure you understand everything and know how to do it. If not, reread the guides or ask.
+
+</b></font>
+<br><br><br><br><br><br>
+
+
+
+
+
+
+
+
+<font size=4 color=60000>
+<b>Typesetters</b></font>
+<br><br><br>
+
+
+<font color=70000><b>
+• Styles
+</b></font><br><br>
+You are responsible for the styles that end up in the final release. If you work on TS separately from the script a timer is working on, and they get merged later, either do the merging yourself or make sure the timer knows which styles to use from where.<br>
+Technically the timer may not necessarily know much about styles and could just add the typesets to his script without the styles. It's your responsibility to make sure it doesn't happen.
+
+<br><br><br>
+
+
+
+<font color=70000><b>
+• Fonts
+</b></font><br><br>
+Obviously you're the one picking the fonts so make sure to upload all the ones you've used. Each episode should have a "fonts" folder. If you use the same fonts for each episode then one folder may be enough for the whole show. If it changes between episodes, make a folder for each episode.
+
+<br><br><br>
+
+
+
+<font color=70000><b>
+• Overlapping with main dialogue
+</b></font><br><br>
+Making sure typesets don't cover main dialogue is your job. Obviously main dialogue should always be on top. Either check that yourself or make sure the timer does that and knows how to use layers.
+
+<br><br><br>
+
+As a typesetter you should damn well know how things work and not do something stupid like work in the wrong script resolution.<br>
+It is also highly recommended to use <font color=556666>avisynth</font> to load video in Aegisub to prevent your typsets from having wrong colors in the release.<br>
+Also get the <font color=556666>ffms2.dll</font> plugin for avisynth and put it in the plugins folder.
+
+
+
+
+
+
+
+<br><br><br><br><br><br>
+
+<font size=4 color=60000>
+<b>Song Styling</b></font>
+<br><br><br>
+
+
+<font color=70000><b>
+• Make a line for first frame of OP/ED
+</b></font><br><br>
+Not a common practice in Commie, but it should be, as it makes things so much easier.<br>
+<b>Do not comment out this line!</b><br>
+If you do, the line will end up at the top of the script in the release and whoever is taking the OP/ED from it the next time will only take it without the first line.<br>
+So make a regular line with {First OP frame} or something like that. If the OP/ED is fading in and it's unclear which frame is the first, use a different frame that's clear enough for reference, and make a note like for example {ED frame where first kanji appear}.<br><br>
+
+Shifting then becomes extremely easy using this icon:<br><br>
+<img src="px/timing-shifting2.png"> « lrn2use
+<br><br><br>
+
+
+<br><br><br><br><br>
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,107 @@
+<html><head><title>Aegisub Scripts</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold; text-decoration:none}
+A:hover {color:e0e3e6}
+</style></head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=557788 vlink=557788 alink=557788>
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=800>
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>Scripts for Aegisub
+</center></td></tr>
+<tr><td bgcolor=000000>
+A bunch of scripts that don't come with aegisub by default:<br><br>
+
+<a href="scripts-unanimated.htm">» All of my own scripts can be found here.</a><br><br>
+
+<a href="https://github.com/lyger/Aegisub_automation_scripts">» All of lyger's scripts can be found here.</a>
+
+
+<br><br><br><br>
+
+
+<a href="Aegisub-Motion.lua">Aegisub-Motion</a> | <a href="https://github.com/torque/Aegisub-Motion">Latest version here</a><br><br>
+Script for motion tracking with Mocha. This one is for Aegisub 3.0.<br>
+<a href="Aegisub-Motion.lua">This one</a> works with 2.1.9 but you shoud use 3.0 unless you have some serious compatibility issues with it.
+
+<br><br><br>
+<table><tr><td>
+This is roughly what things should look like.<br>
+Set the folders in the config (below) as implied.<br><br>
+The 'Trim' window should do stuff automatically. -><br>
+If it encodes one frame less than it should,<br>
+get the "end frame fix" from the link below.
+<br><br>
+<img src="../px/mocha-config.png">
+<br><br>
+If you copy data from Mocha, they will be pasted<br>
+ automatically in the top part of the 'Apply' dialogue. ->
+</td><td><center>
+<img src="../px/mocha-trim.png"><br><br>
+
+<img src="../px/mocha-apply.png">
+</td></tr></table>
+
+<br><br>
+<a href="http://www.mediafire.com/?74rqx9n3j9ypued">Aegisub-Motion end frame fix</a> [January 2013] - This has been now fixed in new versions.<br><br>
+
+<font color=333333>
+If you have your own version you wanna keep and want to add this fix, find<br>
+tokens.lenf, tokens.lent = tokens.endf-tokens.startf, tokens.endt-tokens.startt <br>
+and change to<br>
+tokens.lenf, tokens.lent = tokens.endf-tokens.startf+1, tokens.endt-tokens.startt+1 
+</font>
+<br><br><br><br>
+
+
+<a href="shift-backwards.lua">Duplicate and shift by 1 Frame backwards</a><br><br>
+If you don't know what this is, then you don't need it.
+<br><br><br><br>
+
+
+
+<a href="bezier.lua">Bezier</a><br><br>
+Aligns text along a bezier curve.<br>
+Won't do shit if you don't read the instructions in the script so please...<br><br><br><br>
+
+
+<a href="cmconv.lua">BT.601 -> BT.709 Color Converter</a><br><br>
+<a href="cmconv2.lua">BT.709 -> BT.601 Color Converter</a><br><br>
+
+Daiz's scripts to fix the mess he created in the first place.
+
+
+<br><br><br><br><br>
+
+
+<table bgcolor=161616 width=90% align=center cellspacing=18><tr><td>
+How to use scripts<br><br>
+
+Just place the lua in Aegisub's automation/autoload folder. It will load when you start Aegisub unless it's somehow corrupt.<br>
+If you modify the script with Aegisub open, go to "Automation -> Automation" in the menu and click "Rescan Autoload Dir."<br>
+That will reload all scripts in the autoload directory.<br><br>
+
+If you download a script and it's not loading in Aegisub, it might be because you're using Chrome and it's adding some html crap to it, so make sure to avoid that.
+
+<tr><td></table>
+<br><br><br>
+
+<b>Bind your scripts to hotkeys.</b><br><br>
+
+Go to Preferences-Interface-Hotkeys, add a new line under Default. Set a hotkey and under "Command" type "auto".<br>
+Aegisub will show you a list of loaded automation scripts. Select the one you want. 
+<br><br><br><br>
+
+
+<a href="lua/ts-auto_tutorial.htm">Write your own scripts!</a><br><br>
+If you still need more functions, learn how to write lua scripts for aegisub <a href="lua/ts-auto_tutorial.htm">here</a>.<br>
+If you're familiar with any programming language, it will probably be easy.<br>
+If not, you can still learn to do so with this guide. [Even I did, so it can't be that hard.]
+
+
+<br><br><br><br><br><br><br><br>
+
+
+

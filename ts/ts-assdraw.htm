@@ -1,0 +1,167 @@
+<html><head><title>How to Use ASSDraw</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold; text-decoration:none}
+A:hover {color:e0e3e6; font-weight:bold}
+
+</style>
+</head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=557788 vlink=557788 alink=557788>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=850>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>How to Use ASSDraw
+</center></td></tr>
+
+<tr><td bgcolor=000000><br>
+
+ASSDraw can be pretty useful for masking, but also for actually drawing some fun things,<br>
+if you're a typesetter with imagination.<br><br>
+
+
+Most of the time for masking this will be enough: {\p1}m 0 0 l 100 0 100 100 0 100<br>
+You'll use the scaling tool to stretch it and mask anything with roughly rectangular shape.<br>
+If you add border, like \bord20, you can have round edges too.<br>
+If you scale it down to 1 pixel and add border, you'll even have a circle.<br>
+I'm sure you now understand how to make an ellipse, which you can then rotate etc.<br>
+So for most masks you won't need ASSDraw. But what if you do...<br><br><br>
+
+
+I'll use a funny example from a recent episode. It's a bit unusual way of using ASSDraw, but it will do for this guide.
+
+<br><br>
+<img src="assd1.jpg"><br><br>
+
+So I was supposed to typeset this sign.<br>
+I'm thinking "What the fuck am I supposed to do with this? There's no space for the typeset unless I make it so small that it will be unreadable. I can't mask it either unless I wanna pull some retarded hadena stunt that would forever ruin what little reputation Commie has left. It's even fading out just to make it more complicated. What now?"<br><br>
+
+After considering my options for a minute I decided that there's no point in trying to do the impossible.<br>
+It's either \an8 or I have to come up with some unusual idea. And I really don't like \an8. I don't think I've ever done that.<br>
+So I decided for ASSDraw.<br><br>
+
+
+Here's how you use it:<br><br>
+
+1. Open it. [Duh]<br>
+2. Drag the zoom slider [under 'Background' in menu] all the way to the left.<br>
+3. In Aegi [on a frame where you wanna use the mask] right click on the screen and select "Copy image to Clipboard".<br>
+4. In ASSDraw go to Canvas -> Paste [or Ctrl+V]. You can set the opacity to 100 - better in most cases.<br>
+5. At coordinates 0,0 there's a red dot [actually a cross if you zoom in]. Right-click and drag it around. Put it where you want the drag point of your drawing to be [the anchor in aegisub]<br>
+6. Last 2 icons in the menu are 'Pan drawing' and 'Pan background'. First one should always be on. The second one you'll turn on after step 5 [ie now].<br>
+7. Draw stuff.<br>
+8. Copypaste the final coordinates to aegisub.<br><br>
+
+It's easy once you go through the process for the first time. The pain in the ASS for beginners is to figure out how to get the result in correct zoom and how to not have the anchor point 2000 pixels away from the actual drawing. That's what points 2, 5 and 6 are about.<br><br><br>
+
+
+Now for the actual <b>drawing</b>. You could probably figure it out by yourself.<br><br>
+
+That red dot/cross is the starting point. You can either work from there, or move the point, or create a new one.<br>
+At the bottom of ASSDraw you can see "m 0 0"<br>
+That's the starting point. If you start from there, it will also be the anchor point in Aegi.<br>
+If you want the anchor point in the center of your drawing, move the starting point or create a new one.<br>
+Select Drag from the tools to move points. Select Move to create a new one. If you make a new one, delete the "m 0 0" from the line below.<br>
+<br>
+
+You have a starting point so now you want lines. Obviously you'll choose Line from the tools and start drawing. Kinda like clipping in Aegi. Since you have 'Pan background' enabled, you can now zoom in [with the slider or mouse wheel] and move the screen with right click or arrows as much as you want. Just place dots with the Line tool till you have what you wanted to draw. Alternately there's the Bezier tool, just like with clipping in Aegi. Simple enough.<br><br>
+
+A little demonstration:<br><br>
+
+<img src="assd3.jpg"><br><br>
+This is ASSDraw. The red cross is the center. The line is "m 0 -11 l 11 -4 l 12 7 l 3 14 l -8 12 l -13 1 l -9 -7"<br>
+Copypaste it to Aegi with these tags: {p1\an7}m 0 -11 l 11 -4 l 12 7 l 3 14 l -8 12 l -13 1 l -9 -7<br>
+Then position it where you want it to be.<br><br>
+<img src="assd4.jpg"><br><br>
+You'll end up with this.<br>
+The point of aligning the red cross and using \an7 is that you have the anchor point where you want it to be.<br>
+If you don't do that, things will still work, but your anchor point for this little drawing can end up on any place on the screen or even outside of it, which is a bit inconvenient.<br><br><br>
+
+So you draw what you actually want...<br><br>
+
+<img src="assd5.jpg"><br><br>
+2 straight lines and the rest is Bezier.<br>
+You can paste it in Aegi and see how it looks, then fix it some more and just paste the new line over again.<br><br><br>
+
+<img src="assd6.jpg"><br><br>
+This is the result, in 2 layers, one with border, set colors and some transparency.<br><br>
+Now you just add the styled text and you're done.<br><br><br>
+
+
+<img src="assd2.jpg"><br><br>
+
+So that's how you typeset a sign like that.<br>
+It may still be a bit ridiculous, but if you can typeset this and make it look better than this, please show.<br>
+Also, the "welcame" is intentional, so you can stop laughing.
+
+
+
+<br><br><br><br>
+
+<b>How to make hollow shapes?</b><br><br>
+
+One thing that may be hard to figure out is how to create an empty space inside a drawing.<br><br>
+
+<img src="assd7.png"><br><br>
+
+Each of the two shapes starts with m.<br>
+The trick is that they have to be drawn in opposite directions.<br>
+If you draw them in the same direction, you'll get this:<br><br>
+<img src="assd8.png"><br><br>
+<br>
+
+
+For illustration of what can be done with this, check <a href="http://i.imgur.com/vCDqE.png"><b>this thing</b></a> made by KKRais.
+<br><br><br>
+
+And another example of what I did recently:<br><br>
+
+<img src="assd9.jpg"><br><br>
+I couldn't find a font that I'd be satisfied with and wanted to try some drawing anyway, so I drew the whole title.<br><br><br>
+
+
+Sometimes people give me ideas...<br><br>
+
+< Haidaraaaaa > there needs to be an optional assdraw test.<br>
+< reanimated > if optional, you can just make one for yourself<br>
+< reanimated > like "draw an elephant with ASSDraw"<br>
+< reanimated > there you go<br>
+< reanimated > actually lemme try that<br><br><br>
+
+<a href="ele2.png"><img src="ele2.png" width=800></a><br><br>
+
+So I did.
+
+<br><br><br>
+
+<img src="ele3.jpg"><br><br>
+In the meantime Haidaraaaaa tried a cute elephant but got something out of a nightmare instead...<br><br><br><br>
+
+
+You can use ASSDraw to make additions to your text, like I did with the M in Muromi here:
+<br><br>
+
+<img src="muromifin.jpg"><br><br>
+<br><br>
+
+ASSDraw has no saving option and some bug when using Ctrl+Z that can mess things up pretty bad, so make sure to back up your drawing coordinates every now and then.
+
+<br><br><br><br>
+<center><a href="index.htm"><b>« Back to Typesetting Main</a>
+<br><br><br>
+
+
+
+
+
+
+
+
+
+
+
+

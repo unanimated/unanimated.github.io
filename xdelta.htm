@@ -1,0 +1,82 @@
+<html><head><title>How to Use xdelta Files</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+A:hover {color:e0e3e6}
+blockquote {color:448866}
+</style>
+</head>
+<body bgcolor=000000 text=707C88 topmargin=0 link=668899 vlink=668899 alink=668899>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=800>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>How to Use xdelta Files
+</center></td></tr>
+
+
+<tr><td bgcolor=000000>
+<br>
+It's really simple. Let's say you have <b>episode01v2.xdelta</b> and need to patch your episode.<br><br>
+
+1. Download <b>xdelta3.exe</b> from somewhere.<br>
+2. Create <b>patch.bat</b> (or whatever name, but .bat).<br>
+3. Type "<font color=448866>xdelta3.exe -d episode01v2.xdelta</font>" in it (without the quotation marks) and save it.<br>
+4. Double-click on the .bat file.<br>
+Done.<br><br>
+
+The files have to be in the same folder as the file you're patching. Alternatively, just put xdelta3.exe in your system folder and keep it there for future use. Or put it wherever you want and include full path in the .bat file.<br><br>
+
+If, by any chance, you want to <i>create</i> an xdelta, you need a command line like this:<br>
+
+<blockquote>
+xdelta3 -s "episode01.mkv" "episode01v2.mkv" episode01v2.xdelta<br>
+</blockquote>
+(Quotation marks only really needed for whatever has spaces in it.)
+<br><br><br><br><br>
+
+
+<font size=4 color=446677><b>How to Use xdelta Files without Needing .bat Files</font></b><br><br><br>
+
+If you want to make things easier and patch files just by double-clicking the xdelta file, you need to edit the registry.<br><br>
+
+Find these entries in regedit:<br>
+
+<blockquote>
+HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.xdelta<br><br>
+HKEY_LOCAL_MACHINE\SOFTWARE\Classes\xdelta_auto_file\shell\open\command<br>
+</blockquote>
+
+This is from WinXP, and it should be the same in win7 and 8.<br>
+If it somehow isn't, search for "xdelta" under HKEY_LOCAL_MACHINE, and you'll figure it out.<br><br>
+
+Under these entries, you will probably see a String Value with the name "(Default)". If not, create it. Then double-click it to edit and put this under "Value data":<br>
+
+<blockquote>
+"xdelta_auto_file"<br><br>
+"C:\WINDOWS\system32\xdelta3.exe" -d "%1"<br>
+</blockquote>
+
+First one's for the .xdelta, second for the shell\open\command.<br><br>
+
+Again, the path here will be to wherever your xdelta3.exe is. When you double-click an xdelta file now, it should apply the patch automatically.<br><br>
+
+Alternatively, <a href="xdelta.zip">download this</a>. It contains a .reg file. Running it (just double-click) will add those 2 entries to the registry, and stuff should start working.<br><br>
+
+If the link dies or something, you can create xdelta.reg (or whatever name, but .reg) and put this in it:<br>
+
+<blockquote>
+Windows Registry Editor Version 5.00<br><br>
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.xdelta]<br>
+@="xdelta_auto_file"<br><br>
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\xdelta_auto_file\shell\open\command]<br>
+@="\"C:\\WINDOWS\\system32\\xdelta3.exe\" -d \"%1\""
+</blockquote>
+
+If you need a different path, mind the double backslashes in the path.
+
+<br><br><br>

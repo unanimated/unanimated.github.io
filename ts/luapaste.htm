@@ -1,0 +1,474 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en_US" lang="en_US">
+<head>
+<title>Functions for automation scripts for Aegisub.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<link rel="stylesheet" type="text/css" href="luacss.css" />
+
+<meta name="ROBOTS" content="NOINDEX,NOFOLLOW" />
+
+<script type="text/javascript">
+$(document).ready(function(){
+base_init();
+});
+</script>
+</head>
+<body>
+<div id="content">
+<h1>Functions for automation scripts for Aegisub.</h1>
+
+<div class="source"><pre>
+
+<span class="c1">-- add tag to the end of the initial block of tags	tag should be backslash+type+value, eg &quot;\\blur0.6&quot;</span>
+<span class="c1">-- use:   text=addtag(&quot;\\blur0.6&quot;,text)</span>
+
+<span class="k">function</span> <span class="nf">addtag</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="n">text</span><span class="p">)</span> <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">^({</span><span class="se">\\</span><span class="s">[^}]-)}&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%1&quot;</span><span class="o">..</span><span class="n">tag</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">}&quot;</span><span class="p">)</span> <span class="k">return</span> <span class="n">text</span> <span class="k">end</span>
+
+
+<span class="c1">-- escape string for use in gsub (by lyger)	use:   string=esc(string)</span>
+
+<span class="k">function</span> <span class="nf">esc</span><span class="p">(</span><span class="n">str</span><span class="p">)</span>
+<span class="n">str</span><span class="o">=</span><span class="n">str</span>
+<span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">%%&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%%%%&quot;</span><span class="p">)</span>
+<span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">%(&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%%%(&quot;</span><span class="p">)</span>
+<span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">%)&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%%%)&quot;</span><span class="p">)</span>
+<span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">%[&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%%%[&quot;</span><span class="p">)</span>
+<span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">%]&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%%%]&quot;</span><span class="p">)</span>
+<span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">%.&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%%%.&quot;</span><span class="p">)</span>
+<span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">%*&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%%%*&quot;</span><span class="p">)</span>
+<span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">%-&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%%%-&quot;</span><span class="p">)</span>
+<span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">%+&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%%%+&quot;</span><span class="p">)</span>
+<span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">%?&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%%%?&quot;</span><span class="p">)</span>
+<span class="k">return</span> <span class="n">str</span>
+<span class="k">end</span>
+
+
+<span class="c1">-- select all lines	useful when you want the &quot;selected lines/all lines&quot; option</span>
+<span class="c1">-- use it something like this:	if res.selection==&quot;all&quot; then sel=selectall(subs, sel) mainfunction(subs, sel) end</span>
+
+<span class="k">function</span> <span class="nf">selectall</span><span class="p">(</span><span class="n">subs</span><span class="p">,</span> <span class="n">sel</span><span class="p">)</span>
+<span class="n">sel</span><span class="o">=</span><span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">#</span><span class="n">subs</span> <span class="k">do</span>
+	<span class="k">if</span> <span class="n">subs</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">class</span><span class="o">==</span><span class="s2">&quot;</span><span class="s">dialogue&quot;</span> <span class="k">then</span> <span class="nb">table.insert</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span><span class="n">i</span><span class="p">)</span> <span class="k">end</span>
+    <span class="k">end</span>
+    <span class="k">return</span> <span class="n">sel</span>
+<span class="k">end</span>
+
+
+<span class="c1">-- round a number	</span>
+<span class="c1">-- use:   number=round(number)</span>
+
+<span class="k">function</span> <span class="nf">round</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+	<span class="n">num</span><span class="o">=</span><span class="nb">math.floor</span><span class="p">(</span><span class="n">num</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">num</span>
+<span class="k">end</span>
+
+
+<span class="c1">-- flip text	rot can be &quot;frz&quot; &quot;frx&quot; &quot;fry&quot;	</span>
+<span class="c1">-- use:   text=flip(&quot;frz&quot;,text)</span>
+
+<span class="k">function</span> <span class="nf">flip</span><span class="p">(</span><span class="n">rot</span><span class="p">,</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">rotation</span> <span class="k">in</span> <span class="n">text</span><span class="p">:</span><span class="n">gmatch</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">&quot;</span><span class="o">..</span><span class="n">rot</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">([%d%.%-]+)&quot;</span><span class="p">)</span> <span class="k">do</span>
+	<span class="n">rotation</span><span class="o">=</span><span class="nb">tonumber</span><span class="p">(</span><span class="n">rotation</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">rotation</span><span class="o">&lt;</span><span class="mi">180</span> <span class="k">then</span> <span class="n">newrot</span><span class="o">=</span><span class="n">rotation</span><span class="o">+</span><span class="mi">180</span> <span class="k">end</span>
+	<span class="k">if</span> <span class="n">rotation</span><span class="o">&gt;</span><span class="mi">180</span> <span class="k">then</span> <span class="n">newrot</span><span class="o">=</span><span class="n">rotation</span><span class="o">-</span><span class="mi">180</span> <span class="k">end</span>
+	<span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="n">rot</span><span class="o">..</span><span class="n">rotation</span><span class="p">,</span><span class="n">rot</span><span class="o">..</span><span class="n">newrot</span><span class="p">)</span>
+    <span class="k">end</span>
+    <span class="k">return</span> <span class="n">text</span>
+<span class="k">end</span>
+
+
+<span class="c1">-- clean transforms</span>
+<span class="c1">-- use:   text=text:gsub(&quot;^({\\[^}]-})&quot;,function(tags) return cleantr(tags) end)</span>
+<span class="c1">-- (the longer ones with more %( %) are for transforms with clips)</span>
+
+<span class="k">function</span> <span class="nf">cleantr</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span>
+	<span class="c1">-- this puts transforms at the end of the block of tags</span>
+	<span class="n">trnsfrm</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">&quot;</span>
+	<span class="k">for</span> <span class="n">t</span> <span class="k">in</span> <span class="n">tags</span><span class="p">:</span><span class="n">gmatch</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">(</span><span class="se">\\</span><span class="s">t%([^%(%)]-%))&quot;</span><span class="p">)</span> <span class="k">do</span> <span class="n">trnsfrm</span><span class="o">=</span><span class="n">trnsfrm</span><span class="o">..</span><span class="n">t</span> <span class="k">end</span>
+	<span class="k">for</span> <span class="n">t</span> <span class="k">in</span> <span class="n">tags</span><span class="p">:</span><span class="n">gmatch</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">(</span><span class="se">\\</span><span class="s">t%([^%(%)]-%([^%)]-%)[^%)]-%))&quot;</span><span class="p">)</span> <span class="k">do</span> <span class="n">trnsfrm</span><span class="o">=</span><span class="n">trnsfrm</span><span class="o">..</span><span class="n">t</span> <span class="k">end</span>
+	<span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">(</span><span class="se">\\</span><span class="s">t%([^%(%)]+%))&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">(</span><span class="se">\\</span><span class="s">t%([^%(%)]-%([^%)]-%)[^%)]-%))&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">^({</span><span class="se">\\</span><span class="s">[^}]*)}&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%1&quot;</span><span class="o">..</span><span class="n">trnsfrm</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">}&quot;</span><span class="p">)</span>
+
+	<span class="c1">-- this joins transforms with no timecodes together into one - \t(\bord5)\t(\shad5)  --&gt;  \t(\bord5\shad5)</span>
+	<span class="n">cleant</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">&quot;</span>
+	<span class="k">for</span> <span class="n">ct</span> <span class="k">in</span> <span class="n">tags</span><span class="p">:</span><span class="n">gmatch</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">t%((</span><span class="se">\\</span><span class="s">[^%(%)]-)%)&quot;</span><span class="p">)</span> <span class="k">do</span> <span class="n">cleant</span><span class="o">=</span><span class="n">cleant</span><span class="o">..</span><span class="n">ct</span> <span class="k">end</span>
+	<span class="k">for</span> <span class="n">ct</span> <span class="k">in</span> <span class="n">tags</span><span class="p">:</span><span class="n">gmatch</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">t%((</span><span class="se">\\</span><span class="s">[^%(%)]-%([^%)]-%)[^%)]-)%)&quot;</span><span class="p">)</span> <span class="k">do</span> <span class="n">cleant</span><span class="o">=</span><span class="n">cleant</span><span class="o">..</span><span class="n">ct</span> <span class="k">end</span>
+	<span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">(</span><span class="se">\\</span><span class="s">t%(</span><span class="se">\\</span><span class="s">[^%(%)]+%))&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">(</span><span class="se">\\</span><span class="s">t%(</span><span class="se">\\</span><span class="s">[^%(%)]-%([^%)]-%)[^%)]-%))&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">cleant</span><span class="o">~=</span><span class="s2">&quot;</span><span class="s">&quot;</span> <span class="k">then</span> <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">^({</span><span class="se">\\</span><span class="s">[^}]*)}&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%1</span><span class="se">\\</span><span class="s">t(&quot;</span><span class="o">..</span><span class="n">cleant</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">)}&quot;</span><span class="p">)</span> <span class="k">end</span>
+	<span class="k">return</span> <span class="n">tags</span>
+<span class="k">end</span>
+
+
+<span class="c1">-- clean duplicate tags		</span>
+<span class="c1">-- use:   text=duplikill(text)	</span>
+<span class="c1">-- don&#39;t use with \t !</span>
+		
+<span class="k">function</span> <span class="nf">duplikill</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+	<span class="n">tags1</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;</span><span class="s">blur&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">be&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">bord&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">shad&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">xbord&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">xshad&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">ybord&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">yshad&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">fs&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">fsp&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">fscx&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">fscy&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">frz&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">frx&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">fry&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">fax&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">fay&quot;</span><span class="p">}</span>
+	<span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">#</span><span class="n">tags1</span> <span class="k">do</span>
+	    <span class="n">tag</span><span class="o">=</span><span class="n">tags1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+	    <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">&quot;</span><span class="o">..</span><span class="n">tag</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">[%d%.%-]+([^}]-)(</span><span class="se">\\</span><span class="s">&quot;</span><span class="o">..</span><span class="n">tag</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">[%d%.%-]+)&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%1%2&quot;</span><span class="p">)</span>
+	<span class="k">end</span>
+	<span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">1c&amp;&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">c&amp;&quot;</span><span class="p">)</span>
+	<span class="n">tags2</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;</span><span class="s">c&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">2c&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">3c&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">4c&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">1a&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">2a&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">3a&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">4a&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">alpha&quot;</span><span class="p">}</span>
+	<span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">#</span><span class="n">tags2</span> <span class="k">do</span>
+	    <span class="n">tag</span><span class="o">=</span><span class="n">tags2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+	    <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">&quot;</span><span class="o">..</span><span class="n">tag</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">&amp;H%x+&amp;([^}]-)(</span><span class="se">\\</span><span class="s">&quot;</span><span class="o">..</span><span class="n">tag</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">&amp;H%x+&amp;)&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%1%2&quot;</span><span class="p">)</span>
+	<span class="k">end</span>
+	<span class="c1">--text=text:gsub(&quot;\\i?clip%([^%)]-%)([^}]-)(\\i?clip%([^%)]-%))&quot;,&quot;%1%2&quot;)	-- depending whether you wanna allow 2 clips on a line</span>
+	<span class="k">return</span> <span class="n">text</span>
+<span class="k">end</span>
+
+<span class="c1">-- this works with \t, but has to be used on tags, not text (and requires esc)</span>
+	<span class="cm">--[[ use:</span>
+<span class="cm">	    for tagz in text:gmatch(&quot;{\\[^}]-}&quot;) do</span>
+<span class="cm">  	      tagz2=duplikill(tagz)</span>
+<span class="cm">	      tagz=esc(tagz)</span>
+<span class="cm">	      text=text:gsub(tagz,tagz2)</span>
+<span class="cm">	    end</span>
+<span class="cm">	--]]</span>
+	
+<span class="k">function</span> <span class="nf">duplikill</span><span class="p">(</span><span class="n">tagz</span><span class="p">)</span>
+	<span class="n">tf</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">&quot;</span>
+	<span class="k">if</span> <span class="n">tagz</span><span class="p">:</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">t&quot;</span><span class="p">)</span> <span class="k">then</span> 
+	    <span class="k">for</span> <span class="n">t</span> <span class="k">in</span> <span class="n">tagz</span><span class="p">:</span><span class="n">gmatch</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">(</span><span class="se">\\</span><span class="s">t%([^%(%)]-%))&quot;</span><span class="p">)</span> <span class="k">do</span> <span class="n">tf</span><span class="o">=</span><span class="n">tf</span><span class="o">..</span><span class="n">t</span> <span class="k">end</span>
+	    <span class="k">for</span> <span class="n">t</span> <span class="k">in</span> <span class="n">tagz</span><span class="p">:</span><span class="n">gmatch</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">(</span><span class="se">\\</span><span class="s">t%([^%(%)]-%([^%)]-%)[^%)]-%))&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">&quot;</span><span class="p">)</span> <span class="k">do</span> <span class="n">tf</span><span class="o">=</span><span class="n">tf</span><span class="o">..</span><span class="n">t</span> <span class="k">end</span>
+	    <span class="n">tagz</span><span class="o">=</span><span class="n">tagz</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">t%([^%(%)]+%)&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">&quot;</span><span class="p">)</span>
+	    <span class="n">tagz</span><span class="o">=</span><span class="n">tagz</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">t%([^%(%)]-%([^%)]-%)[^%)]-%)&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="k">end</span>
+	<span class="n">tags1</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;</span><span class="s">blur&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">be&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">bord&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">shad&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">fs&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">fsp&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">fscx&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">fscy&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">frz&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">frx&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">fry&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">fax&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">fay&quot;</span><span class="p">}</span>
+	<span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">#</span><span class="n">tags1</span> <span class="k">do</span>
+	    <span class="n">tag</span><span class="o">=</span><span class="n">tags1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+	    <span class="n">tagz</span><span class="o">=</span><span class="n">tagz</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">&quot;</span><span class="o">..</span><span class="n">tag</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">[%d%.%-]+([^}]-)(</span><span class="se">\\</span><span class="s">&quot;</span><span class="o">..</span><span class="n">tag</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">[%d%.%-]+)&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%1%2&quot;</span><span class="p">)</span>
+	<span class="k">end</span>
+	<span class="n">tagz</span><span class="o">=</span><span class="n">tagz</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">1c&amp;&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">c&amp;&quot;</span><span class="p">)</span>
+	<span class="n">tags2</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;</span><span class="s">c&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">2c&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">3c&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">4c&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">1a&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">2a&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">3a&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">4a&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">alpha&quot;</span><span class="p">}</span>
+	<span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">#</span><span class="n">tags2</span> <span class="k">do</span>
+	    <span class="n">tag</span><span class="o">=</span><span class="n">tags2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+	    <span class="n">tagz</span><span class="o">=</span><span class="n">tagz</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">&quot;</span><span class="o">..</span><span class="n">tag</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">&amp;H%x+&amp;([^}]-)(</span><span class="se">\\</span><span class="s">&quot;</span><span class="o">..</span><span class="n">tag</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">&amp;H%x+&amp;)&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%1%2&quot;</span><span class="p">)</span>
+	<span class="k">end</span>	
+	<span class="n">tagz</span><span class="o">=</span><span class="n">tagz</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">({</span><span class="se">\\</span><span class="s">[^}]-)}&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%1&quot;</span><span class="o">..</span><span class="n">tf</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">}&quot;</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">tagz</span>
+<span class="k">end</span>
+
+
+<span class="c1">-- convert a &quot;Dialogue: 0,0:00...&quot; string to a &quot;line&quot; table	(uses string2time below)</span>
+
+<span class="k">function</span> <span class="nf">string2line</span><span class="p">(</span><span class="n">str</span><span class="p">)</span>
+		<span class="kd">local</span> <span class="n">ltype</span><span class="p">,</span><span class="n">layer</span><span class="p">,</span><span class="n">s_time</span><span class="p">,</span><span class="n">e_time</span><span class="p">,</span><span class="n">style</span><span class="p">,</span><span class="n">actor</span><span class="p">,</span><span class="n">margl</span><span class="p">,</span><span class="n">margr</span><span class="p">,</span><span class="n">margv</span><span class="p">,</span><span class="n">eff</span><span class="p">,</span><span class="n">txt</span><span class="o">=</span><span class="n">str</span><span class="p">:</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">(%a+): (%d+),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),(.*)&quot;</span><span class="p">)</span>
+		<span class="n">l2</span><span class="o">=</span><span class="p">{}</span>
+		<span class="n">l2</span><span class="p">.</span><span class="n">class</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">dialogue&quot;</span>
+		<span class="k">if</span> <span class="n">ltype</span><span class="o">==</span><span class="s2">&quot;</span><span class="s">Comment&quot;</span> <span class="k">then</span> <span class="n">l2</span><span class="p">.</span><span class="n">comment</span><span class="o">=</span><span class="kc">true</span> <span class="k">else</span> <span class="n">l2</span><span class="p">.</span><span class="n">comment</span><span class="o">=</span><span class="kc">false</span> <span class="k">end</span>
+		<span class="n">l2</span><span class="p">.</span><span class="n">layer</span><span class="o">=</span><span class="n">layer</span>
+		<span class="n">l2</span><span class="p">.</span><span class="n">start_time</span><span class="o">=</span><span class="n">string2time</span><span class="p">(</span><span class="n">s_time</span><span class="p">)</span>
+		<span class="n">l2</span><span class="p">.</span><span class="n">end_time</span><span class="o">=</span><span class="n">string2time</span><span class="p">(</span><span class="n">e_time</span><span class="p">)</span>
+		<span class="n">l2</span><span class="p">.</span><span class="n">style</span><span class="o">=</span><span class="n">style</span>
+		<span class="n">l2</span><span class="p">.</span><span class="n">actor</span><span class="o">=</span><span class="n">actor</span>
+		<span class="n">l2</span><span class="p">.</span><span class="n">margin_l</span><span class="o">=</span><span class="n">margl</span>
+		<span class="n">l2</span><span class="p">.</span><span class="n">margin_r</span><span class="o">=</span><span class="n">margr</span>
+		<span class="n">l2</span><span class="p">.</span><span class="n">margin_t</span><span class="o">=</span><span class="n">margv</span>
+		<span class="n">l2</span><span class="p">.</span><span class="n">effect</span><span class="o">=</span><span class="n">eff</span>
+		<span class="n">l2</span><span class="p">.</span><span class="n">text</span><span class="o">=</span><span class="n">txt</span>
+	<span class="k">return</span> <span class="n">l2</span>
+<span class="k">end</span>
+
+
+<span class="c1">-- convert a line to a &quot;Dialogue: 0,0:00...&quot; string	(uses time2string below)	(apparently useless because: line.raw)</span>
+
+<span class="k">function</span> <span class="nf">line2string</span><span class="p">(</span><span class="n">lain</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">lain</span><span class="p">.</span><span class="n">comment</span><span class="o">==</span><span class="kc">false</span> <span class="k">then</span> <span class="n">ltype</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">Dialogue: &quot;</span> <span class="k">else</span> <span class="n">ltype</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">Comment: &quot;</span> <span class="k">end</span>
+	<span class="n">layer</span><span class="o">=</span><span class="n">lain</span><span class="p">.</span><span class="n">layer</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">,&quot;</span>
+	<span class="n">s_time</span><span class="o">=</span><span class="n">lain</span><span class="p">.</span><span class="n">start_time</span>
+	<span class="n">e_time</span><span class="o">=</span><span class="n">lain</span><span class="p">.</span><span class="n">end_time</span>
+	<span class="n">s_time</span><span class="o">=</span><span class="n">time2string</span><span class="p">(</span><span class="n">s_time</span><span class="p">)</span>
+	<span class="n">e_time</span><span class="o">=</span><span class="n">time2string</span><span class="p">(</span><span class="n">e_time</span><span class="p">)</span>
+	<span class="n">style</span><span class="o">=</span><span class="n">lain</span><span class="p">.</span><span class="n">style</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">,&quot;</span>
+	<span class="n">actor</span><span class="o">=</span><span class="n">lain</span><span class="p">.</span><span class="n">actor</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">,&quot;</span>
+	<span class="n">margl</span><span class="o">=</span><span class="n">lain</span><span class="p">.</span><span class="n">margin_l</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">,&quot;</span>
+	<span class="n">margr</span><span class="o">=</span><span class="n">lain</span><span class="p">.</span><span class="n">margin_r</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">,&quot;</span>
+	<span class="n">margv</span><span class="o">=</span><span class="n">lain</span><span class="p">.</span><span class="n">margin_t</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">,&quot;</span>
+	<span class="n">effect</span><span class="o">=</span><span class="n">lain</span><span class="p">.</span><span class="n">effect</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">,&quot;</span>
+	<span class="n">txt</span><span class="o">=</span><span class="n">lain</span><span class="p">.</span><span class="n">text</span>
+	<span class="n">linetext</span><span class="o">=</span><span class="n">ltype</span><span class="o">..</span><span class="n">layer</span><span class="o">..</span><span class="n">s_time</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">,&quot;</span><span class="o">..</span><span class="n">e_time</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">,&quot;</span><span class="o">..</span><span class="n">style</span><span class="o">..</span><span class="n">actor</span><span class="o">..</span><span class="n">margl</span><span class="o">..</span><span class="n">margr</span><span class="o">..</span><span class="n">margv</span><span class="o">..</span><span class="n">effect</span><span class="o">..</span><span class="n">txt</span>
+	<span class="k">return</span> <span class="n">linetext</span>
+<span class="k">end</span>
+
+
+<span class="c1">-- convert string timecode to time in ms (and vice versa)</span>
+
+<span class="k">function</span> <span class="nf">string2time</span><span class="p">(</span><span class="n">timecode</span><span class="p">)</span>
+	<span class="n">timecode</span><span class="o">=</span><span class="n">timecode</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">(%d):(%d%d):(%d%d)%.(%d%d)&quot;</span><span class="p">,</span><span class="k">function</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">d</span><span class="p">)</span> <span class="k">return</span> <span class="n">d</span><span class="o">*</span><span class="mi">10</span><span class="o">+</span><span class="n">c</span><span class="o">*</span><span class="mi">1000</span><span class="o">+</span><span class="n">b</span><span class="o">*</span><span class="mi">60000</span><span class="o">+</span><span class="n">a</span><span class="o">*</span><span class="mi">3600000</span> <span class="k">end</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">timecode</span>
+<span class="k">end</span>
+
+<span class="k">function</span> <span class="nf">time2string</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+	<span class="n">timecode</span><span class="o">=</span><span class="nb">math.floor</span><span class="p">(</span><span class="n">num</span><span class="o">/</span><span class="mi">1000</span><span class="p">)</span>
+	<span class="n">tc0</span><span class="o">=</span><span class="nb">math.floor</span><span class="p">(</span><span class="n">timecode</span><span class="o">/</span><span class="mi">3600</span><span class="p">)</span>
+	<span class="n">tc1</span><span class="o">=</span><span class="nb">math.floor</span><span class="p">(</span><span class="n">timecode</span><span class="o">/</span><span class="mi">60</span><span class="p">)</span>
+	<span class="n">tc2</span><span class="o">=</span><span class="n">timecode</span><span class="o">%</span><span class="mi">60</span><span class="o">+</span><span class="mi">1</span>
+	<span class="n">numstr</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">00&quot;</span><span class="o">..</span><span class="n">num</span>
+	<span class="n">tc3</span><span class="o">=</span><span class="n">numstr</span><span class="p">:</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">(%d%d)%d$&quot;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">tc1</span><span class="o">==</span><span class="mi">60</span> <span class="k">then</span> <span class="n">tc1</span><span class="o">=</span><span class="mi">0</span> <span class="n">tc0</span><span class="o">=</span><span class="n">tc0</span><span class="o">+</span><span class="mi">1</span> <span class="k">end</span>
+	<span class="k">if</span> <span class="n">tc2</span><span class="o">==</span><span class="mi">60</span> <span class="k">then</span> <span class="n">tc2</span><span class="o">=</span><span class="mi">0</span> <span class="n">tc1</span><span class="o">=</span><span class="n">tc1</span><span class="o">+</span><span class="mi">1</span> <span class="k">end</span>
+	<span class="k">if</span> <span class="n">tc1</span><span class="o">&lt;</span><span class="mi">10</span> <span class="k">then</span> <span class="n">tc1</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">0&quot;</span><span class="o">..</span><span class="n">tc1</span> <span class="k">end</span>
+	<span class="k">if</span> <span class="n">tc2</span><span class="o">&lt;</span><span class="mi">10</span> <span class="k">then</span> <span class="n">tc2</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">0&quot;</span><span class="o">..</span><span class="n">tc2</span> <span class="k">end</span>
+	<span class="n">tc0</span><span class="o">=</span><span class="nb">tostring</span><span class="p">(</span><span class="n">tc0</span><span class="p">)</span>
+	<span class="n">tc1</span><span class="o">=</span><span class="nb">tostring</span><span class="p">(</span><span class="n">tc1</span><span class="p">)</span>
+	<span class="n">tc2</span><span class="o">=</span><span class="nb">tostring</span><span class="p">(</span><span class="n">tc2</span><span class="p">)</span>
+	<span class="n">timestring</span><span class="o">=</span><span class="n">tc0</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">:&quot;</span><span class="o">..</span><span class="n">tc1</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">:&quot;</span><span class="o">..</span><span class="n">tc2</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">.&quot;</span><span class="o">..</span><span class="n">tc3</span>
+	<span class="k">return</span> <span class="n">timestring</span>
+<span class="k">end</span>
+
+
+<span class="c1">-- check style values (instead of using karaskel)	</span>
+<span class="c1">-- use: styleref=stylechk(subs,line.style)</span>
+
+<span class="k">function</span> <span class="nf">stylechk</span><span class="p">(</span><span class="n">subs</span><span class="p">,</span><span class="n">stylename</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">#</span><span class="n">subs</span> <span class="k">do</span>
+    <span class="k">if</span> <span class="n">subs</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">class</span><span class="o">==</span><span class="s2">&quot;</span><span class="s">style&quot;</span> <span class="k">then</span>
+      <span class="kd">local</span> <span class="n">st</span><span class="o">=</span><span class="n">subs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+      <span class="k">if</span> <span class="n">stylename</span><span class="o">==</span><span class="n">st</span><span class="p">.</span><span class="n">name</span> <span class="k">then</span> <span class="n">styleref</span><span class="o">=</span><span class="n">st</span> <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+  <span class="k">return</span> <span class="n">styleref</span>
+<span class="k">end</span>
+</pre></div>
+<div id='copy_content'>Functions for automation scripts for Aegisub.
+
+
+
+-- add tag to the end of the initial block of tags	tag should be backslash+type+value, eg "\\blur0.6"
+-- use:   text=addtag("\\blur0.6",text)
+
+function addtag(tag,text) text=text:gsub("^({\\[^}]-)}","%1"..tag.."}") return text end
+
+
+-- escape string for use in gsub (by lyger)	use:   string=esc(string)
+
+function esc(str)
+str=str
+:gsub("%%","%%%%")
+:gsub("%(","%%%(")
+:gsub("%)","%%%)")
+:gsub("%[","%%%[")
+:gsub("%]","%%%]")
+:gsub("%.","%%%.")
+:gsub("%*","%%%*")
+:gsub("%-","%%%-")
+:gsub("%+","%%%+")
+:gsub("%?","%%%?")
+return str
+end
+
+
+-- select all lines	useful when you want the "selected lines/all lines" option
+-- use it something like this:	if res.selection=="all" then sel=selectall(subs, sel) mainfunction(subs, sel) end
+
+function selectall(subs, sel)
+sel={}
+    for i = 1, #subs do
+	if subs[i].class=="dialogue" then table.insert(sel,i) end
+    end
+    return sel
+end
+
+
+-- round a number	
+-- use:   number=round(number)
+
+function round(num)
+	num=math.floor(num+0.5)
+	return num
+end
+
+
+-- flip text	rot can be "frz" "frx" "fry"	
+-- use:   text=flip("frz",text)
+
+function flip(rot,text)
+    for rotation in text:gmatch("\\"..rot.."([%d%.%-]+)") do
+	rotation=tonumber(rotation)
+	if rotation&lt;180 then newrot=rotation+180 end
+	if rotation>180 then newrot=rotation-180 end
+	text=text:gsub(rot..rotation,rot..newrot)
+    end
+    return text
+end
+
+
+-- clean transforms
+-- use:   text=text:gsub("^({\\[^}]-})",function(tags) return cleantr(tags) end)
+-- (the longer ones with more %( %) are for transforms with clips)
+
+function cleantr(tags)
+	-- this puts transforms at the end of the block of tags
+	trnsfrm=""
+	for t in tags:gmatch("(\\t%([^%(%)]-%))") do trnsfrm=trnsfrm..t end
+	for t in tags:gmatch("(\\t%([^%(%)]-%([^%)]-%)[^%)]-%))") do trnsfrm=trnsfrm..t end
+	tags=tags:gsub("(\\t%([^%(%)]+%))","")
+	tags=tags:gsub("(\\t%([^%(%)]-%([^%)]-%)[^%)]-%))","")
+	tags=tags:gsub("^({\\[^}]*)}","%1"..trnsfrm.."}")
+
+	-- this joins transforms with no timecodes together into one - \t(\bord5)\t(\shad5)  -->  \t(\bord5\shad5)
+	cleant=""
+	for ct in tags:gmatch("\\t%((\\[^%(%)]-)%)") do cleant=cleant..ct end
+	for ct in tags:gmatch("\\t%((\\[^%(%)]-%([^%)]-%)[^%)]-)%)") do cleant=cleant..ct end
+	tags=tags:gsub("(\\t%(\\[^%(%)]+%))","")
+	tags=tags:gsub("(\\t%(\\[^%(%)]-%([^%)]-%)[^%)]-%))","")
+	if cleant~="" then tags=tags:gsub("^({\\[^}]*)}","%1\\t("..cleant..")}") end
+	return tags
+end
+
+
+-- clean duplicate tags		
+-- use:   text=duplikill(text)	
+-- don't use with \t !
+		
+function duplikill(text)
+	tags1={"blur","be","bord","shad","xbord","xshad","ybord","yshad","fs","fsp","fscx","fscy","frz","frx","fry","fax","fay"}
+	for i=1,#tags1 do
+	    tag=tags1[i]
+	    text=text:gsub("\\"..tag.."[%d%.%-]+([^}]-)(\\"..tag.."[%d%.%-]+)","%1%2")
+	end
+	text=text:gsub("\\1c&","\\c&")
+	tags2={"c","2c","3c","4c","1a","2a","3a","4a","alpha"}
+	for i=1,#tags2 do
+	    tag=tags2[i]
+	    text=text:gsub("\\"..tag.."&H%x+&([^}]-)(\\"..tag.."&H%x+&)","%1%2")
+	end
+	--text=text:gsub("\\i?clip%([^%)]-%)([^}]-)(\\i?clip%([^%)]-%))","%1%2")	-- depending whether you wanna allow 2 clips on a line
+	return text
+end
+
+-- this works with \t, but has to be used on tags, not text (and requires esc)
+	--[[ use:
+	    for tagz in text:gmatch("{\\[^}]-}") do
+  	      tagz2=duplikill(tagz)
+	      tagz=esc(tagz)
+	      text=text:gsub(tagz,tagz2)
+	    end
+	--]]
+	
+function duplikill(tagz)
+	tf=""
+	if tagz:match("\\t") then 
+	    for t in tagz:gmatch("(\\t%([^%(%)]-%))") do tf=tf..t end
+	    for t in tagz:gmatch("(\\t%([^%(%)]-%([^%)]-%)[^%)]-%))","") do tf=tf..t end
+	    tagz=tagz:gsub("\\t%([^%(%)]+%)","")
+	    tagz=tagz:gsub("\\t%([^%(%)]-%([^%)]-%)[^%)]-%)","")
+	end
+	tags1={"blur","be","bord","shad","fs","fsp","fscx","fscy","frz","frx","fry","fax","fay"}
+	for i=1,#tags1 do
+	    tag=tags1[i]
+	    tagz=tagz:gsub("\\"..tag.."[%d%.%-]+([^}]-)(\\"..tag.."[%d%.%-]+)","%1%2")
+	end
+	tagz=tagz:gsub("\\1c&","\\c&")
+	tags2={"c","2c","3c","4c","1a","2a","3a","4a","alpha"}
+	for i=1,#tags2 do
+	    tag=tags2[i]
+	    tagz=tagz:gsub("\\"..tag.."&H%x+&([^}]-)(\\"..tag.."&H%x+&)","%1%2")
+	end	
+	tagz=tagz:gsub("({\\[^}]-)}","%1"..tf.."}")
+	return tagz
+end
+
+
+-- convert a "Dialogue: 0,0:00..." string to a "line" table	(uses string2time below)
+
+function string2line(str)
+		local ltype,layer,s_time,e_time,style,actor,margl,margr,margv,eff,txt=str:match("(%a+): (%d+),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),(.*)")
+		l2={}
+		l2.class="dialogue"
+		if ltype=="Comment" then l2.comment=true else l2.comment=false end
+		l2.layer=layer
+		l2.start_time=string2time(s_time)
+		l2.end_time=string2time(e_time)
+		l2.style=style
+		l2.actor=actor
+		l2.margin_l=margl
+		l2.margin_r=margr
+		l2.margin_t=margv
+		l2.effect=eff
+		l2.text=txt
+	return l2
+end
+
+
+-- convert a line to a "Dialogue: 0,0:00..." string	(uses time2string below)	(apparently useless because: line.raw)
+
+function line2string(lain)
+	if lain.comment==false then ltype="Dialogue: " else ltype="Comment: " end
+	layer=lain.layer..","
+	s_time=lain.start_time
+	e_time=lain.end_time
+	s_time=time2string(s_time)
+	e_time=time2string(e_time)
+	style=lain.style..","
+	actor=lain.actor..","
+	margl=lain.margin_l..","
+	margr=lain.margin_r..","
+	margv=lain.margin_t..","
+	effect=lain.effect..","
+	txt=lain.text
+	linetext=ltype..layer..s_time..","..e_time..","..style..actor..margl..margr..margv..effect..txt
+	return linetext
+end
+
+
+-- convert string timecode to time in ms (and vice versa)
+
+function string2time(timecode)
+	timecode=timecode:gsub("(%d):(%d%d):(%d%d)%.(%d%d)",function(a,b,c,d) return d*10+c*1000+b*60000+a*3600000 end)
+	return timecode
+end
+
+function time2string(num)
+	timecode=math.floor(num/1000)
+	tc0=math.floor(timecode/3600)
+	tc1=math.floor(timecode/60)
+	tc2=timecode%60+1
+	numstr="00"..num
+	tc3=numstr:match("(%d%d)%d$")
+	if tc1==60 then tc1=0 tc0=tc0+1 end
+	if tc2==60 then tc2=0 tc1=tc1+1 end
+	if tc1&lt;10 then tc1="0"..tc1 end
+	if tc2&lt;10 then tc2="0"..tc2 end
+	tc0=tostring(tc0)
+	tc1=tostring(tc1)
+	tc2=tostring(tc2)
+	timestring=tc0..":"..tc1..":"..tc2.."."..tc3
+	return timestring
+end
+
+
+-- check style values (instead of using karaskel)	
+-- use: styleref=stylechk(subs,line.style)
+
+function stylechk(subs,stylename)
+  for i=1, #subs do
+    if subs[i].class=="style" then
+      local st=subs[i]
+      if stylename==st.name then styleref=st end
+    end
+  end
+  return styleref
+end
+
+</div>
+<ul class="notices">
+<li class="information"><p>Pasted at 11:53:03 EST on 02/06/14, this paste will never expire because it's haxed
+</p>
+</li>
+<li class="right"><p>Format: LUA</p></li>
+</ul>
+
+</div>
+<div id="footer">
+</div>
+
+</body>
+</html>

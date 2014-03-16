@@ -1,0 +1,105 @@
+<html><head><title>IRC Guide</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold}
+A:hover {color:e0e3e6}
+.c {color:708090; font-weight:bold}
+.i {color:708090}
+</style>
+</head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=668899 vlink=668899 alink=668899>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=800>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>How Do I into IRC?</font><br></b>Written by Orcus
+</center></td></tr>
+
+
+<tr><td bgcolor=000000><br>
+
+
+So you've decided to come on IRC. Good for you. Good for you.<br><br>
+
+First thing you need to do is install a client. Easiest client for newbies is mIRC. Obtain from <a target="_blank" href="http://www.mirc.co.uk/">here</a>.<br><br>
+
+Now, mIRC gives you a 30-day evaluation period. After which, you are delayed a whole extra 10 seconds on start-up. If those 10 seconds are precious and irreplaceble to you, then you have serious problems and are probably willing to pay the fee.<br><br>
+
+Secondly, you need to install and start mIRC up. You'll get the obligatory "Please send me money" dialogue. Just click continue (get used to doing this). You should now be at the connect screen. This is where you enter your main nick in the Nickname box. The Alternative is the nick mIRC will connect under should you unexpectedly disconnect. Because you are hopefully not autistic, you will leave the optional email and real name boxes blank.<br><br>
+
+Before you click connect, you will want to select the server first. Go down to Servers in the expanded Connect menu and scroll down to Rizon. Double click and highlight random server, then click select. If all went well, you should be back at the first screen (with your nick and alternative). <br><br>
+
+NOW PRESS CONNECT.<br><br>
+
+After the IRC churn you should be connected to Rizon! The window you are seeing is called the console window. Do not connect to a channel now; if a channel list pops up, click Cancel.<br><br>
+
+Now on to registering your nick.<br><br>
+
+If the nick is registered you should see a message say as much. In this case, you have 60 seconds to change your nick to something else or the server will do it for you (you will become a GuestNUMBERS). If you don't see this you may register the nick to nickserv. For this you must have an email (but who doesn't these days?).<br><br>
+ 
+An important and manifoldly useful command is <span class=c>/ns help</span> - try it now. Note that <span class=c>/ns</span> is the equivalent of <span class=c>/msg nickserv</span> so you can replace any instance of <span class=c>/msg nickserv</span> with <span class=c>/ns</span>.<br><br>
+
+The command you want is <span class=c>/ns register PASSWORD EMAILADDRESS</span> (type <span class=c>/ns help register</span> for more information). Remember DO ALL OF THIS IN THE CONSOLE WINDOW. I've seen people fuck up in channel windows and have broadcast their email and nick password to 400 fucking people. NEVER EVER TYPE SENSITIVE INFORMATION INTO A FUCKING CHANNEL WINDOW. EVEN IF YOU ARE THE ONLY ONE IN A CHANNEL. If you have followed the guide so far, you would not even be seeing a channel window.<br><br>
+
+Anyway, check your emails (check your SPAM box too, because Rizon signs itself up to numerous spam sites). Do what the email says and you should be registered.
+
+Before you go any further, it pays to check you are registered. In the Console window type <span class=c>/whois YOURNICK</span> where your replace YOURNICK with your nick (yes, some people have to be told this). If you see a line <span class=i>YOURNICK's info: has identified for this nick</span> then you are registered. Congratulations. The first hurdle is over.<br><br>
+
+Now it's time for some fancy automation. Press Alt-O (O for Orgasm) for the Options menu. You should should see a list of tickboxes. Make sure Use Invisible Mode is ticked.<br><br>
+
+Click the Perform button on the right hand side. This will bring up another dialogue box. Click Enable Perform on Connect at the top and then click the Add button. Scroll down to Rizon and click Ok.<br><br>
+
+Now, in the space Perform commands you want the following lines (you can add more yourself later, but these are the useful ones)<br><br>
+
+<span class=c>/ns identify YOURPASSWORD</span> (if you type YOURPASSWORD literally, disconnect now. Please.)<br>
+<span class=c>/mode YOURNICK +x</span> (this cloaks your hostname. Most clients do this automatically, but it pays to be sure)<br>
+<span class=c>/ns set kill quick</span> (stops people using your nick)<br>
+<span class=c>/ns set private on</span> (stops people finding your nick)<br><br>
+
+Later you will (yourself) learn how to be un-herkz-like and have a vhost. After which, you can add <span class=c>/hs on</span> to the perform list.<br><br>
+
+Click Ok to get back to the Console window. Press Alt-J to bring up the Favourites list. This is where you will set up channels to autojoin on connect. For a start, check Enable join on Connect at the bottom, then click the Add button. In the Add Channel window, type in #commie-subs into the channel dialogue box Check both the boxes in the options then click OK (don't worry about changing the Networks list because if you know about other networks then why the fuck are you reading this?). Click OK to get back to the console window.<br><br>
+
+Now type <span class=c>/quit</span> and then click the Lightning Bolt button at the top left of the screen to reconnect. If everything went well, you should automatically identify and join #commie-subs.<br><br>
+
+More helpful advice:<br><br>
+
+Alt-O<br>
+Go to IRC <br>
+Decheck Auto-join Channel on invite<br>
+Check Rejoin Channel when Kicked (to amuse the OPs)<br>
+Check Rejoin Channels on connect<br>
+Check Minimize Query Window<br>
+Go to Messages<br>
+Check Timestamp Events <br>
+Put [HH:nn:ss] in the box<br>
+Check UTF-8 encode/decode messages<br>
+Check Split long channel/query messages<br>
+Go to Flood<br>
+Check Enable Flood Protection<br>
+Check all options in Limit<br><br>
+
+Go to DCC<br>
+Make Sure Show get dialog is selected<br>
+Go to folders and set the appropriate shit up<br>
+Got to Server and disable that shit<br><br>
+
+Go to Display<br>
+Check Always Highlight on message<br><br>
+
+Click Ok to get out of that<br><br>
+
+Pres Alt-B to bring up the address book<br>
+Go to Highlight tab <br>
+Check Enable Highlight<br>
+Click Add button<br>
+In Highlight lines that contain these words type $me (yes with the dollar sign)<br>
+Under colour select Red (or something, but red is noticable.)<br>
+Select a sound if you want<br>
+Enable Flash and Tips if you want.<br>
+Click OK<br>
+Now when people use your nick. The message will show up as red with flashing, sounds and tips etc. <br><br><br><br>

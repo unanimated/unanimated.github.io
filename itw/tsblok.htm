@@ -1,0 +1,523 @@
+<html><head><title>ITW - Typesetting Blog?!</title>
+<meta charset="ISO-8859-1">
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold; text-decoration:none; color:556677}
+A:hover {color:778899}
+h2 {color:445566}
+h4 {font-size:11; color:223344}
+</style></head>
+
+<body bgcolor=000000 text=405060 topmargin=0>
+
+<center><br>
+<table align=center bgcolor=000000 cellpadding=15 cellspacing=2 width=834>
+
+<tr><td bgcolor=000000>
+<center><b><font size=6 color=445566>wtf a Typesetting Blog?!</font><br><br>
+IRC: <a href="irc://irc.rizon.net/irrational-typesetting-wizardry">#irrational-typesetting-wizardry</a>
+</td></tr>
+
+<tr><td bgcolor=000000>
+<br><br>
+
+
+
+<h2>The Hydraulics of Typesetting</h2>
+<h4>2014-03-04</h4><br>
+(No, the title doesn't make sense, but it's HYDRA-related.)<br><br>
+
+I've been experimenting and messing around with some things, and I've implemented some in the new <a href="../ts/hydra.lua">HYDRA</a>.<br>
+They're not all that extremely useful, but what do you expect from a tool that already does almost everything.<br><br>
+
+One thing that was annoying me about HYDRA is that the GUI was/is loading slowly. After some testing, I concluded that it's not really the amount of things it loads, but rather the dropdown menus specifically. All GUIs that have no dropdowns load pretty much instantly. The more dropdowns, the slower the loading seems to be. So I got the idea of only loading the basic things first, and having the rest as an option.<br><br>
+
+I made 3 modes: basic, medium, and full. In the settings, you have "startup_mode=1". That's the basic one. Obviously, 3 is the full one. This determines what state the GUI will normally load in. Here's what they look like.
+
+<br><br><br>
+<img src="hydra-small.png"><br><br>
+This is the basic mode. It has colours and most 'style' properties - the most commonly used things.<br>
+It has buttons to switch to medium or full mode, so you're not really missing anything, and it loads fast.
+
+<br><br><br>
+<img src="hydra-medium.png"><br><br>
+The medium mode is not that interesting, but I felt like keeping it.
+
+<br><br><br>
+<img src="hydra-full.png"><br><br>
+The full mode is pretty much the same as before, but with the additional option to load Help.<br>
+I find it convenient to have basic mode as default and switch to full when I need some of the other stuff.<br>
+If you don't wanna mess with all this, just use startup_mode=3.<br><br>
+
+Another thing I played with is the colour picker with alpha.<br>
+It hasn't been working until now, but since Plork fixed it, I figured I'd experiment with it.<br>
+The interface is like the regular tool, so nothing much to say there. You pick a colour and alpha. That's all.
+
+<br><br><br>
+<img src="hydra-alpha1.png"><br><br>
+The way HYDRA handles it is through the "Include alphas" checkbox. Without checking it, it works like before, just with colours. If you check it, it applies alpha too.<br>
+Since HYDRA also has those alphas with dropdown menus, I made it so that this overrides them, but they still work if you don't use this one.<br>
+More importantly though, <i>you need Aegisub r7993 or newer</i> for this to work.<br>
+On older versions, it should just ignore the alpha thing and work for colours. I don't really know how far back these colour pickers with alpha work at all, so if they don't, stick with HYDRA 3.33. (I think I'll finally add old versions to the scripts page.)<br>
+I tried this on Aegisub 2.1.9, and it doesn't load the colour pickers at all. I think it was introduced in Aegisub 3.1.
+
+<br><br><br>
+<img src="hydra-alpha2.png"><br><br>
+There's also the option to only use the alpha and not the colour.<br>
+Check the (Include alphas) "only" box. The 'include' one gets acknowledged automatically, so no need to check that one.<br>
+What you see in the picture will use alpha from the primary colour picker, but not the colour, so \1a but not \c.<br><br>
+
+One other little thing I recently changed is that I allow decimals for \be. This is not supported by regular vsfilter or libass, but apparently xy-vsfilter can use those, so for that current jump in \blur between 1 and 1.0000000x, if you use \blur1\be0.2, it helps with the problem on xy-vsfilter. The other renderers just ignore the \be, as far as I can tell. I can't guarantee that it won't break anything; I just noticed it worked on xy-vsfilter.
+
+
+<br><br><br>
+<img src="hydra-tmode.png"><br><br>
+Then there's the transform mode. It's been there for a while, but while I'm at this...<br>
+Normal mode is normal. Duh.<br>
+"add2first" will add your transforms to the first transform it finds in the line. The usefulness is that if you have a colour transform and want to tweak the colour, you can do it with the eyedropper without fucking up any tags (as long as it's the first transform). It doesn't care about the timecodes of the transform, so don't try to set them. It keeps whatever the transform already has.<br>
+"add2all" adds your transform to all transforms in the line. I don't know if it's useful at all, but it was easy to do, so I added it in case somebody ever needs it. If you ever need it, you can thank me for my planning ahead.
+
+<br><br><br>
+<img src="hydra-inlinemode.png"><br><br>
+The last thing, not completely new but recent, are the inline tag presets. I'm not sure if they have any other use than prepare the line for gradient by character, but they are there. You can add tags before last letter, in the middle of the line, and in other places proportionate to the length of the line.<br>
+I think this is primarily useful for colours (and mostly for song styling), so I added a much more useful version to Colorize.<br><br>
+
+Check "Set colours across whole line", and choose the number of colours...
+<br><br><br>
+<img src="colorize-across.png"><br><br>
+...and the next GUI lets you choose those 8 (or however many you chose) colours, which colour it should apply to (\c, \3c...), and then it distributes them evenly from the start of the line to before the last character. Then you can use Gradient by character to fill in the blanks.<br><br>
+
+Have fun.
+
+<br><br><br><br>
+
+
+
+
+<h2>Two Ways of Calculating \fax</h2>
+<h4>2014-03-03</h4><br>
+As I'm sure everyone knows by now, I don't like having to type when typesetting. On the other hand, I like writing lua scripts, for some reason. So I've been thinking for a while about how to calculate the value for \fax instead of having to type one, see how it looks, change the number, and repeat until it's good. I figured I might be able to calculate it from two given points.<br><br>
+
+It took several hours that involved looking up basic trigonometry because, seriously, after more than 15 years out of school, I don't remember any of that shit. In the end, I figured it out, and it works reasonable well under most circumstances.
+
+<br><br><br>
+<img src="faxx01.png"><br><br>
+Here's some lame example. I'm sure you can see how this needs \fax (among other things).
+
+<br><br><br>
+<img src="faxx02.png"><br><br>
+So the first way I thought of was using \pos and \org. What you do is move the \org point in the direction the letters should be leaning to (from \pos as a reference point). On one hand, this doesn't look very precise, but on the other, this will probably work well enough. For more precision, you can move the anchor and the origin point on the line left from "W" to make sure they're both on that line (which has the direction you're trying to match).
+
+<br><br><br>
+<img src="faxx03.png"><br><br>
+Once you get that done, use this function.
+
+<br><br><br>
+<img src="faxx04.png"><br><br>
+The script calculates \fax and nukes the \org. For a dirty solution that took about 2 seconds, this worked well enough.
+
+<br><br><br>
+<img src="faxx05.png"><br><br>
+It wouldn't be too useful if it only worked without any rotations, so I aimed to make it work with \frz.<br>
+That posed two problems. Moving \org with some \frz was kinda messy and the sign was jumping all over the place, and obviously sometimes you need that \org for other things, like, you know, the origin of the rotation. So I was looking for another way to get two reference points.
+
+<br><br><br>
+<img src="faxx06.png"><br><br>
+The solution I came up with (and that generally works much better than the first option) is vectorial clip.<br>
+The \fax value is calculated from the first two points of the clip. It's the first 2 points you draw, as in, it uses the "m 0 0 l 0 0" pattern at the beginning. You don't need any more points (the clip will be deleted anyway), but I made a 3rd one just so you can see the sign.<br>
+So the two points here are what the vertical direction of the letters should be. Just draw the line over anything that goes in the direction your text needs to match.
+
+<br><br><br>
+<img src="faxx07.png"><br><br>
+Now you use the "clip to fax" function. As I've said, it's more practical than the "org" version, because you can draw the clip anywhere disregarding of the text, but I left the other one in case you actually need the clip but not \org.
+
+<br><br><br>
+<img src="faxx08.png"><br><br>
+Here's the result. Kinda looks like ass because the sign isn't properly styled, but it worked.
+
+<br><br><br>
+<img src="faxx09.png"><br><br>
+Showing the grid lets you see that the orientation is correct.<br>
+The sign should be bigger on the right, so it needs a little \frx and \fry, so let's add those and fix up the other things.
+
+<br><br><br>
+<img src="faxx10.png"><br><br>
+There. Good enough.<br>
+Now, obviously, trying to calculate it including \frx and \fry would be insane, so nope. Only works with \frz.<br>
+(But as you see, a little \frx and \fry won't throw it off much.)<br>
+There's also the issue of scaling, which proved more complicated than I hoped, so for this to work right, \fscx must be the same as \fscy. (Though again, minor discrepancy, like 5%, should be negligible.)<br>
+That's the limitations, but I think this can probably cover more than 90% cases of when you need \fax.
+
+<br><br><br><br>
+
+
+
+
+
+
+<h2>Quick Way to Make Custom Masks</h2>
+<h4>2014-03-01</h4><br>
+I used the convert-clip-to-drawing code and merged it into <a href="../ts/masquerade.lua">Masquerade</a>.<br>
+This allows you to make a mask of any shape quickly.
+
+<br><br><br>
+<img src="clipmask01.png"><br><br>
+Here's a sample fake sign.
+
+<br><br><br>
+<img src="clipmask02.png"><br><br>
+Style it. Place it.
+
+<br><br><br>
+<img src="clipmask03.png"><br><br>
+Use the clip tool to draw the mask. You can use \2c as the colour for the mask.
+
+<br><br><br>
+<img src="clipmask04.png"><br><br>
+Run Masquerade. Select "from clip"...
+
+<br><br><br>
+<img src="clipmask05.png"><br><br>
+...and the mask is there, in position, with the drawn shape, in the colour you used as \2c.<br><br>
+k thx, that's all.
+
+<br><br><br><br>
+
+
+
+
+
+
+<h2>HYDRA 3.0 - Inline Tags</h2>
+<h4>2014-01-15</h4><br>
+My extreme laziness to type made me try writing a function that would do inline tags, just to allow me to add a bunch of tags to the middle of the line without having to type them in the edit box. I haven't tested it extensively, and since I also rewrote half of the HYDRA code because of it, I'll leave it as a beta release until it gets properly tested.<br>
+<a href="hydra.lua">HYDRA 3.0 beta</a><br>
+(Note: because of the changed code, HYDRA now kills duplicate tags by default.)
+
+<br><br><br>
+<img src="hydra3.png"><br><br>
+
+Here's how it works. The "Tag position" field loads the first selected line's text without tags and comments, like you see here.<br>
+If you want to put tags before the word "Hydra", you put an asterisk before the word, like the image shows.<br>
+I checked the primary colour, so when clicking Apply, the line becomes this:<br><br>
+
+<img src="hydra3line.png"><br><br>
+
+That's basically it, if you use it on one simple line without trying anything weird.<br>
+Now for all the non-standard cases and possible tricks.<br><br>
+
+If you use it on multiple lines with the same text, it works on all lines as you'd expect.<br>
+It always loads the text of the first selected line (which is not necessarily the active line).<br>
+If the other lines have different text, nothing will happen with them.<br><br>
+
+Now, the way it works is that it splits the line you see in the GUI into 3 parts: [before *][*][after *].<br>
+Then it makes a replacement of [before *][*][after *] with [before *][your new tags][after *].<br>
+This means that if you already have some other inline tags, like before the word "with", it won't work, because the pattern "tags with Hydra" doesn't actually exist — it's really "tags {\some tags here}with Hydra".<br>
+You can simply bypass this by deleting the start of the line in the GUI and leaving only "with *Hydra".<br>
+The function will then replace "with *Hydra" with "with {\your new tags}Hydra".<br>
+So you see it just works on any pattern you give it that can be found in the line. If you just ignore the line's text completely, you can type "*a" in the GUI, and the new tags will be placed before every letter "a".<br>
+Should you use the pattern "*b", it would in this case include the b's in \bord and \blur, so using very short patterns may just match things you don't want to match.<br><br>
+
+If you select multiple lines and set the pattern to "*the", it will place the new tags before every instance of the word "the", disregarding what the rest of the text says, so if the selected lines have different texts but contain the word "the", the tags will go before that word.<br>
+The inline-tag mode is activated when you put an asterisk in the line in the GUI. For lines that don't match the pattern, nothing will happen. If there's no asterisk, the line in the GUI is ignored, and HYDRA works the usual way.<br><br>
+
+One more thing: You can add new tags to a place where tags already exist. So if you use the script again on the line where we already added a colour tag before "Hydra" and put the asterisk before "Hydra", the new tags will be added to the colour tag. In other words, this is the one exception where the pattern is matched even though there are tags that you don't see in the GUI.<br><br><br>
+
+Do some testing and report if you find problems.
+
+<br><br><br><br>
+
+
+
+
+
+<h2>Select Tricks and Sort Tricks</h2>
+<h4>2013-12-02</h4><br>
+I've been updating this script in the past few days, and I think it has pretty much all it needs now.<br>
+<a href="../ts/selectrix.lua">Selectricks</a> v2.3 should cover anything you may need in terms of selecting and sorting lines.
+
+<br><br><br>
+<img src="selectrix.png"><br><br>
+
+This is basically Aegisub's selecting and sorting functions in one, with a bunch of extra options.<br>
+There are a few advantages of the inbuilt tools (like hotkeys for each sorting function), but a lot more advantages of this one.<br>
+<br>
+
+The main reason I started writing this a few months ago was to have the option to select by layer.<br>
+This is quite useful to typesetters for adjusting signs with multiple layers, especially when mocha-tracked.<br>
+When your typeset has 3 lines with different text, each of them in 3 layers mocha-tracked over 100 frames, and you need to fix colour on layer 1 for 1 of the 3 signs, it's still doable with the inbuilt tools, but a bit messy.<br><br>
+
+Based on what I need most of the time when typesetting, I made the default setting to select from the current selection.<br>
+For illustration, let's look at what I have to deal with in NouCome all the time.
+
+
+<br><br><br>
+<a href="selectrix-nc.png"><img src="selectrix-nc.png" width=800></a><br><br>
+Those 16 highlighted lines are on the same frame(s). You can see that what I have on one frame has 4 different styles, 4 layers, and total chaos in the Text column. On the next frame, the styles are a bit different, and the text has different colours and some other things. This switches back and forth a few times, so the whole thing is 176 lines.<br>
+Now, I may need to change the colour of "Go (There Will Be Trouble)", but only on layer 4, and not 3. To separate them with the inbuilt tools, you'd have to sort the 176 lines by layer (and even that was only added on my request), then by style, and then you'd still have the needed lines mixed with "Stay (It Will Be Double)". Aegisub doesn't sort by text, so you'd need to select by text, using "Intersect with selection".<br>
+Not only is this kind of slow, but it also completely messes up your order of lines, and when you need to do something else, you'll have to reorder them differently.<br>
+So as an example of what Selectricks can do, you would first select all the 176 lines. Then you can start with whatever, for example text. Select by text, match "trouble", click. Your selection is now on all lines with "Go (There Will Be Trouble)". Select by layers, match "4", click. Done. Not only you have selected the lines you need, but you also didn't mess up the order of lines.<br>
+Since this is the way I mostly need to select stuff, the "Select from: current selection" option is default. The alternative, of course, is to select from all lines.<br><br><br>
+
+Now, let's get back to the GUI and explain all the options.
+
+
+<br><br><br>
+<img src="selectrix.png"><br><br>
+
+<b>Select by</b> is one of the two main things you need. One is typing the string you want to match, the other, this one, is where it should look for that string. We'll get to the details later.<br><br>
+
+<b>Select from:</b> current selection / all lines. The inbuilt tool has some other options, like "add to selection" and "subtract from selection", but since I've never ever needed either of those, I haven't bothered including them. To be honest, I don't even really use the "all lines" option, because hitting ctrl+A before opening Selectricks is kinda faster than changing the option in the dropdown menu.<br><br>
+
+<b>matches / doesn't match</b> should be pretty clear, and you'll need it pretty rarely.<br><br>
+
+<b>Match this</b> is where you type the string. It remembers last search (unless you rescan scripts) and has a few checkbox options associated with it.<br><br>
+
+<b>case-sensitive / regexp / exact match</b> — I hope I don't need to explain the first and last one. Regexp is limited because it's the lua regexp the automation scripts use. The only change I made to it is to allow \ where lua uses % (either will work). To be honest, I don't know how well this is working, but I seriously doubt that you will ever need more complex regexp than it can handle. Note: due to reasons, if you use \l or \u, you need to check "case-sensitive".<br><br>
+
+<b>exclude commented lines</b> — By default, commented lines will not be selected, since you usually don't work with those, but you can uncheck this to include them.<br><br>
+
+<b>load results in an editor</b> — Selectricks has the whole Multi-line Editor built in, so if you check it, it will load the matched selection in it, and you can for example use the Replace function on the selected lines. (I'll probably write more about the MultiEditor next time.)<br><br>
+
+<b>Numbers</b> — I skipped this before. There are two types of strings to select by — text and numbers. While for text you have "matches / doesn't match" and the checkbox options on the right, for numbers you have ==, >=, and <=. This is easy to understand on the example of layers: you can select lines on layer 3, lines on layer 3 and below, or lines on layer 3 and above.<br><br>
+<br>
+
+The main two functions, selecting and sorting, each have its own button. The Preset button is for selecting only. I'll get to Sorting and Presets later.<br><br>
+
+Now, let's get to all the options for "Select by".
+
+
+<br><br><br>
+<img src="selectrix2.png"><br><br>
+
+<b>Style, actor, effect, text</b> — These should all be clear. Sorting by effect can be handy if you use the effect field as marker for various things. The <a href="../ts/import.lua">Unimportant</a> script can number/mark lines with various patterns in the actor or effect field, which you can then use to distinguish between lines for easier separation.<br><br>
+
+<b>visible text (no tags)</b> — This pretty much only searches text you'd see on the screen. It's applied to the Text field after all {\tags} and {comments} have been removed. The minor discrepancy is that it will include text that's after {\alpha&HFF&}, which is not really visible.<br><br>
+
+<b>layer</b> — Obvious.<br><br>
+
+<b>duration</b> — Duration of a line in milliseconds.<br><br>
+
+<b>word count</b> — Pretty obvious. Excludes comments/tags. A "word" is a string containing letters and apostrophes. Hyphenated composites are counted as multiple words.<br><br>
+
+<b>character count</b> — Excludes linebreaks, spaces, and some punctuation.<br><br>
+
+<b>character per second</b> — This may help you find lines that are hard to read.<br><br>
+
+<b>blur</b> — Reads the value from the first blur tag in the line, but 0 will also match lines with no blur tag.<br><br>
+
+Don't forget that these can all be used with >= and <=.<br><br><br>
+
+
+
+<b>SORTING</b><br><br>
+
+All the above-mentioned options work for both selecting and sorting. Sorting shouldn't need much extra explanation. Default sorting is in ascending order. If you want the order reversed, check that "reversed" checkbox that I skipped earlier. Lines with the same value of what you're sorting by stay in the original order, though with "reversed", they will be reversed too.<br><br>
+
+There are a few "sorting only" options, which don't apply to selecting.<br><br>
+
+<b>sort by time</b> is clear. There's no sorting by "end time" because I've never needed it, and neither do you.<br><br>
+
+<b>reverse</b> — Simply reverses the line order.<br><br>
+
+<b>dialogue first</b> — Dialogue lines go to the top, signs (and OP/ED) below. Dialogue lines are those with "Defa" or "Alt" in style.<br><br>
+
+<b>dialogue last</b> — The reverse of the previous.<br><br>
+
+<b>ts/dialogue/oped</b> — Signs to the top, anything matching "Defa" or "Alt" after that, and anything matching "OP" or "ED" at the end. While you may call your styles whatever you want, I recommend that the dialogue and OP/ED style names stick to this pattern, as many scripts can distinguish between them this way. Also note that everything in lua is case-sensitive unless specifically made not to be so, so OP/ED must be capitalized, as well as the D and A. Of course, a style named STOP will be matched as OP, and BORED as ED, so try to avoid that if you want to make good use of the scripts. (Some of my other scripts only match OP and ED at the start of the name, but not this one.)<br><br>
+
+<b>{TS} to the top</b> — This, of course, does what it says it does. In the unlikely case that it doesn't do what it says it does, it's doing something that it's not supposed to do and should be reported to me so that I can make it do what it should have been doing all along.<br><br>
+
+<b>masks to the bottom</b> — I dunno, Hdr asked for it.<br><br>
+
+<b>by comments</b> — This means {this kind of }comments. Matches the first one in the line. You may thus use comments as additional markers for specific lines.<br>
+
+<br><br><br>
+<img src="selectrix3.png"><br><br>
+
+What's left is the Presets.<br><br>
+
+<b>Default style - All</b> — This selects dialogue style (Defa/Alt) from the entire script. I use this when I open last week's episode, select the dialogue like this, delete it, and then I have OP/ED and episode-title typesets ready for shifting to the new episode.<br><br>
+
+<b>nonDefault - All</b> — The opposite.<br><br>
+
+<b>OP / ED in style</b> — Selects all lines that match OP/ED in style. Pretty useful for shifting OP/ED, unless you name some other styles confusingly or name your OP style "LOL".<br><br>
+
+<b>layer 0</b> — Selects all lines on layer 0. Not really sure how it's useful, but for some unclear reasons I included it.<br><br>
+
+<b>skiddiks, your their?</b> — Requested by skiddiks, this selects all lines containing the words <i>your, you're, their, there, they're</i>. Something to do with him editing when sleep-deprived.<br><br>
+
+All the options above select from the whole script. The two below select from current selection.<br><br>
+
+<b>no-blur signs</b> — As I'm sure you didn't expect at all, this selects signs with no blur.<br><br>
+
+<b>commented lines</b> — Yes. It selects commented lines. If you need to select only not-commented lines, just open Selectricks and click Set Selection with default settings. It will match an empty string (ie, all lines) but "exclude commented lines".<br><br><br>
+
+To give a few examples of how you can use this, let's look back at that screenshot of NouCome script.<br><br>
+
+If you want to select the lines that have "q" as text — {\bord0\blur0.8\c&HFFFFFF&\fscx165\fscy165\3c&HA65029&\pos(340,110)}q — you match just "q", check "exact match", and select by "visible text (no tags)".<br><br>
+
+There are a bunch of lines with "qtttttteeep" as text. (Those are masks made with a special font.) If you need to select specific ones, you first select all the lines and then narrow it down. First by text "qtttttteeep", then by style (there are 4 different ones), and if you need only one of the two that are always together, the difference is positive and negative \yshad, so you could go by "ad2" or "ad-2" in Text.<br><br>
+
+You can also, of course, sort them differently first. With all the options, it's always easy to sort them back into the original order.<br><br>
+
+I highly recommend binding the script to a single key, like "S" (without shift/ctrl/alt), under Subtitle Grid.<br><br>
+
+If you think there's still something missing that would be useful, let me know, and I may add it.
+
+
+<br><br><br><br>
+
+
+
+<h2>Timing Operations</h2>
+<h4>2013-11-28</h4><br>
+
+One of the scripts that probably almost nobody ever noticed is ShiftCut. I originally wrote it because I had some script that had huge lead outs and I wanted to cut those. TPP can only add.<br><br>
+
+Later, of course, I started adding things and pretty much added everything that TPP does, just so I'd eliminate the need for TPP completely and could use just one thing instead of two. 
+
+<br><br><br>
+<img src="shiftcut.png"><br><br>
+So, it's kind of like TPP with extra functions, and this is what it looks like now.<br>
+To make it maybe less confusing, let's take it apart.
+
+<br><br><br>
+<img src="shiftcut-disassembled.png"><br><br>
+Top part is general settings, under it is lead in/out and shifting, then line linking, and on the right keyframe snapping.<br>
+As you can see from the buttons, you only use one part at a time.<br><br>
+
+<b>Apply to selected / all lines.</b> This should be obvious.<br><br>
+
+<b>Styles to apply to.</b> There are 3 presets. All, All Default, Default+Alt. "All Default" applies to all styles with "Defa" in the name. "Default+Alt" applies to styles with "Defa" or "Alt" in the name. So this will match stuff like "Default Flashback" or "Alternative".<br>
+After that it loads all styles present in your script.<br><br>
+
+<b>Cut / Add / Shift.</b> As this was the original intent, the default setting is to cut leads. However, at the top of the script, there are options for all default values, so you can change it however you want. Times are in milliseconds, so with 200 in the lead in part, lead ins will be cut by 200 ms.<br>
+If you want to create lead in/out, like with TPP, check the [or add] checkboxes.<br>
+Shifting is simple, also in ms. Left is backward, right is forward, because, you know, that's what it looks like on the audio.<br><br>
+
+<b>Prevent overlaps from adding lead in/out.</b> This should be the default setting, which makes sure that adding leads won't make lines overlap, but in case you really want to add lead out to a bunch of lines disregarding overlaps with lines after them, you can uncheck this. It can be useful for song styling where overlaps may not be a bad thing.<br><br>
+
+<b>Line linking.</b> This is like in TPP. Bias 0.8 is 80% to the right, or in other words, 80% of the gap will become lead out and 20% will be lead in for the next line.<br>
+Fixing overlaps is something extra I added, though now Aegisub has it too (but as far as I can tell it's either broken or I'm not sure what exactly it's doing). If you just set it to 50, it will fix one-frame overlaps. 500 means it will not allow overlaps up to 500 ms, so if it finds one, it does the opposite of line linking — it joins the lines based on the Bias setting.<br>
+If you want to only fix overlaps, without line linking, set the gap for linking to 0.<br><br>
+
+<b>Keyframes.</b> This is pretty much the same as in TPP, except the presets and preventing overlaps. If in TPP your ends_before setting is higher than starts_before, it will cause overlaps, which is kinda dumb because you probably don't want that unless you're dumb too. So the prevent_overlaps setting is pretty useful.<br>
+The other advantage is having a few presets. I remember with TPP when I needed to just snap something_I_shifted to keyframes with like 2,2,2,2, I didn't remember the original settings when I needed them again. So this has 1,1,1,1, and 2,2,2,2, for snapping shifted stuff, and a few other presets, like 0,0,0,10 for fixing bleeds.<br>
+You could even add your in the settings, as long as you don't fuck up the pattern. The setting is:<br>
+kf_snap_presets={"1,1,1,1","2,2,2,2","6,6,8,12","6,6,10,12","6,10,8,12","8,8,8,12","0,0,0,10","7,12,10,13"}<br>
+Keep the commas and quotation marks correct and you can add as many presets as you want.<br><br>
+
+So in summary, what you have here in addition to regualr TPP stuff: cutting leads, adding leads even over other lines, shifting, fixing overlaps with a Bias setting (TPP seems to link them at the start of the overlap), preventing overlaps for keyframe snapping, and presets for keyframe snapping.
+
+<br><br><br><br>
+
+
+
+
+
+<h2>Calculating Origin Point</h2>
+<h4>2013-11-27</h4><br>
+
+Continuing with aligning signs. I thought I'd try to actually calculate the origin point from given coordinates — an idea that jfs has been playing with for a while. After a few hours of trial and error I came up with a script half of which I don't really understand, but somehow magically it seems to work. I hope nobody finds bugs in it, because the code is sheer chaos to me.<br><br>
+
+The usage is pretty simple though. You mark 4 points with the vectorial clip, and the script calculates where \org should be.
+
+<br><br><br>
+<img src="ts-origin-clip.jpg"><br><br>
+This is how you use it. Draw a tetragon that's aligned to the surface you want your sign on. Make the clip as large as you can, since on a smaller one any inaccuracies will be more obvious. Try to be as precise as you can.
+
+<br><br><br>
+<img src="ts-hr-origin.png"><br><br>
+Now use this new function called "calculate origin". (<a href="../ts/relocator.lua">Hyperdimensional Relocator</a> v1.6)<br>
+This, after doing a bunch of calculations I don't really remember or understand, will put the \org tag in your line, with supposedly correct coordinates. This may or may not work right, but so far it's been working in my tests. There will be some inaccuracies as a result of the clip drawn being inaccurate, but unless your faggosaurosis levels are extremely high and you drew a circle instead, these will be negligible.
+
+<br><br><br>
+<img src="ts-origin-01.jpg"><br><br>
+Now you apply the grid and start tweaking the rotations (\frx and \fry). What I've tried was usually somewhere in the range of 3-8 degrees in any direction. Here you can see the grid partly aligned, pretty much as good as I could make it with the rotation tool.
+
+<br><br><br>
+<img src="ts-origin-02.jpg"><br><br>
+After that, I had to type decimal values in the Subtitle Edit Box. Here's the final alignment. I didn't touch the \org after it was calculated, so you see this worked out pretty well. The result: \org(631,1183)\frx3.4\fry355.6<br>
+If the origin point happens to be really far away, using the rotation tool may be pretty difficult, so you might be better off changing the rotations by typing.<br>
+The only problem I'm having is that Aegisub tends to crash when messing with the grid, like when I type the rotation values. It's pretty random and the same thing will cause a crash once but not another time, and I don't know where the problem is (Aegisub? vsfilter?), but it seems like messing with larger drawings is a bit unstable, so just make sure you save a lot when you do this, and maybe keep the grid from being larger than you need.
+
+<br><br><br>
+<img src="ts-origin-03.jpg"><br><br>
+Anyway, here's the grid on the more relevant frames...
+
+<br><br><br>
+<img src="ts-origin-04.jpg"><br><br>
+...and here are a few signs with the data applied.<br>
+The only thing different in all these lines is \pos. Rotations and \org are all the same.<br><br><br>
+
+Edit: found some bugs and probably fixed them in v1.62.
+
+<br><br><br><br>
+
+
+
+
+<h2>Aligning Signs Using an Alignment Grid</h2>
+<h4>2013-11-26</h4><br>
+
+So yeah, I had another idea for what to waste my time on. This is probably gonna be very random, but whatever.<br><br>
+
+I'm pretty sure that only very few people have any idea what most of my automation scripts (can) do. So every now and then, I'm gonna explain some stuff or post some updates.<br><br>
+
+Let's start by mentioning that I just added a new video to the <a href="../ts/ts-video.htm">video section of the TS guide</a>. It explains everything about the Hyperdimensional Relocator. Not like the script doesn't have a long-as-fuck section with instructions, but how many of you actually read that shit, huh?<br><br>
+
+Moving on to the current issue - aligning signs, in this case with \frx\fry\org. In most cases, you can do things better with \frz\fax, but sometimes that just doesn't cut it. So, since the inbuilt grid in Aegi is kinda useless, I used ASSDraw to make a better one, and I added it to the list of masks in <a href="../ts/masquerade.lua">Masquerade</a>, as you can see below.
+<br><br>
+
+<img src="ts-align-masq.png"><br><br>
+There are two grids to choose from. The only difference is that the second one has more lines. So you just run this on the line that you need to align, it creates another line with the grid, and you can mess with the grid to get the right alignment.
+
+<br><br><br>
+<img src="ts-align00.jpg"><br><br>
+This is what the grid (2) looks like. It's pretty large, but you can use the scaling tool to scale it down for smaller signs. The rectangle in the middle should give you a rough idea where the text will be. If you create the mask from a line that already has rotations or \org, they will be copied to the mask. (Need Masquerade v1.41.) Here you can see the default.<br>
+The grid has some transparency so that you can see the picture well enough. If you start rotating it, the grid may disappear in some positions. I don't know if it's vsfilter's fault or what, but apparently, if it's too large, it becomes invisible, so just scale it down if needed.<br>
+Now, you can either select both the sign and the grid and move/rotate them at the same time, or you can just mess with the grid and later use Relocator to copy all the needed tags to the sign. This is probably better because you can't move the \org point of both lines with the rotation tool selected (as of now, at least).
+
+<br><br><br>
+<img src="ts-align01.jpg"><br><br>
+Once you get all the stuff right, it should look something like this. For the record, the origin is at 895,800 (720p res).<br>
+Aligning may still take a while, but at least you can clearly see whether you got it right or not, and the whole process is faster than with a sign because you can immediately see whether you're going in the right direction, etc.<br>
+Once you set it up like this, the grid should be aligned no matter where you move it. In other words, as long as the \org stays where it is, you can drag the anchor, and the grid will still be aligned in any part of the screen.
+
+<br><br><br>
+<img src="ts-align02.jpg"><br><br>
+Here's the top left part.
+
+<br><br><br>
+<img src="ts-align03.jpg"><br><br>
+And here's top right.<br><br>
+
+One trick for moving the \org point when it's off the screen: Select drag mode. Let's say you want the \org go about 50 pixels to the right. Sure, you can type it, but there's another way. Double-click 50 pixels to the right from the anchor. This will move both the anchor (\pos) and the \org point by the same amount. Now, drag the anchor back, and you have the anchor in the same place as before, while the \org point has moved 50 pixels to the right. It has less precision, but it's not like you know where the \org needs to be exactly anyway, and it's a bit faster.
+
+
+<br><br><br>
+<img src="ts-align04.jpg"><br><br>
+
+So, now you have the grid aligned, and you need to align the actual sign.<br>
+Use <a href="../ts/relocator.lua">Hyperdimensional Relocator</a> / Cloning Laboratory with "copyrot" checked. (Requires HR v1.55.)
+
+<br><br><br>
+<img src="ts-align-hr.png"><br><br>
+In case you don't know how this works — the first line has to be the grid, the second the sign, you select both, and it copies the checked things from line 1 to all other selected lines, in this case line 2.
+
+
+<br><br><br>
+<img src="ts-align05.jpg"><br><br>
+And here's your aligned sign, looking all perfect.<br>
+Same as with the grid, you can now move it, and as long as the \org point stays in place, the sign will be aligned perfectly well wherever you move it.
+
+<br><br><br>
+<img src="ts-align06.jpg"><br><br>
+(This is resized to be larger than in the previous screenshot.)
+
+<br><br><br>
+<img src="ts-align07.jpg"><br><br>
+Useful advice in case you have faggosaurosis: don't forget to delete the grid when you're done.
+
+<br><br><br>

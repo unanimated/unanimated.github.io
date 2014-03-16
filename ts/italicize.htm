@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en_US" lang="en_US">
+<head>
+<title>Italicize explained</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<link rel="stylesheet" type="text/css" href="luacss.css" />
+<link rel="shortcut icon" href="/static/favicon.ico" />
+
+<meta name="ROBOTS" content="NOINDEX,NOFOLLOW" />
+
+<script type="text/javascript">
+$(document).ready(function(){
+base_init();
+});
+</script>
+</head>
+<body>
+<div id="content">
+<h1>Italicize script explained</h1>
+
+<div class="source"><pre><span class="c1">-- italicizes or unitalicizes text [based on style and tags]</span>
+<span class="c1">-- supports multiple \i tags in a line by switching 0 to 1 and vice versa</span>
+
+<span class="n">script_name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">Italicize&quot;</span>
+<span class="n">script_description</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">Italicizes or unitalicizes text&quot;</span>
+<span class="n">script_author</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">unanimated&quot;</span>
+<span class="n">script_version</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">1.6&quot;</span>
+
+<span class="c1">-- let&#39;s say for the sake of clarity that we&#39;re using this on a line with style &quot;sign&quot;</span>
+
+<span class="k">function</span> <span class="nf">italicize</span><span class="p">(</span><span class="n">subs</span><span class="p">,</span> <span class="n">sel</span><span class="p">)</span>
+	<span class="k">for</span> <span class="n">z</span><span class="p">,</span> <span class="n">i</span> <span class="k">in</span> <span class="nb">ipairs</span><span class="p">(</span><span class="n">sel</span><span class="p">)</span> <span class="k">do</span>
+		<span class="kd">local</span> <span class="n">l</span><span class="o">=</span><span class="n">subs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+		<span class="n">text</span><span class="o">=</span><span class="n">l</span><span class="p">.</span><span class="n">text</span>
+		
+		<span class="c1">-- this runs function &quot;stylechk&quot; that you see further below</span>
+		<span class="c1">-- you pass &quot;l.style&quot; to the function, ie. the name of the style this line is using, in our case &quot;sign&quot;</span>
+		<span class="n">styleref</span><span class="o">=</span><span class="n">stylechk</span><span class="p">(</span><span class="n">subs</span><span class="p">,</span><span class="n">l</span><span class="p">.</span><span class="n">style</span><span class="p">)</span>
+		
+		<span class="c1">-- styleref is now kind of like &quot;line&quot;, but for the style</span>
+		<span class="c1">-- just like you have line.text, you have styleref.name, which is now &quot;sign&quot;, or styleref.italic, which is true or false</span>
+		
+		<span class="c1">-- we&#39;ll assign the italic element to &quot;si&quot; (style italics)</span>
+		<span class="c1">-- it is either true for italics, or false for regular</span>
+		<span class="kd">local</span> <span class="n">si</span><span class="o">=</span><span class="n">styleref</span><span class="p">.</span><span class="n">italic</span>
+		
+		<span class="c1">-- now we want to transform true/false into 1/0, creating variable &quot;it&quot;</span>
+		<span class="c1">-- the values are 1 for non-italics and 0 for italics, because it&#39;s the switched values i want to use</span>
+		<span class="k">if</span> <span class="n">si</span><span class="o">==</span><span class="kc">false</span> <span class="k">then</span> <span class="n">it</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">1&quot;</span> <span class="k">else</span> <span class="n">it</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">0&quot;</span> <span class="k">end</span>
+		
+		<span class="c1">-- this is to deal with \i without a number, which resets \i to the style value; i need it to have a number</span>
+		<span class="c1">-- &quot;it&quot; is the opposite of the style, so &quot;1-it&quot; is the style value - 1-0=1; 1-1=0</span>
+		<span class="c1">-- in other words, if style is not italics, we change \i to \i0</span>
+		<span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">i([</span><span class="se">\\</span><span class="s">}])&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">i&quot;</span><span class="o">..</span> <span class="mi">1</span><span class="o">-</span><span class="n">it</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">%1&quot;</span><span class="p">)</span>
+		
+		    <span class="c1">-- now i have to consider 2 options - either there&#39;s italics tag at the beginning, or not</span>
+		    <span class="k">if</span> <span class="n">text</span><span class="p">:</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">^{[^}]*</span><span class="se">\\</span><span class="s">i%d[^}]*}&quot;</span><span class="p">)</span> <span class="k">then</span>
+			
+			<span class="c1">-- if there is, then we change it, and all subsequent \i tags, to the opposite value</span>
+			<span class="c1">-- i take the number after \i, and change it to 1-number, thus turning 1 to 0 and vice versa</span>
+			<span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">i(%d)&quot;</span><span class="p">,</span> <span class="k">function</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s">i&quot;</span><span class="o">..</span> <span class="mi">1</span><span class="o">-</span><span class="n">num</span> <span class="k">end</span><span class="p">)</span>
+		    
+		    <span class="c1">-- this is when there&#39;s no \i tag in the first block of tags</span>
+		    <span class="k">else</span>
+			
+			<span class="c1">-- the line may have italics somewehre in the middle, so we capture the value</span>
+			<span class="k">if</span> <span class="n">text</span><span class="p">:</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">i([01])&quot;</span><span class="p">)</span> <span class="k">then</span> <span class="n">italix</span><span class="o">=</span><span class="n">text</span><span class="p">:</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">i([01])&quot;</span><span class="p">)</span> <span class="k">end</span>
+			
+			<span class="c1">-- this may get a bit confusing. we&#39;re dealing with a line that has italics in the middle.</span>
+			<span class="c1">-- so style value is &quot;not_it&quot; (as in opposite of &quot;it&quot;), value we want for the start of line is &quot;it&quot;,</span>
+			<span class="c1">-- and value we want for the next \i tag, the one we captured, is again &quot;not_it&quot;</span>
+			<span class="c1">-- so logically that value, italix, should be &quot;it&quot;</span>
+			<span class="c1">-- if that&#39;s the case, all \i tags get switched</span>
+			<span class="c1">-- the reason i check for this is that i assume you might be an idiot and have the wrong tag</span>
+			<span class="c1">-- in which case i won&#39;t change it because it will thus become right</span>
+			<span class="k">if</span> <span class="n">italix</span><span class="o">==</span><span class="n">it</span> <span class="k">then</span> <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s">i(%d)&quot;</span><span class="p">,</span> <span class="k">function</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s">i&quot;</span><span class="o">..</span> <span class="mi">1</span><span class="o">-</span><span class="n">num</span> <span class="k">end</span><span class="p">)</span> <span class="k">end</span>
+			
+			<span class="c1">-- we&#39;ve changed all the existing tags (if there were any), so now we add a tag at the beginning, with the value &quot;it&quot;</span>
+			<span class="n">text</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">{</span><span class="se">\\</span><span class="s">i&quot;</span><span class="o">..</span><span class="n">it</span><span class="o">..</span><span class="s2">&quot;</span><span class="s">}&quot;</span><span class="o">..</span><span class="n">text</span>
+			
+			<span class="c1">-- and join it with other tags at the beginning, if they&#39;re there</span>
+			<span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">:</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">{</span><span class="se">\\</span><span class="s">i(%d)}({</span><span class="se">\\</span><span class="s">[^}]*)}&quot;</span><span class="p">,</span><span class="s2">&quot;</span><span class="s">%2</span><span class="se">\\</span><span class="s">i%1}&quot;</span><span class="p">)</span>
+		    <span class="k">end</span>
+		<span class="n">l</span><span class="p">.</span><span class="n">text</span><span class="o">=</span><span class="n">text</span>
+		<span class="n">subs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">l</span>
+	<span class="k">end</span>
+	<span class="n">aegisub</span><span class="p">.</span><span class="n">set_undo_point</span><span class="p">(</span><span class="n">script_name</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">sel</span>
+<span class="k">end</span>
+
+<span class="c1">-- function to read the style of the current line</span>
+<span class="c1">-- it got called with styleref=stylechk(subs,l.style), therefore given 2 objects - the whole subtitle object, and a style</span>
+<span class="c1">-- here we have stylechk(subs,stylename) - i use different names here, but that doesn&#39;t matter - subs stays, l.style becomes stylename</span>
+<span class="c1">-- l.style was &quot;sign&quot;, so inside this function, stylename is now &quot;sign&quot;</span>
+
+<span class="k">function</span> <span class="nf">stylechk</span><span class="p">(</span><span class="n">subs</span><span class="p">,</span><span class="n">stylename</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">#</span><span class="n">subs</span> <span class="k">do</span>
+        
+	<span class="c1">-- we&#39;re going through styles, looking for the one called &quot;sign&quot;</span>
+	<span class="k">if</span> <span class="n">subs</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">class</span><span class="o">==</span><span class="s2">&quot;</span><span class="s">style&quot;</span> <span class="k">then</span>
+	    
+	    <span class="c1">-- this is pretty much the same thing you do with &quot;line&quot;</span>
+	    <span class="n">style</span><span class="o">=</span><span class="n">subs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+	    
+	    <span class="c1">-- style.name is the name of the style. with every &quot;i&quot; we&#39;re going through another style.</span>
+	    <span class="c1">-- stylename will match style.name when we get to the &quot;sign&quot; style</span>
+	    <span class="k">if</span> <span class="n">stylename</span><span class="o">==</span><span class="n">style</span><span class="p">.</span><span class="n">name</span> <span class="k">then</span>
+		
+		<span class="c1">-- now we have style &quot;sign&quot;, and we copy it to a variable &quot;styleref&quot;</span>
+		<span class="n">styleref</span><span class="o">=</span><span class="n">style</span>
+	    <span class="k">end</span>
+	<span class="k">end</span>
+    <span class="k">end</span>
+    
+    <span class="c1">-- this is what we&#39;re returning as the result of this function, so when we used styleref=stylechk(subs,l.style) above,</span>
+    <span class="c1">-- we&#39;re passing this styleref, which is subs[i] for the &quot;sign&quot; style, to the styleref in the main function</span>
+    <span class="c1">-- so styleref is now basically this &quot;Style: sign,Arial,40,&amp;H00FFFFFF,&amp;H000000FF,&amp;H00000000,&amp;H00000000,0,0,0,0,100,100,0,0,1,2,0,5,10,10,10,1&quot;</span>
+    <span class="k">return</span> <span class="n">styleref</span>
+<span class="k">end</span>
+
+<span class="n">aegisub</span><span class="p">.</span><span class="n">register_macro</span><span class="p">(</span><span class="n">script_name</span><span class="p">,</span> <span class="n">script_description</span><span class="p">,</span> <span class="n">italicize</span><span class="p">)</span>
+</pre></div>
+<div id='copy_content'>-- italicizes or unitalicizes text [based on style and tags]
+-- supports multiple \i tags in a line by switching 0 to 1 and vice versa
+
+script_name="Italicize"
+script_description="Italicizes or unitalicizes text"
+script_author="unanimated"
+script_version="1.6"
+
+-- let's say for the sake of clarity that we're using this on a line with style "sign"
+
+function italicize(subs, sel)
+	for z, i in ipairs(sel) do
+		local l=subs[i]
+		text=l.text
+		
+		-- this runs function "stylechk" that you see further below
+		-- you pass "l.style" to the function, ie. the name of the style this line is using, in our case "sign"
+		styleref=stylechk(subs,l.style)
+		
+		-- styleref is now kind of like "line", but for the style
+		-- just like you have line.text, you have styleref.name, which is now "sign", or styleref.italic, which is true or false
+		
+		-- we'll assign the italic element to "si" (style italics)
+		-- it is either true for italics, or false for regular
+		local si=styleref.italic
+		
+		-- now we want to transform true/false into 1/0, creating variable "it"
+		-- the values are 1 for non-italics and 0 for italics, because it's the switched values i want to use
+		if si==false then it="1" else it="0" end
+		
+		-- this is to deal with \i without a number, which resets \i to the style value; i need it to have a number
+		-- "it" is the opposite of the style, so "1-it" is the style value - 1-0=1; 1-1=0
+		-- in other words, if style is not italics, we change \i to \i0
+		text=text:gsub("\\i([\\}])","\\i".. 1-it.."%1")
+		
+		    -- now i have to consider 2 options - either there's italics tag at the beginning, or not
+		    if text:match("^{[^}]*\\i%d[^}]*}") then
+			
+			-- if there is, then we change it, and all subsequent \i tags, to the opposite value
+			-- i take the number after \i, and change it to 1-number, thus turning 1 to 0 and vice versa
+			text=text:gsub("\\i(%d)", function(num) return "\\i".. 1-num end)
+		    
+		    -- this is when there's no \i tag in the first block of tags
+		    else
+			
+			-- the line may have italics somewehre in the middle, so we capture the value
+			if text:match("\\i([01])") then italix=text:match("\\i([01])") end
+			
+			-- this may get a bit confusing. we're dealing with a line that has italics in the middle.
+			-- so style value is "not_it" (as in opposite of "it"), value we want for the start of line is "it",
+			-- and value we want for the next \i tag, the one we captured, is again "not_it"
+			-- so logically that value, italix, should be "it"
+			-- if that's the case, all \i tags get switched
+			-- the reason i check for this is that i assume you might be an idiot and have the wrong tag
+			-- in which case i won't change it because it will thus become right
+			if italix==it then text=text:gsub("\\i(%d)", function(num) return "\\i".. 1-num end) end
+			
+			-- we've changed all the existing tags (if there were any), so now we add a tag at the beginning, with the value "it"
+			text="{\\i"..it.."}"..text
+			
+			-- and join it with other tags at the beginning, if they're there
+			text=text:gsub("{\\i(%d)}({\\[^}]*)}","%2\\i%1}")
+		    end
+		l.text=text
+		subs[i]=l
+	end
+	aegisub.set_undo_point(script_name)
+	return sel
+end
+
+-- function to read the style of the current line
+-- it got called with styleref=stylechk(subs,l.style), therefore given 2 objects - the whole subtitle object, and a style
+-- here we have stylechk(subs,stylename) - i use different names here, but that doesn't matter - subs stays, l.style becomes stylename
+-- l.style was "sign", so inside this function, stylename is now "sign"
+
+function stylechk(subs,stylename)
+    for i=1, #subs do
+        
+	-- we're going through styles, looking for the one called "sign"
+	if subs[i].class=="style" then
+	    
+	    -- this is pretty much the same thing you do with "line"
+	    style=subs[i]
+	    
+	    -- style.name is the name of the style. with every "i" we're going through another style.
+	    -- stylename will match style.name when we get to the "sign" style
+	    if stylename==style.name then
+		
+		-- now we have style "sign", and we copy it to a variable "styleref"
+		styleref=style
+	    end
+	end
+    end
+    
+    -- this is what we're returning as the result of this function, so when we used styleref=stylechk(subs,l.style) above,
+    -- we're passing this styleref, which is subs[i] for the "sign" style, to the styleref in the main function
+    -- so styleref is now basically this "Style: sign,Arial,40,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,2,0,5,10,10,10,1"
+    return styleref
+end
+
+aegisub.register_macro(script_name, script_description, italicize)</div>
+<ul class="notices">
+</ul>
+
+</div>
+</div>
+
+</body>
+</html>

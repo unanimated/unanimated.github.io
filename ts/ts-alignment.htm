@@ -1,0 +1,207 @@
+<html><head><title>Typesetting: Aligning Signs</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold; text-decoration:none}
+A:hover {color:e0e3e6}
+
+</style>
+</head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=557788 vlink=557788 alink=557788>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=1255>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>Typesetting: Aligning Signs</font></b> <font size=1 color=112233> [this silly text is here only to align the title with the pictures below...]
+</center></td></tr>
+
+<tr><td bgcolor=000000><br>
+
+Aligning signs is actually pretty easy, but for some reason many typesetters fail in this area all the time.<br>
+I'm not sure if they don't know how to do this or they're just too lazy to do it right, but it's pretty lame<br>
+because just aligning the sign correctly will make it look a lot better.<br><br>
+
+The tags you use for this are the three rotations - \frz, \frx, \fry, shearing - \fax, \fay,<br>
+and to get the \frx and \fry right, the origin point of the rotations - \org.
+<br><br>
+Let's try a basic example. Let's say you want to put a sign on this balcony:
+
+
+<br><br>
+<img src="ts-balcony-01.jpg"><br><br>
+
+
+This is pretty typical for anime. You will need to make lots of signs of this type, whether it's the notorious nurse's room at school,<br>
+a sign above or on the door of an office, or various signs on buildings etc.<br>
+These signs usually have a horizontal slant, but vertically they're pretty much straight.<br><br>
+
+This is important to acknowledge if you don't want the sign to look like shit...
+
+<br><br>
+<img src="ts-balcony-02.jpg"><br><br>
+This could be the first thing to do - use \frz to rotate the sign.<br>
+Unfortunately that's where some typesetters end. If you can call them typesetters.<br>
+It's the same people who will also pick an incredibly shitty font,<br>
+often some M$ or Adobe nonsense that looks like crap but is 10 MB large.<br>
+Anyway, we'll get to fonts later...<br>
+So if you actually want to do some real typesetting, here's the next step...
+
+<br><br>
+<img src="ts-balcony-03.jpg"><br><br>
+The tag you use here is \fax. When used with a negative value, like \fax-0.1, the effect is like using italics.<br>
+With positive values it leans in the other direction.<br>
+You have to use low values, usually in the range of 0.05-0.5.<br>
+It seems that many typesetters don't even know this tag, or are too lazy to use it<br>
+because unlike the rotations this one doesn't have a tool in aegisub and has to be typed out.<br>
+It is, however, more useful than \frx\fry, because anime doesn't have much of 3D effects.<br>
+Most of the time it's really just horizontal slant while vertically it stays the same.<br><br>
+
+So now you have a sign that's fairly well aligned. Now you just need it to blend in a bit better...
+
+<br><br>
+<img src="ts-balcony-04.jpg"><br><br>
+...which you achieve by changing the color to match whatever is relevant in the picture.<br>
+Here I don't have an original sign to imitate, so I just go with the outline of the balcony.<br>
+You will also notice that i used blur.<br>
+On signs, using at least 0.5 blur is a must if you don't want them to look obviously added and out of place.<br><br>
+
+So now you have a pretty decent sign. You might as well go with it.<br>
+If you look more carefully though, you'll see that it's aligned to the bottom of the balcony but not the top. Why is that?<br>
+Well, because here you actually have a sort of 3D effect, where the left end of the balcony is taller than the right.<br>
+So what now? Since we've gone this far, we're not gonna redo it with rotations, so we'll use a simple trick...
+
+
+<br><br>
+<img src="ts-balcony-04.5.jpg"><br><br>
+
+Looks better, doesn't it? (By the way if you <i>don't</i> see the difference here, you should probably not be a typesetter.)<br>
+So what sorcery is this? Very simple. The original font size was 50.<br>
+If you want the end of the sign to look smaller than the beginning, instead of all kinds of rotating and skewing you can do this...<br>
+Sa{\fs49}mp{\fs48}le {\fs47}Te{\fs46}xt<br>
+As you can see, after each 2 letters i decreased the font size by 1.<br><br>
+
+If you're learning to typeset, this should be good enough.<br>
+If you're pro, you'll notice the end of the sign is still a bit too tall, the 'p' is too close to the bottom etc.<br>
+And obviously you'll want something better than Arial. Then again if you were a pro, you wouldn't be reading this guide.<br><br>
+
+So we have what we wanted, but let's look at other ways of doing this.
+
+<br><br>
+<img src="ts-balcony-05.jpg"><br><br>
+This is without using \frz and \fax, but using \fay instead.<br>
+Often this is more convenient because you don't have to use any rotation. It'll work fine for signs on/above doors much of the time.<br>
+The problem with \fay is that you can't use additional tags in the text like I did for the font size before, because of a vsfilter bug.<br><br>
+
+The last way to do this that I'm gonna mention, possibly the most pro if you can do it right [but epic fail if you can't],<br>
+is using just the rotations and moving the origin point.<br>
+This means we're gonna use \frx and \fry, instead of \fax and \fay and do it right.<br>
+Why would I do that when I've described how \fax\fay is a lot more convenient? <br>
+Because the rotations actually <b>can</b> give you a 3D effect when you need it,<br>
+and we've noticed that the balcony here is "closer" on the left.<br>
+We've managed to bypass it pretty well with the font size, but that may not always work. Like when the sign is only 2-3 BIG letters.<br><br>
+
+First let's look at what will happen if you use rotations without moving the origin point.
+
+<br><br>
+<img src="ts-balcony-07.jpg"><br><br>
+You'll see many "typesetters" create these abominations. It's possibly even worse than our first example in black color way above.<br>
+What you have here is a sign where maybe 2 out of 10 letters are aligned somewhat correctly.<br>
+The rest is FUBAR. This is like "I has Aegisub so I can into typesetting yeah?"<br>
+Nope. You can't.<br><br>
+
+So what now?<br><br>
+
+If you try playing with those rotations, you may find out that no matter how much you rotate it around, it just doesn't fit.<br>
+It will always be aligned at one end and not the other. Why?<br>
+Because if your default alignment is \an2 or \an8, it will always align to a vertical line that goes through the center of the sign.<br>
+That means both sides of the text will lean towards the center, like you see above.<br>
+Now if you use \an1, 3, 4, 6, 7 or 9, you may get slightly better results, but still pretty derp.<br><br>
+
+So what you need is to move the origin point.<br>
+The tag is \org(x,y), but you can use the rotation tool.<br>
+You'll use the tool for \frx\fry and rotate slightly to the side - like \fry7.<br>
+Usually you want to use only a little of these rotations and get the rest done with \org.<br>
+If you use too much, you'll get too much difference between one side and the other.<br><br>
+
+When you adjust \fry, you grab the triangle in the center of the grid and move it.<br>
+In the tags you'll see \org appear and you'll notice the sign changes alignment as you move it.<br>
+Then you just have to go and find where to drag it to make it align right. It may often be off the screen.<br>
+Once you go off the screen and let go, you won't be able to grab the triangle again but you can adjust the numbers in the tag.<br>
+But since that's inconvenient, try to learn to get it right the first time by dragging.<br><br>
+
+Now, you'll notice that while this will let you get the alignment right, it may drag the whole sign away from its position.<br>
+This is not a problem, you'll get it back, just get it to align right first.<br>
+When it seems fairly good, you switch to the Drag tool. You will now see 2 points you can drag - the regular square and the triangle.<br>
+You won't see the triangle if it's off the screen, but the red line will tell you roughly where it is.<br>
+So now you drag the the sign back to position with the square. If it misaligns the sign, you need to drag the triangle a bit again.<br>
+It may take a while to balance them out, especially if the triangle is off screen & you have to change the numbers in the tag or try again.<br>
+With a bit of practice though, you'll learn to do it more easily. More importantly, you'll get some good results...
+
+<br><br>
+<img src="ts-balcony-06.jpg"><br><br>
+You can see that the sign looks pretty good and the only tags creating the alignment are \fry and \org.<br>
+(\frx0 can be deleted, it's just that the tool adds both tags even if they're 0)<br>
+The script resolution is 1280x720 so you see the origin point is off the screen in this case.<br>
+This method is especially useful when you need to do something more complicated<br>
+like you'll see in the last example at the bottom of the page.<br>
+Of course you can still fine tune this using \fax and/or \frz.<br><br>
+
+You may use various approaches and combine the tags as you wish. <br><br>
+For static signs \fry\org may be the best, but if you need the sign to move, you can't use \org,<br>
+so go with \frz\fax and possibly scale down the font size for some perspective if needed.
+
+
+
+<br><br><br>
+
+So, that's about it. Now you know how to align signs and do it right.<br><br><br><br><br><br><br><br><br>
+
+
+
+A few examples of signs I've found in some groups' releases...
+
+
+<br><br><br>
+<img src="ts-men.jpg"><br><br>
+On the left is the original sign, on the right is my quick adjustment.<br>
+Clearly this looks bad and totally out of place - alignment is terrible, even the \frz isn't quite right.<br>
+You can also see the color is off. I didn't like the choice of font either but that's the least of its problems.<br>
+Even my sign doesn't look too great, but at least it doesn't look retarded.<br><br>
+
+
+<br><br>
+<img src="ts-use.jpg"><br><br>
+While in the previous example it was only \frz and good-bye, here some "pro" went for \frx and \fry, clearly without a clue how to use it.<br>
+It is sad, because it only takes a minute to do what I did on the right. Whoever did the one on the left should be fired.<br>
+I wanted to just quickly fix this to make an example so I went for \fay. If I actually wanted to release this,<br>
+I'd use \frz and \fax, and then change color after every 2-3 letters to match the change of color on the japanese sign.<br><br>
+
+
+<br><br>
+<img src="girlsroom.jpg"><br><br>
+It just keeps happening, doesn't it. I'm not sure why groups that have been around for years have problems with this.<br><br>
+
+
+<br><br>
+<img src="ts-kami01.jpg"><br><br>
+Now this... is admittedly not an easy one, but this implementation is pretty poor, especially with each line having different (mis)alignment.<br>
+The "When would be good?" line is so bad that I'm guessing the author must have been in quite a hurry to finish this.<br><br>
+
+Here's where \fax and \fay won't be enough and you'll have to use rotations, and you'll <b>have to</b> use the \org tag, if you really want it to look good.<br>
+One other thing you'll have to use is blur. Its lack in the one above makes it even worse. And the colors are off as well.<br>
+It will certainly take more than a minute, possibly even 10-15 minutes to get all the 4 lines right.<br>
+But hell, if you look at the one above, and the one below that I made, you'll have to admit that it's worth the time.
+
+<br><br>
+<img src="ts-kami02.jpg"><br><br>
+<br><br><br><br>
+
+<center><a href="index.htm"><b>« Back to Typesetting Main
+<br><br><br>
+
+
+
+

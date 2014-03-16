@@ -1,0 +1,307 @@
+<html><head><title>[KV]IRC Guide</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold}
+A:hover {color:e0e3e6}
+b {color:90969c}
+.c {color:708090; font-weight:bold}
+.i {color:708090}
+</style>
+</head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=668899 vlink=668899 alink=668899>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=800>
+
+
+<tr><td bgcolor=000000>
+<center><b><font size=5 color=446677>IRC basics & Using KVIrc</font><br></b>by unanimated
+</center></td></tr>
+
+
+<tr><td bgcolor=000000><br>
+
+I'm not really that great with IRC but after a year of using it I suppose I should be able to lay out the basics for beginners.<br><br>
+
+
+Q: Why do I even need IRC at all? I don't like it.<br>
+A: Because you can't fansub without it.<br>
+<br>
+Q: Is using IRC difficult?<br>
+A: Fortunately you only really need the basics, which you'll learn the first day, hopefully from this guide.<br>
+<br><br>
+
+All in all you need just a few things:<br>
+1. choose a nickname<br>
+2. connect to rizon<br>
+3. register your nickname<br>
+4. join channels<br>
+5. automate identification and joining channels<br>
+6. set character encoding to unicode<br><br>
+
+There are a lot of things you can do after that but this is pretty much all that's really necessary.<br><br><br>
+
+
+First you need a nickname, so go to Settings - Configure KVIrc...
+
+<br><br>
+<img src="px/q-name.png"><br><br>
+...and type your nickname in here. The 2nd field seems pretty useless in KVIrc, what you put in the 3rd is visible when users hover mouse over your nickname to get some more info. [This can be helpful when people change their nicknames - many users switch between several nicknames all the time.]<br><br><br><br>
+
+
+
+Now go to KVIrc - New Connection... and you'll get here:
+
+
+<br><br>
+<img src="px/q-connect.png"><br><br>
+This is what you want to connect to - Rizon, ie the server where pretty much all fansubbing takes place.<br><br>
+
+When you connect, you'll see some server info etc. You are now connected to the Rizon server, but not really to any people yet. You'll be using this Rizon window to type commands, because if you type them in a channel and screw up, everyone may see your password or whatever you type. What you send to this Rizon window, nobody sees.<br><br><br>
+
+
+<b>REGISTERING YOUR NICKNAME<br><br></b>
+
+
+What you should do first is to register your nickname, for hopefully understandable reasons. If your nickname is already registered by someone else, Rizon will tell you so and change your nickname to Guest123568. In such a case you need to choose a different nick.<br>
+To register you need to communicate with NickServ, using the command 
+<span class=c>/ns</span>, which is short for <span class=c>/msg nickserv</span>. Type <span class=c>/ns help</span> to get the idea of how it works. You'll see a bunch of commands you can use by typing <span class=c>/ns [command]</span>. To get help on a specific command, you type <span class=c>/ns help [command]</span>.<br>
+You need to register, so <span class=c>/ns help register</span> [no need for upprecase]. Among other things it will tell you this:<br>
+Syntax: REGISTER password [email]<br>
+<br>
+The syntax is what comes after <span class=c>/ns</span>.<br>
+This is how the whole command system works, basically, and you can use the pattern for other things than nickserv later.<br>
+So now you need <span class=c>/ns register [password] [email]</span>. Email must be valid, as it sends you a confirmation form.<br><br>
+When you confirm the registration, you need to identify yourself for the nickname you've chosen.<br>
+This is done with <span class=c>/ns identify [password]</span>. With this Rizon recognizes you as the person registered with that nickname.<br><br>
+<br>
+
+Now you can move on to joining channels.<br>
+This is pretty simple - you just type <span class=c>/join #channel_name</span>, for example <span class=c>/join #commie-subs</span><br>
+If a channel has a password, it's <span class=c>/join #channel_name channel_password</span><br><br>
+<br><br>
+
+
+<b>AUTOMATING IDENTIFICATION AND JOINING CHANNELS<br><br></b>
+
+Since you need to do this every time you connect, you want to automate it. This is how you do that:<br><br>
+
+
+Go to "Scripting" -> "Edit Events...", right-click the "OnNickServNotice" event, click on "New Handler" in the popup menu, and paste the code below.<br><br><br>
+
+
+<pre><font color=666666>
+// Identify and auto-join on success.
+if ( $str.contains($3, "This nickname is registered and protected.") && $context.networkName == "Rizon" ) {
+	timer -s (identify, 2000, $0) {
+		msg -q $0 "IDENTIFY password"; // Edit this line.
+	}
+} elseif ( $str.contains($3, "Password accepted - you are now recognized.") && $context.networkName == "Rizon" ) {
+	timer -s (joinchannels, 2000) {
+		// Edit this block.
+		join #channel-1;
+		join #channel-2 channelpassword;
+		join #channel-3;
+	}
+}
+</font></pre>
+<br><br>
+
+
+^ Edit the code you just pasted to use your password and the channels you want to join automatically.<br><br><br><br>
+
+<b>SETTING UNICODE<br><br></b>
+
+Now you just need to set character encoding to unicode, otherwise you'll be seeing a lot of garbage.<br>
+Go to Settings - Configure KVIrc... - General options - Language, and set Default text encoding to UTF-8.<br><br>
+<br>
+
+
+Now you have everything important set up, the rest is just for convenience.<br><br>
+<br><br>
+<br><br>
+
+
+<b>SENDING PRIVATE MESSAGES<br><br></b>
+
+Type <span class=c>/query [nickname]</span> and then type in the window that opens, or right click on the user in userlist and select Query.<br><br><br><br>
+
+
+<b>HIGLIGHTING<br><br></b>
+
+KVIrc will highlight you by default if anyone types your name, so that will do for starters. To add more things to your highlights, go to IRC -> Tools -> Alert/Highlight in General Preferences. One derp in KVIrc is that it doesn't highlight your nick with a question mark after it, so if your nick is for example animoron, add <b>animoron?</b> to your highlights.<br><br>
+If you use more nicknames, add all of them so that people can highlight you even with those you're not currently using.<br><br>
+You can add anything else you want to be notified about. If the staff channel announces new encodes with "File added - horizon01_premux.mkv" and you're working on that show, add <b>File added - horizon</b> to your highlights - that will ping you for everything that contains that pattern, ie all other episodes.<br><br>
+Check the stuff about color settings further below for how to change the color of highlighted messages.
+<br><br><br><br>
+
+
+<b>GETTING A VHOST<br><br></b>
+
+Full username on IRC looks like this: Athena [Atan@Great.Goddess.of.This.World]<br>
+This equals nickname [username@vhost]. Nickname is obvious. For some reason KVIrc doesn't really use what you set in Username but instead uses this Ident thing [possibly depends on settings, not really sure], which by default says "kvirc". In Preferences you can go to Connection - Advanced - Ident Service and change it in the "Ident username" field [needs restart].<br><br>
+
+Now for the vhost part, you can get pretty much anything you want there, just for the purpose of looking more interesting than random numbers or whatever you get by default. You'll use this thing called HostServ, which works similarly to NickServ. [<span class=c>/hs help</span>]<br>
+Basically you type <span class=c>/hs request how.does.this.irc.thing.work</span> to request said vhost.<br>
+You need periods between the words and there's some length limit and basic rules, like no racist crap etc.<br>
+Then you wait till an OP sends you a memo saying your vhost was approved [may take minutes to hours].<br>
+Switch it on with <span class=c>/hs on</span> or <span class=c>/hs update</span>.<br><br><br><br>
+
+
+<b>MULTIPLE NICKNAMES / VHOSTS<br><br></b>
+
+You can use multiple nicknames that will all identify you as the same person. Type <span class=c>/nick whatever</span> to change your nickname to whatever. Then <span class=c>/ns group your_registered_nick password</span>. This will group this new nick with the old one and they'll both work the same for you from now on. If you disconnect and reconnect with your alternate nickname, if they're grouped you won't have to identify yourself again.<br><br>
+
+If you request a vhost while using your other nickname, the new vhost will be assigned to that nickname. If you switch nickname, you need <span class=c>/hs update</span> to switch the vhost as well, otherwise it just stays as whatever you have at the moment, until you reconnect to Rizon.<br><br>
+
+Similarly to nicknames you can group the vhost to apply to all your nicks. <span class=c>/hs help group</span> for details.<br><br><br><br>
+
+
+
+<b>RANDOM KVIRC SETTINGS<br><br></b>
+
+Here's a few things you might wanna check/change in the General Preferences.<br>
+In the Connection section, have everything checked.<br>
+In IRC - Channel, have both those "On Channel Kick" things checked.<br>
+In IRC - Tools - Logging, you can set what you want to log, obviously. Logs are always useful, imo. If you want to browse them, don't open them in notepad, go to Tools - Browse Log Files. This inbuilt thing includes formatting - in notepad you'd see a chaotic mess.<br>
+In Interface, check Disable splash screen.<br>
+In General Options - URL handlers, you can change the way to open links to Signle click.<br>
+In Interface - Notifier, you can change some things about that notifier box that pops up when you get highlighted.<br><br>
+
+When you have time you can check all the other stuff but most of it is pretty irrelevant.<br><br><br><br>
+
+
+
+<b>AUTOMATIC UNBANNING<br><br></b>
+
+You can unban yourself from channels you're registered on with <span class=c>/cs unban [channel]</span>. To save yourself the trouble of typing stuff you can add these lines to the Event Editor:<br><br>
+
+Put this into OnMeKick:
+<pre>	timer -s ("kickdelay",3000,$chan.name,$chan.key) { join $0 $1; }</pre>
+And this into OnMeBan:
+<pre>	cs unban $target;</pre><br>
+
+If you use this, you have to disable "Rejoin channel" in Preferences -> IRC -> Channel.
+
+<br><br><br><br>
+
+<br><br>
+
+<b>HOW TO MAKE KVIRC NOT LOOK LIKE SHIT<br><br></b>
+
+Not that KVIrc looks worse than other clients... they all look like shit. But with KVIrc you can actually change that.<br>
+If you're gonna fansub, you'll be looking at your client every day, and if you're gonna do that, you might as well change the appearance so that it doesn't give you eyecancer.<br><br>
+
+Go to Settings - Configure Theme...<br><br>
+
+Input relates to the area where you type messages. Set colors, font, etc.<br><br>
+
+Output is for the chat window [including pm, console window etc.]. In the Features tab you might wanna increase the backlog size. If you wake up or come home from work, you need to be able to scroll up and read your highlights, and sometimes people talk a lot so the default backlog size might only show a portion of what was going on. So set Maximum buffer size to something higher. I use 5000, which is good enough for staff channel, but the niggers in the main channel are capable of filling that in a few hours. Not that you really need to care about the main channel.<br><br>
+
+
+This part here is about what all the messages will look like:
+
+<br><br>
+<img src="px/q-text2.png"><br><br>
+I don't remember the defaults but I think I turned off some stupid shit here to avoid eyecancer.<br>
+Certainly don't use "Smart" nickname colors because that's incredibly retarded and will give you eyecancer for sure.<br><br>
+
+"Use same colors as in the userlist" is handy, because in the Userlist section you set different colors for OPs, Owners etc. and this settings lets you distinguish between those in the chat as well.<br><br>
+
+
+The color set is where you define colors you wanna be using.<br>
+Here is where you assign the colors to each type of message:
+
+<br><br>
+<img src="px/q-msg2.png"><br><br>
+Might wanna set the Highlight color to something that will be clearly noticeable but not annoying. Mainly it should be a different color from everything else so that you can find your highlights easily just by scrolling through the backlog.<br><br>
+
+Obviously you don't have to set colors for everything. I don't even know what most of those things are.<br><br>
+
+Things that might be useful are:<br><br>
+- the first 5<br>
+- Join, Part, Quit<br>
+- Kick, Ban, Unban<br>
+- Topic, nick<br>
+- Server info, MOTD, NickServ, ChanServ, QueryNotice, ChannelNotice, ServerError<br>
+<br><br>
+
+You can chek the Timestamp tab if you don't like what your timestamps look like.<br><br>
+
+Notifier is the thing that pops up on your highlights, so color settings are there.<br><br>
+
+Userlist is pretty clear. In Foreground you can set colors for OPs etc.<br><br>
+
+In Window List check Use tree window list.<br><br>
+
+In Tree Window List you can set colors to different types of messages in the chat.<br>
+Level 5 is the color you'll see if someone highlights you in that channel.<br>
+Level 4 is when somebody speaks.<br>
+Level 3 and below is pretty irrelevant stuff - join/part messages etc.<br><br><br>
+
+That's about it for the themes.<br><br><br><br>
+
+
+
+<br><br>
+<img src="px/q-split.png"><br><br>
+That green arrow above the userlist expands a little menu where you can click on the Split View icon to separate join/part messages from the actual chat. This is useful in large channels with too many people joining/leaving, as all those joins/parts make the chat too chaotic. You can then make the non-chat part as small as possible as it's pretty useless.<br><br>
+In staff channels this isn't an issue and it's actually useful to see who's joining or who dropped out.<br><br><br><br>
+
+
+<b>Colors for specific users</b><br><br>
+
+As you can see above and below, it's even possible to assign any color to any user.<br>
+Right-click on a user in the userlist...
+
+<br><br>
+<img src="px/q-reg1.png"><br><br>
+...and click Registration -> Register [it shows Edit Registration here because Athena is already registered]<br>
+This "Registration" refers to a database of users you can make to specify some things for them, like colors or ignoring.<br>
+Just click on OK, or Next or whatever to get through the process.<br>
+Then go to Settings -> Configure Registered users...<br>
+You'll see a list with the users you've registered.<br>
+Double click on one and...
+
+
+<br><br>
+<img src="px/q-reg2.png"><br><br>
+
+<table width=100%><tr><td valign=top width=440>
+
+...you'll get this.<br><br>
+
+The registration you did adds the whole usernema+hostname string, by which it identifies the user.<br><br>
+
+Some users change heir nickname/vhost often, so to make sure this thing can recognize them you can either Add all the versions here, or Edit the first one to make it include all of them. For example this edited mask here will match Athena by nick, even if username and hostname change. So you just have to use whatever tends to not change for any given user. Usually users change nick and vhost and the middle part stays the same, so that might be the safest way.<br>
+Here that would be Atan, but sometimes for some users this part changes between Atan and ~Atan [example] so you might need to set it to *Atan. In this case, however, that would include Satan, which might very well be another user, so you have to think a little. In most cases it's fairly straightforward though.<br><br>
+Once you set the mask[s], you can go to the Properties tab, check "Use custom color in userlist" and set the color. Add as many users as you want. It takes some time for KVIrc to update this. It either gets updated when the user speaks, or after a few minutes maybe. When that happens, you'll see the colors in the userlist, like you see here on the right, and also in the chat, as long as you have the "Use same colors as in the userlist" option checked.<br><br>
+
+As you may have noticed, you can also use the Ignore tab to ignore annoying users.<br><br>
+
+That's all, I guess.<br><br>
+
+
+Below you can see examples of what the chat may look like when you set colors for most users in the staff channel.
+
+
+
+</td><td width=200>
+<img src="px/q-userlist1.png" align=right>
+</td></tr></table>
+
+
+<br><br>
+<img src="px/q-colors2.png"><br><br>
+<img src="px/q-colors3.png"><br><br>
+<img src="px/q-colors1.png"><br><br>
+
+
+
+
+
+<br><br>	
+
+

@@ -1,0 +1,390 @@
+<html><head><title>Using Mocha to track signs for Aegisub - old version</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold; text-decoration:none}
+A:hover {color:e0e3e6}
+
+</style>
+</head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=668899 vlink=668899 alink=668899>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=836>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>Using Mocha to track signs for Aegisub</font>
+</center></td></tr>
+
+
+<tr><td bgcolor=000000><center>
+<font color=446677>by <b>herkz</font></b><br><br></center>
+<br><br>
+
+
+
+
+<b><font color=446677>
+Part 1 - Things you need to install<br><br></b></font>
+
+1.) Quicktime or Quicktime Lite<br>
+2.) Mocha for After Effects. As far as I know any recent version will work. I'm using 1.2.2.<br>
+3.) <a href="http://www.mediafire.com/?4u7a9989ph4w9bi">Mocha scripts for aegisub.</a> Place them in \Aegisub\automation\autoload\. <br>
+[Note: ^ this link obsolete, <a href="scripts.htm">check the scripts page for updates</a> or <a href="https://github.com/torque/Aegisub-Motion">check torque's page</a>.]
+<br>
+<s>For the aegisub-motion.lua you will need to edit line 51 and specify the path to your 8bit x264.exe.</s><br>
+^ No need with the newer versions, check Part 4 for info about configuration.<br>
+4.) x264 8bit, preferrably from x264.nl since it will definitely work.<br><br>
+<br>
+
+
+<b><font color=446677>
+Part 2 - Creating the sign in Aegisub<br><br></b></font>
+
+The first task it obviously to style the sign to match the Japanese sign and position it where the sign is on the first frame. Also, the sign must be timed to the entire duration of what you want to track. This means that if a sign goes behind a character or something then split it and time until the very last frame it can be seen. Also note that it must be \an5.<br>
+In the example I'm using, it looks like this. 
+<br><br>
+<img width=800 src="http://i.imgur.com/peJO0.jpg"><br><br>
+The sign is not perfect but that's another issue entirely. That's all you need to do for this section.<br><br>
+
+[unanimated note: in case you're wondering why this particular sign lagged like hell in the release, it's because of the font - Harlem Clown. Some fonts just aren't good for tracking, especially complicated, eroded fonts. DK Crayon Crumble is the same. Filesize may also be a hint; if it goes over 500KB it might be a 'laggy' font, though there's certainly no direct relation.]
+<br><br>
+<br>
+
+
+<b><font color=446677>
+Part 3 - Creating the video clip<br><br></b></font>
+
+Thankfully, the lua script has a built-in way to create the video clip you want for mocha without you having to do any work. Just select the line and go to Automation->Cut scene for mocha. 
+<br><br>
+<img src="http://i.imgur.com/twJs0.jpg"><br><br>
+
+After selecting that, this box will pop up. 
+<br><br>
+<img src="http://i.imgur.com/2NuGi.jpg"><br><br>
+
+Assuming it all went well, x264 should run and the created clip so be in the folder you specified. If it's not, you probably did not set the path to your x264.exe correctly. <br><br>
+
+[unanimated note: I don't know if it was always like that, but you have to raise the 'End frame' by 1 to encode the correct number of frames]
+
+<br><br>
+<img src="http://i.imgur.com/jSkae.jpg"><br><br>
+
+Here is the clip that is created which you can <a href="http://www.mediafire.com/?f41v2fdjg4i32fi">download</a> and use to follow along in mocha for the next section. <br><br>
+<br>
+
+unanimated update:<br>
+Things have changed slightly so...<br><br>
+<img src="mochamenu.png"><br><br>
+This is what the Automation menu in Aegisub looks like now.<br>
+Config is where you set the paths and stuff, Trim is where you encode the clip, Apply is where you import data from mocha.<br><br>
+
+Speaking of config...
+<br><br>
+<img src="mochaconfig.png"><br><br>
+...this is what it looks like.<br><br>
+The first field will contain something like D:\fansubbing\mocha<br>
+The encoder field can be D:\fansubbing\mocha\x264.exe<br><br>
+If you're a complete imbecile, please be advised that you actually need to have x264.exe in that folder.<br>
+Make sure it's 8-bit and not 10-bit, otherwise mocha will give you a nope.avi<br><br>
+
+Incidentally my first attempts failed because my folder was named something like =mocha= and the script considered the = a part of a command or something and failed to do anything.<br><br>
+
+Also, I prefer Sort Method to be "Time" but it's buggy in the current version. Default seems to be working fine.
+
+
+
+<br><br><br>
+
+
+<b><font color=446677>
+Part 4 - Importing the clip into Mocha<br><br></b></font>
+
+First thing you'll want to do is open Mocha. You can just ignore the guide thing if it pops up.<br>
+Next, you'll want to create a new Mocha project using the video file you just created.
+<br><br>
+<img src="http://i.imgur.com/tx7ih.jpg"><br><br>
+
+After this, go to the clip to import section and browse to the file and select it. 
+<br><br>
+<img src="http://i.imgur.com/2Uhxj.jpg"><br><br>
+
+Hit next twice, and then on the last page of the new project wizard set the FPS to 23.976. Apparently this makes no difference but I'm too lazy to test it and I know this works. <br><br>
+
+[unanimated note: tested, doesn't matter, no need to change the frame rate. After selecting the clip just hit Enter 4 times.]
+<br><br>
+<img src="http://i.imgur.com/hH4Am.jpg"><br><br>
+
+Hit finish and wait for it to load in. The progress bar in the top-right will show the progress but for small clips like this one it should take almost no time.
+<br><br><br>
+
+
+<b><font color=446677>
+Part 5 - Selecting the area of the sign you would like to track<br><br></b></font>
+
+In the case of this sign, you can actually track the sign (or a portion of it) itself. In other cases where it goes partially behind a person or something you may be able to track an object that follows the same movement but is not obscured. Also note that you do not need to track the exact spot where you have the sign placed, just anything on screen that follows the same motion.<br>
+To do this, select the Create X-Spline Layer Tool at the top of the screen. 
+<br><br>
+<img src="http://i.imgur.com/sVLjs.jpg"><br><br>
+
+Next, you'll want to select the area to track. If you download the clip and look at it you can see that the entire sign moves together so I just picked a section at the top of it. After selecting the x-spline tool, i made a box around the area I wanted to track. 
+<br><br>
+<img width=800 src="http://i.imgur.com/peXGw.jpg"><br><br>
+<br><br>
+<img width=800 src="http://i.imgur.com/d4U0P.jpg"><br><br>
+<br><br>
+<img width=800 src="http://i.imgur.com/x4G3h.jpg"><br><br>
+Since the sign is very simple and does not rotate or change size, it doesn't need to be any more complicated than that. However, if it does do that you may need to select a very specific area to make it work.<br><br>
+<br>
+
+
+<b><font color=446677>
+Part 6 - Mocha settings<br><br></b></font>
+
+In the area below the video are some settings that you'll probably need to change to make it track correctly.<br>
+<br><br>
+<img width=800 src="http://i.imgur.com/gqARI.jpg"><br><br>
+
+This is what it looks like by default.<br>
+Moving from left to right, the first section we care about is Min % Pixels Used. Normally, 90 is a good value for this but in some cases you may need 95 when the area you're tracking has a lot of similar colors nearby or other parts of the sign look almost the same. You may need less (such as 80%) in cases where the sign changes in some way or there is motion blur or even blocking.<br>
+[Note: Right on my first try the tracking to the 2nd frame went completely off, because the reference area was fading in (and there was nothing else to go by). Switch from Luminance to Auto Channel in such a case. -unanimated]<br>
+Next, the check boxes for Translation, Scale, Rotation and Shear. Translation will always be checked. Scale is exactly what it sounds like. You will want to use this if the sign gets bigger or smaller while it moves. Rotation is also what it sounds like, use this if a sign rotates while moving. Note that rotation and scaling are a lot harder to track than just translation so you may need to make the tracking area more specific and/or change the settings in this section.<br>
+After this, you'll want to specify how many pixels around the area you want to look to track it into the next frame. In the clip we're using, the sign barely moves horizontally and only moves a bit vertically so unchecking the auto boxes next to each and putting 10 for horizontal and 100 for vertical will probably work.
+The angle and zoom boxes are probably for the rotation and scale tracking but I've never had to use them. They seem pretty straightforward, however.<br><br>
+<br>
+
+
+<b><font color=446677>
+Part 7 - Actually tracking the sign<br><br></b></font>
+
+Even though your settings may not be perfect, you'll have to actually start tracking the sign to see if it works. To start this, press the Track to Next Frame button. 
+<br><br>
+<img src="http://i.imgur.com/MWp3D.jpg"><br><br>
+
+You should see the video advance one frame and the tracking area should move assuming it can find anything that matches. 
+<br><br>
+<img width=800 src="http://i.imgur.com/l1ALT.jpg"><br><br>
+
+In this case, it tracked it correctly. You may want to advance one frame at a time for a few frames to make sure it's working. If it is hit the button to the right which will make it automatically track to the end.<br>
+If Mocha is not tracking it correctly, you may want to change the values to either increase the area it searches or to even decrease depending on what went wrong.<br><br>
+
+[unanimated note: if it doesn't track correctly, check Part 13 for what might help]
+<br><br><br>
+
+
+<b><font color=446677>
+Part 8 - Exporting data to Aegisub and applying it to the sign<br><br></b></font>
+
+Assuming you had no problems actually tracking the sign, you'll want to apply the motion data to the sign in Aegisub. To do this you'll want to click the Export Tracking Data... button in the Paramaters section. 
+<br><br>
+<img src="http://i.imgur.com/HtuPN.jpg"><br><br>
+
+
+Click Copy to Clipboard and your work in Mocha is done.<br>
+Next, go back to Aegisub and select the line in question. Go to Automation->Apply Motion Data. 
+<br><br>
+<img src="http://i.imgur.com/P52YJ.jpg"><br><br>
+
+
+Click inside the box and hit ctrl+v to paste the data. 
+<br><br>
+<img src="http://i.imgur.com/kmErX.jpg"><br><br>
+
+Next, you'll want to uncheck the boxes so it only applies the relevant tracking. In this case, all you want is Position. 
+<br><br>
+<img src="http://i.imgur.com/hCD1J.jpg"><br><br>
+
+Hit Go and then you're done.<br><br>
+<br>
+
+[Note: If you experience problems with this, read Part 11 below.]
+
+<br><br><br>
+
+<b><font color=446677>
+Part 9 - Fixing the sign<br><br></b></font>
+
+While the sign may be tracked perfectly, you may have to fix something after you apply the motion data. For example, you can use the pos_shift.lua I included to shift all the frames however much you need. You may also have to invididually clip the frames if it goes behind a person or something but that is outside the scope of this guide.<br><br>
+<br>
+
+
+<b><font color=446677>
+Conclusion<br><br></b></font>
+
+Mocha is a very useful tool to track non-linear panning or jitter. It works exceptionally well in this case and is very easy to use. However, it is a lot harder to use on signs that change size or even change shape. If that happens you can try to use Mocha but you might not want to waste forever attempting to get it to track the sign perfectly when you're probably better off doing it by hand.<br><br>
+
+
+<br><br>
+<br><br>
+<br><br>
+<br><br>
+
+continued by unanimated...
+<br><br>
+<br><br>
+
+<b><font color=446677>
+Part 10 - Encoding without the Aegisub script</b></font><br><br>
+
+If for whatever reason you can't make the script do the encoding, you can always encode it by other means.<br><br>
+
+Here's another way to do it:<br>
+Create mocha.bat with this text in it:<br>
+<pre>x264 --profile baseline --level 1.0 --crf 18 --fps 24000/1001 --seek %2 --frames %3 -o %1_%2.mp4 %1</pre><br>
+CRF can be anything, FPS I had to add because the first video I tried happened to have variable frame rate and mocha wouldn't load it. [This is for 23.976, change if your video has a different framerate.] I haven't tested the settings extensively but this worked. You will then open cmd.exe or whatever you use and type a command like "mocha filename.mkv startframe number_of_frames".<br>
+More specifically it may look like this "mocha another06_premux.mkv 22480 200".<br>
+This will start encoding at frame 22480 and encode 200 frames from another06_premux.mkv. There's no command for endframe in x264 options (afaik) so you have to use a number of frames you wanna encode. You can either do the math from the script or, screw that, just encode a bit more and you'll set the end precisely in mocha.<br>
+Obviously you need the mocha.bat, x264.exe [8-bit] and the video in the same folder. Once you set it up, it works fast.<br><br>
+
+When you load it in mocha, you'll grab the red end marker you see in this picture, and drag it back to the last frame your sign appears on.
+
+<br><br>
+<img src="http://i.imgur.com/MWp3D.jpg"><br><br>
+This way the tracking will stop on that frame.
+<br><br><br>
+
+
+
+<b><font color=446677>
+Part 11 - Converting mocha data for Aegisub</b></font><br><br>
+
+If you can't get the motion script to work, you can apply the motion data through this website: <a target="_blank" href="http://commiesubs.com/tai/">Taiga</a><br><br>
+
+Paste tracking data, set the start frame, change the style name to the one you're using for the sign, and input text for your line. Then check what you want to track - position, rotation, scaling - and hit Send.<br>
+Then you just copypaste the generated lines to aegisub.<br>
+If the position is off, you can either use the X/Y offset, or - imo much more convenient - use the Position Shifter script in Aegisub [which you downloaded along with the other one or check the <a href="scripts.htm">scripts page</a>].<br>
+This script is quite handy because you see right away how well it worked, and you can use it repeatedly for additional shifting (of course you need all lines selected). As a sidenote, this script is also useful when shifting a sign that has several layers.
+<br><br><br>
+
+Update: Took me a while to figure out why the script for converting the mocha data initially wasn't working.<br>
+Here's where the problem was:
+
+<br><br>
+<img src="mocha-export.png"><br><br>
+You need to select the "After Effects Transform Data" from the Export list.<br>
+While the Taiga website works with any of these options, the script is only designed to work with this one.<br>
+Herkz has an old mocha version that only has 2 options and this one is default so he never had this problem.<br>
+I've seen a screenshot from a newer version than mine which had like 20 options there. So be sure to select the right one.<br><br>
+
+
+Update: Using Taiga at this point makes no sense. Torque's script has evolved a lot and is now vastly superior.
+
+
+
+<br><br><br>
+
+<b><font color=446677>
+Part 12 - Scaling</b></font><br><br>
+
+The first sign I tried with mocha was moving AND getting smaller, which is where I ran into problems again. The sign I was trying to track started like this:
+
+
+
+<br><br>
+<img src="student1.jpg"><br><br>
+and ended like this:
+
+<br><br>
+<img src="student2.jpg"><br><br>
+Right there you see an example of how it didn't work. As the rectangle is getting smaller while moving down, the top of it moves a larger distance than the bottom. I tried tracking various areas till I figured out how it works, for example I tracked the whole rectangle, and this was the result.<br>
+Apparently with scaling your sign should be in the middle of the tracked area.<br>
+[update: this only happens with the taiga site; the script should have no problems with that]<br>
+In this case what I used and finally worked looked like this:<br>
+
+<br><br>
+<img src="student3.jpg"><br><br>
+
+Incidently I thought at first that I should set the points at the edge of a dark/bright area, but it actually had more of a tendency to slip away than like this. Might have been a coincidence but at any rate, this worked prefectly well.
+<br><br>
+
+Note: With the script you always have \an5 but with Taiga you can have any \an. What you need to have in the center of the tracked area is not the sign itself but that square that's at the top of the sign with \an8 but at the bottom with \an2. This would play an even bigger role with \an values 1, 3, 4, 6, 7 and 9.<br><br>
+
+
+
+Another thing worth noting about scaling is that vsfilter can't handle decimal numbers for \fscx \fscy, so \fscx100.99 is handled as \fscx100. This results in visible jumps in size between two lines with \fscx100.99 and \fscx101.<br><br>
+
+The disadvantage of the Taiga website is that it always starts with \fscx100\fscy100 on the first line, in other words you can't start with \fscx200 or any other value. The script is much better for scaling, because it doesn't have this limitation.<br><br>
+
+So what you need to do to avoid the jumps in size is to make \fs smaller and \fscx\fscy larger.<br>
+For example instead of \fs50 and no scaling you'll make \fs5 and \fscx1000\fscy1000. Then instead of jumps from \fscx100 to 101 you'll have \fscx1000->1010 with 10 steps in between that vsfilter will be able to handle, so the transform will be much smoother.<br><br>
+
+Update: Just always use \fs1 with scaling. No point using larger \fs.
+
+
+
+<br><br><br>
+
+
+<b><font color=446677>
+Part 13 - What if stuff isn't exactly working right...</b></font><br><br>
+
+
+There are cases when mocha just fails and it's easier to do things by hand. Mocha is really good at tracking slow, fluent movement, but it has serious problems with the typical anime stuff where 3 frames are the same and then stuff jumps somewhere 200 pixels off, especially if scaling/rotation changes as well. So what then?<br><br>
+
+There are two things in mocha that seemed to help a little with this. One is switching from Luminance to Auto Channel [though whether that helps or not will be pretty random], the other is changing the Search Area from Auto to 200x200 or 300x300, when the tracked area makes bigger jumps. But there are times when none of that helps and the motion is so unpredictable, that mocha just can't seem to make sense of it... like that Coffee can in Nise 7. There was also a sign in Another that took Daiz an hour to do with mocha and drove him crazy in the process, while I did it by hand and it probably took me less than half an hour. So mocha is not necessarily always the best solution.<br><br>
+
+It is, however, pretty damn good in most cases when you only need to track position. So a few tips about that...<br><br>
+
+Let's say you have these letters gliding around:
+
+
+<br><br>
+<img src="maria-mocha1.jpg"><br><br>
+
+You can just set 4 points on one letter and see if that works. If not, like if something is interfering, you can draw a more precise shape that will give you more points to track. If it still tends to wander off after a number of frames, a few things will help you fix that more easily.<br><br>
+
+To see clearly how well the tracking's going, use Zoom and Stabilize. Zoom in on what you wanna track as much as you can, using Z and X keys for zooming and moving the screen. Then you can draw a precise outline if you want, though usually something a lot more simple will do.
+
+<br><br>
+<img src="maria-mocha3.jpg"><br><br>
+
+Then click the Stabilize button [may look different depending on your mocha version]: <img src="mochastab.png"><br><br>
+
+This will keep the tracked area in the same place on the screen instead of it jumping around, so on each frame you can clearly see whether your control points are still in place, or slowly drifting away.<br><br>
+
+If they're drifting away and it's happening slowly and gradually, not in jumps, you can let them do that for 10 or more frames, then stop the tracking and fix the position. You can move the whole tracking shape by pressing Q and dragging the shape back where it should be. Any frame where you make manual changes becomes a keyframe. In this case that means that this frame is what you did manually and won't be changed by mocha. For simplicity let's say you start tracking, stuff is drifting away, and you stop at frame 10 and fix it. Now you have 2 keyframes - the one you just made and the first frame, where you drew the shape. Mocha will now automatically recalculate positions for all the frames in between. So if your control points moved 10 pixels off and you put them back on frame 10, mocha will move them by 9 pixels on frame 9, 8 pixels on frame 8 etc. If they wandered off gradually, this will pretty much fix the whole thing. Then you can keep tracking and do the same if it happens again.<br><br>
+
+If you're tracking only Translation, then all points should move the same. If you have Scaling checked, then any single point may wander off on its own, so I recommend to only check Translation if you're only tracking position and don't need scaling.<br><br>
+
+It gets a bit more complicated if the change doesn't happen gradually but the points jump off suddenly on one specific frame. This means the previous frame was still correct, so if you fix the last one, mocha "fixes" all the previous ones back to the last keyframe... but as they were correct, they will now be wrong. So what you need is to make another keyframe on the one just before it went wrong. Go that one frame back, and move something. You basically want it to stay the same, so you can move 1 pixel right, then 1 pixel left. It stays the same, but a keyframe is created. Then go to the frame after, where it went off, and fix that one.<br><br>
+
+In the typical "2-3 frames the same, then jump" japanimation this can happen a lot. Often to the point that you may need to fix the position on almost each of the frames it jumps. It might be easier to just do stuff by hand in Aegisub, but sometimes it's actually easier to track it in mocha, even if you're pretty much tracking it manually. You may have to 'fix' almost every frame, or even not use the actual tracking, but just move to next frame and adjust points manually, but even that can be more convenient than tracking it in Aegisub. If there's also scaling and rotation, adjusting control points on every frame in mocha will probably be much less effort than doing all of that in Aegisub, and the end result will probably look much better.<br>
+So even manual tracking in mocha can be useful.<br><br><br>
+
+Some updates:<br><br>
+
+I recommend not fixing things in the middle of tracking because it's a pain in the ass. Instead you should try setting it up so that it tracks correctly in the first place. What usually goes wrong?<br><br>
+
+1. tracked area suddenly jumps off<br>
+2. tracked area suddenly becomes too small/large [with scaling]<br>
+3. mocha is unable to track well at the start/end of a fade<br>
+<br>
+
+
+1. This can usually be fixed by playing with the Search Area. Uncheck Auto and set numbers that you find reasonable. If the sign jumps a lot and mocha doesn't follow, insrease search area. If on the other hand mocha jumps somewhere off for no apparent reason, you can set the Search Area to lower values to limit mocha's wandering off. If it keeps jumping off, keep changing the numbers. I've seen cases when it jumped wrong with 3-4 different settings and I still managed to make it track correctly by tweaking the Search Area some more. It's much better than messing with the tracking points and trying to fix it after it jumped. Just prevent it from doing that in the first place.<br><br>
+
+2. When zooming, mocha sometimes fails to follow the zoom far enough. Seems to me there's a limit on that which you can't see anywhere. Luckily though you can change it. The Search Area has "Zoom %" where you can set a higher value. I think it works fine to somewhere around 20% but won't zoom more with the default setting. So try setting it to 30% or so if that's the case. High values will slow tracking down considerably, so if you're tracking 100 frames and only the first 3 zoom a lot, change setting back after those 3 frames to make it track the rest faster. Same goes for the Horizontal and Vertical values under Search Area.<br><br>
+
+You can also see a setting for Angle there. As you can probably guess, what I just explained about the other settings goes for Angle when you're tracking rotation too.<br><br>
+
+3. You've probably ran into some trouble tracking a fade in/out.<br>
+Changing Input Channel to Auto Channel may be of some help in some cases.<br>
+With fades mocha usually tends to jump off more than it should. You can limit its range with the Search Area like I described above. There are signs that stop moving at the end of a fade out. If mocha keeps moving away, you can just ignore it. It will probably be easier to copy the \pos values from the last good one in Aegi and paste it to the lines after that.<br>
+Fade out is not such a big deal but fade in may be harder to track. It's better to track it backwards. Set the tracking area on a frame where the sign is clearly visible and then track back. Then track the rest of the sign from the frame you started on.<br><br><br>
+
+
+If a sign moves and then stops and you're tracking the whole length, let mocha do whatever it wants at the static part and then "Join (keep first)" the static lines in Aegisub. The tracked sign may often wobble a bit even though the picture is still. Plus there's no need to have 50 lines for somethng static. You can also track just the moving part and then extend the last tracked frame for the rest of the sign. Makes the tracking faster too.
+
+
+
+<br><br>
+
+
+
+<br><br><br><br>
+
+<center><a href="index.htm"><b>« Back to Typesetting Main
+<br><br><br>
+

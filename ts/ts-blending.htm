@@ -1,0 +1,272 @@
+<html><head><title>Typesetting: Blending In</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold; text-decoration:none}
+A:hover {color:e0e3e6}
+
+</style>
+</head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=557788 vlink=557788 alink=557788>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=1000>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>Typesetting: Blending In
+</center></td></tr>
+
+<tr><td bgcolor=000000><br>
+
+
+Ultimately what you want to achieve is to make your typesets blend in. To make them look like they belong there.<br>
+If possible, to make them look like they were there in the first place, so that when somebody watches the episode,<br>
+they don't think "oh, somebody put text here to tell me what this sign means."<br>
+Ideally the viewer shouldn't even notice something was added.<br>
+The typeset shouldn't stand out, being the first thing you notice because it looks out of place.<br><br>
+
+Making it blend in prefectly is not always possible, so sometimes you just need to make sure it doesn't look distractive/odd/ugly.<br><br>
+
+The way to achieve this is by combining all the things you've learned in the previous chapters.<br>
+Choose a good font, find a reasonable position for the sign, make sure to get all the colors, borders and shadows right,<br>
+align it correctly, use as much blur as needed to make it look natural, etc.<br><br>
+
+Sometimes there are several reasonable ways you can typeset a sign, so choosing the best one will make a difference too.<br>
+[Sometimes that requires thinking outside the box a bit.]<br><br>
+
+For example this one...
+
+
+<br><br>
+<img src="blend1a.jpg"><br><br>
+You could try to squeeze the typeset somewhere around the jp letters, or put it outside the box, but that would pose obvious problems.<br>
+The thing you can make use of here is that the box is a regular rectangle and the background is one solid color.<br>
+Which means it will be extremely easy to just replace the sign without any interference.<br>
+
+<br><br>
+<img src="blend1b.jpg"><br><br>
+I didn't even use drawing mode here, just 'opaque box' for border.<br>
+
+
+<br><br>
+<img src="blend2.jpg"><br><br>
+Here you need to pick the right font and match the size and thickness of the letters. [And obviously have no border/shadow.]<br>
+At first glance you'll hardly notice anything was added here.<br>
+Looking at it some more, I'd say it could use a little bit more blur, and a little bit of alpha or slightly darker color.<br>
+
+
+<br><br>
+<img src="blend3.jpg"><br><br>
+Here the challenge is aligning and positioning.<br>
+Forget trying to squeeze it next to the jp or rotate it ~90 degrees [in relation to current orientation].<br>
+Just use a place where it comfortably fits and looks like it might be the title of the paper.<br>
+Align correctly in both directions and add some blur to avoid jagged outline.<br>
+Also make sure you're not using pure black just 'cause your style has it. Almost nothing in anime is pure black. Match colors precisely.<br>
+
+
+<br><br>
+<img src="blend4.jpg"><br><br>
+Use good font, match color, add blur. Now imagine Arial with some stupid white outline and no blur, like some derps would do.<br>
+
+<br><br>
+<img src="zero01.jpg"><br><br>
+Nothing much inventive here, just follow the basic guidelines and imitate the original sign.<br>
+Use a somewhat square-ish, thick font. There are 3 lines [in script], each of them has 2 layers.<br>
+Top layer has matching color [red-ish/blue] and a shadow [no border]. Match the shadow distance.<br>
+Match the transparency/color of the shadow, not just black "cuz it was there".<br>
+Bottom layer has white outline and another shadow, this one with a lot more transparency.<br>
+Since the whole trick here is to really just get the basics right, make sure you notice all the borders and shadows correctly.<br>
+I almost missed the second shadow here. Sometimes you'll need more than 2 layers to get it all done right.<br>
+
+
+
+<br><br>
+<img src="flashback.jpg"><br><br>
+The 4 corners... would be hard or pretty much impossible to match, since there are multiple effects, embossing, texture etc.<br>
+So I decided to kind of approximate the colors and at least make it look nice. Which means mainly using a nice font.<br>
+Add shadow for at least some sense of depth, and play with the shadow/border till it looks decent enough.<br>
+Since you can't match this exactly, there would be plenty of variations of how you could do this.<br>
+IMO you're better off using some nice script font even if it doesn't quite match, than using TimesNR which might technically be closer but would look like shit.
+<br><br>
+As for the Flashback... the font is the easy part. More interesting is the shadow.<br>
+And even more interesting is that the sign was moving around earthquake style, changing the direction of the shadow on every frame.<br>
+So what I did was to time it frame by frame, use \xshad and \yshad on each frame to change the shadow direction,<br>
+and adjust \pos for each frame to folow the shaking movement of the jp sign. Good thing was it only took 20 frames.<br>
+[If you're learning, you're not required to follow the movement & shadow frenzy. Just saying it can be done and how.]<br>
+
+<br><br>
+<img src="gradessay.jpg"><br><br>
+The ones on the sides obviously can't blend in perfectly. There's hardly any space for them anywhere else,<br>
+so the best you can do is to match everything as closely as possible. This isn't even as close as possible but it's good enough.<br>
+The other two can be done much better. Positioning is pretty obvious, so good font, thickness of letters etc., correct colors and a bit of blur.<br>
+The top one has even that background blur [you add very little border, like 0.1-0.2, a lot of blur [4-6], and adjust color or transparency till it looks good].<br>
+The bottom one doesn't have that because I was too lazy. Negtive points for me. The ones on the sides also need more blur.<br>
+
+
+
+<br><br>
+<img src="zoom.jpg"><br><br>
+Four typesets here. The Zoom would look much better with another, top layer without border/shadow and with some blur.<br>
+However the whole sign was moving and increasing in size, which means \move and \t, so adding another layer and more blur<br>
+might munch on the CPU too much, so I left it like this, especially since there are 3 other signs in the picture.<br>
+The 'Math' doesn't look too great, but font is ok and it doesn't stand out too much, so it's good enough.<br>
+You could replace the letters on the yellow background with the 'Math,' but I don't like replacing signs if I can't replace ALL of them.<br>
+Having some kanji replaced with English while there are other kanji in the picture looks lame to me [though I wouldn't say it's 'wrong'].<br>
+Third one is 'Mathematics Drill.' The big blue letter covering the Drill is moving away till it's not covering the word at all.<br>
+So I used \iclip to remove what was needed from the Drill, and changed the \iclip frame by frame. [Well, I was cheating, so each 2 frames.]<br>
+Fourth one is the Winning Lawsuit. Didn't really give me many options as to what to do with it.<br><br>
+As you can see, I used 4 different fonts here, trying to match the style, thickness, size etc. [as much as possible]<br>
+It should be clear that all of the signs use blur. The Lawsuit could use a bit more, but then it was getting hard to read.<br>
+
+
+<br><br>
+<img src="phys.jpg"><br><br>
+If you can't see the sign, it's blending in well.<br>
+
+
+<br><br>
+<img src="nichirest.jpg"><br><br>
+I dunno, I just thought this was a cool idea...<br>
+It's a typeset for the white-on-pink sign at the top. Clearly there wasn't enough space there so...<br>
+
+
+<br><br>
+<img src="ak-game.jpg"><br><br>
+Speaking of having some imagination... an example of how you don't always have to stick the typeset right next to the jp.
+<br>
+
+
+<br><br>
+<img src="sudden.jpg"><br><br>
+This is perfectly readable & looks good. Two layers for blur, of course, and changing colors letter by letter for the "Question."
+<br>
+
+
+<br><br>
+<img src="spikes.jpg"><br><br>
+Spikes? How? Think about it... there must be some spiky symbols you could put under the letters...
+<br>
+
+
+<br><br>
+<img src="distracted.jpg"><br><br>
+All in one line [but 2 layers for blur]. Different \frz for each letter.
+<br>
+
+
+<br><br>
+<img src="tsutsumin.jpg"><br><br>
+This is the kind of sign that makes most typesetters go "Oh shit [am I really gonna have to typeset this?]"<br>
+But it's really not that bad [unless it appears 20 times from different angles].<br>
+This only appeared 4-5 times.<br>
+The one on the right has extra layers for that glow [though less glow than the jp - \blur15 on several signs at once might not be so good].
+<br>
+
+<br><br>
+<img src="tsutsumineve.jpg"><br><br>
+Here's one more in the evening.
+<br>
+
+<br><br>
+<img src="3shrines.jpg"><br><br>
+I've done so many Kitano Tenmangu Shrines that I couldn't count them. Here's 3 in one picture.<br>
+Aside from aligning & blurring, the middle one has some extra features in order to blend in.<br>
+I tried doing it including the semi-hidden part, and it happened to work really well.<br>
+The trick is pretty much this: {\alpha&HF0}Kitano Tenma{\alpha&H00}ngu Shrine<br>
+Btw nobody tells you it should go at the top of the shrine. You just know you're supposed to typeset the white kanji.<br>
+So most people would try to put it somewhere around the kanji. Like I said, don't do that. Find a less retarded / more elegant solution.
+
+
+<br><br>
+<img src="timeblend1.jpg"><br><br>
+This may look simple enough but... if you do just one layer...
+
+
+<br><br>
+<img src="timeblend2.jpg"><br><br>
+...it looks like this. See the difference? So yeah, another layer, different color, a lot more blur.<br>
+
+
+<br><br>
+<img src="chihaomi.jpg"><br><br>
+On the right... First choose a font. Then add some \fry and place \org about a mile away to get the alignment you need. [OK, maybe not that far]<br>
+That may take a while to get right. Adjust font size and position till it fits. Use \fax for fine tuning. Add blur, obviously. Then the colors...<br>
+The left side is brighter than the right. So I used 3 shades for each line. The whole thing looks like this:<br><br>
+
+0:02:54.02,0:02:56.07,names,Caption,0000,0000,0000,,{\an7\fs34\fax0.04\fscy110\bord0.5\blur0.8\frx6\fry18\org(839,950)\frz6.258\pos(800,-45)<br>
+\alpha&H80\c&H464036&}High Schoo{\alpha&H75}l {\alpha&H70}Nat{\alpha&H60}ional \N{\alpha&H80}Ogura Hu{\alpha&H75}nd{\alpha&H70}red<br>
+{\alpha&H60}Poets \N{\alpha&H80}Karuta {\alpha&H75}Ch{\alpha&H70}ampion{\alpha&H60}sh{\alpha&H55}ip
+<br><br>
+
+Omi Learning Center was even more interesting. Font, positioning and aligning is obvious. I don't even remember but apparently \frz\fry\fax.<br>
+The background changes color/brightness <b>a lot</b> from left to right. That was the biggest challenge. \alpha probably helped with a bit of that.<br>
+Most of it was done by changing shades for main + outline color for almost each letter. It also has both border and shadow.<br>
+There's \yshad on top of that, which actually created a bit of an effect that I didn't even expect, where the top edge of the letters looks brighter.<br>
+I'm not even sure why that happened but it was a nice bonus. Whole thing here:
+
+<br><br>
+
+0:02:54.02,0:02:56.07,Chiha-title,Caption,0000,0000,0000,,{\fs45\shad1\yshad1.5\blur1\fax1\b1\alpha99\frx0\fry9\c&H928C7B&\3c&H595445&<br>
+\4c&H2E2D27&\frz338.838\pos(459,408)}O{\alpha90}mi {\alpha80\c&H96927C&}Le{\c&H8B8E73&}ar{\c&H767A65&}ning {\c&H666851&}C{\c&H5C5B45&<br>
+\3c&H4B4637&}e{\c&H515038&\3c&H423D2F&}n{\c&H48472F&\3c&H353024&}t{\c&H3E3D2B&\3c&H2C271C&}e{\c&H393826&\3c&H241F16&}r
+
+<br><br>
+
+
+So yeah, sometimes it takes a bit longer to make it look good.<br><br><br>
+
+<br><br>
+<img src="maria-clack.jpg"><br><br>
+Signs like this are awesome. They're not moving, so you don't have to chase them across the screen, but you get to have fun with the details.<br>
+So how do you imitate all the borders/shadows? 5 layers.<br>
+Layer 5 - just the green letters without border. Increase letter spacing to avoid too much overlapping of the letters.<br>
+Layer 4 - \xshad-3\yshad-3 with the light color.<br>
+Layer 3 - \shad3 with the darker green.<br>
+Layer 2 - \bord3 with the same color as Layer 5 - to fill in the corners.<br>
+Layer 1 - \bord6.5 in dark grey and \shad5 in dark green.<br>
+...and of course blur on everything.
+<br><br>
+
+
+<br><br>
+<img src="date-jp.jpg"><br><br>
+Similarly here you have a date with an outline but also a 'light reflection' on the left and at the top.<br>
+Pick a simple sans serif font that will roughly match the thickness of the letters.<br>
+Use layers with \xshad \yshad, or just an extra layer shifted a pixel up and left. Fairly simple.<br>
+
+<br><br>
+<img src="date-eng.jpg"><br><br>
+On the other hand, you don't really have to match this sign, in my opinion.<br>
+If you do something else that doesn't look out of place, it should work.<br>
+If someone says you're a retard because the sign doesn't match [I've seen that happen], he's just being dumb himself.<br>
+It seems unnecessary to me to "match" something that isn't actually on the screen [because you masked it].<br><br>
+
+
+
+<br><br>
+<img src="maria-taptap.jpg"><br><br>
+Another fun sign [Maria Holic is full of them].<br>
+The cool thing here is, that it's all done in 1 line. All you need is one \N, different \frz for each word, and move \org somewhere far.<br>
+Additionally the words are moving back and forth every 2-3 frames, so I timed frame by frame and changed \pos by 1 pixel back and forth.<br>
+While 1 pixel isn't much normally, the effect when you have \org somewhere far is pretty cool with all those \frzs.<br><br>
+
+
+<br><br>
+<img src="another-pillar.jpg"><br><br>
+One hour of work. 39 lines. Just because I can. [Still not perfect though]<br>
+Original line in script was "Misakichou 3-3". I decided while I'm at it, I might as well do the rest.<br>
+All signs are in 2 layers, to get blur on both the outline and primary color.<br>
+Split to make a line for each ~2 letters. Positioning, rotating, \fax-ing. Takes a while to get it right [and the top one is still wrong].<br>
+For the top one I also had to change color for each letter [and outline] because the background darkens a lot from left to right.
+
+<br><br><br><br>
+<img src="marketcrash.jpg"><br><br>
+Nothing should stand out as obviously added.
+
+
+<br><br><br><br>
+
+<center><a href="index.htm"><b>« Back to Typesetting Main
+<br><br><br>

@@ -1,0 +1,165 @@
+<html><head><title>Basics of Timing in Aegisub</title>
+<META NAME="description" CONTENT="Timing in Aegisub">
+<META NAME="keywords" CONTENT="Timing, Aegisub, Tips">
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold}
+A:hover {color:e0e3e6}
+
+</style>
+</head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=668899 vlink=668899 alink=668899>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=760>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>Basics of Timing in Aegisub
+</center></td></tr>
+
+
+<tr><td bgcolor=000000><br>
+As you should know if you're reading this, timing subtitles is about setting start and end times to each line of a script. In essence simple enough, but there's a hell of a difference between somehow herp derp timing it and doing it right. You need to do it right.<br><br>
+
+First thing to do is to download <a target="_blank" href="http://plorkyeran.com/aegisub/">Aegisub</a> and <a href="aegisub.htm">set it up properly</a> (!) and become familiar with it.<br><br>
+
+In order to time, you need to load video, audio, and script. A/V is easy, but with the script you can mess up. If your script is already in .ass format [and I mean for real, not just some dumbass renaming a .txt to .ass], you just Open the file, or drag it onto Aegisub. If it's a .txt or the script is on the pad, rather than Opening it, you copy the text, click on that empty line in a new script in Aegisub, and paste. You should then see a script with zeros for times.<br><br>
+
+If you happen to get a script with character names, like this:<br>
+Shana: Shut up!<br>
+you Open it and put a colon as Actor Separator when asked.<br>
+Then you should see names in the Actor field and script in the text field. Always check the whole script if you got it in this form because there might be stuff like this:
+
+<br><br>
+<center><img src="px/aegi-txt.png"></center><br><br>
+Now, we don't give a fuck about the "{missing line here" in the actor field, because that field is useless; the problem is that we have "}" before Maeda, which will show on screen. So you have to delete that.<br>
+The line in the script was: {missing line here: }Maeda will not ally with anyone from now on {??? TLC}<br>
+Since the colon acts as separator, it got split the way you see.<br><br>
+
+Aside from that, until you figure out how to load files without making mistakes, you should keep your eyes open for question marks that seem out of place, because it just might be that you failed to import a script in Unicode encoding properly, and those question marks were something else originally. We can't have that, so figure out what you did wrong and do it again right.<br><br>
+
+<br><br>
+
+Timing consists of <b>Rough Timing, (TPP), and Fine Timing</b>.<br><br>
+
+<b>Rough-Timing</b> is where you set the start/end times on the audio track.<br>
+<b>TPP</b> - Timing Post-Processor - is a tool that adds lead in/out, links lines, and snaps to keyframes.<br>
+<b>Fine-Timing</b> is where you watch the video after rough-timing, looking for and fixing any errors.<br><br><br>
+
+
+Rough and fine-timing takes about 20-40 minutes each, once you get some practice, which might take a few dozen episodes. Your first attempts, however, are expected to take as long as 3-5 hours, so be ready for that.<br>
+TPP takes 0.0002 seconds. [Yeah, I counted them.]<br><br>
+
+You may or may not wanna use TPP. Some people love it, some hate it. It's totally up to you, so try both and see.<br>
+For now I'll explain stuff assuming the usage of TPP and get to timing without TPP later.<br><br><br>
+
+
+Before you start timing, I recommend to use these settings:
+
+
+<br><br>
+<center><img src="px/audiosett3.png"></center><br><br>
+
+
+Now you just use the left mouse button to set start times and right button to set end times for each line. Pressing G applies changes and gets you to the next line. Rough timing means you set the times to the <i>exact</i> start and end of the audio for each line. It will look like this:
+
+
+<br><br>
+<center><img src="px/time-audio0.png"></center><br><br>
+
+Now, let's talk about all the buttons and stuff.<br>
+On the right you have 3 vertical sliders. The first one zooms into the audio horizontally, 2nd one vertically, 3rd one is volume. You can click the |_| under 2 and 3 to link them together if you prefer that.<br><br>
+
+The buttons under the audio... I don't actually click on any of them ever, but I use the keyboard shortcuts for some of them. First 5 are pretty useless. You just need to play/stop the audio with a key, not mouse. Go to Options-Hotkeys and set "Audio Play or Stop" to whatever key will be the most convenient for you. This will be the most used key along with G, so keep them close. This will play the audio from your current start time to end time.<br><br>
+
+Next one you'll need is the one that plays 500ms after selection. Finding the start of a line is usually easy. Most of your time will be wasted on figuring out where a line ends. You can set the end far enough and play the whole thing. That will be the most reliable, but slow. You can probably start with just that, but later you'll wanna get faster. So you'll set the end to where you <i>think</i> it will be and play the line to check. If there's a pause before next line, it will be easy, but in a continuous dialogue you may not be sure your guess was right until you hear what's after your end time. So you use the key that plays 500ms after. And to make it even faster, once you get the hang of it, you won't wanna play the whole line each time, you just need to find the end, so you need the key for the last 500ms. You guess-set the end, use keys to play 500ms before and after it, and that should give you an idea about whether you got it right.<br><br>
+
+Sometimes it may be useful to play 500ms before the start, to check you didn't miss a silent sound or something, and you may need a key shortcut for jumping to previous line if you realize you made a mistake. Rather than using default settings, figure out which of these things will be useful to you, and set the keys so that you can easily use all of them without looking at the keyboard.<br><br>
+
+Another very useful thing is committing changes <i>without</i> jumping to the next line.<br>
+Set a key for "audio/commit/stay" in Options.<br><br>
+
+The button before last switches the audio to spectrum analyzer mode. Try it out, and see what works for you. Again, some timers can't work with waveform while others can't work with spectrum, so up to you to figure out which you prefer.<br><br>
+
+Now you know how to rough-time. Don't forget to save often enough, though the autosave works pretty well now.<br><br>
+
+<br><br>
+
+When your script is rough-timed, it is far from presentable to the viewer. The subs will look like shit and will be unreadable because text will disappear too soon, lines will flicker etc. <br>
+So <b>Fine Timing</b> and/or <b>TPP</b> is about fixing that.<br><br>
+
+Text has to appear a little before the audio and stay on screen a little after the person is done talking, to give the viewer enough time to read. When two lines are close to one another, they should be linked together so that text doesn't disappear for just a few milliseconds, because that looks bad. We call this flickering subs.<br><br>
+
+The last thing that needs to be considered is keyframes. In case you don't know, a keyframe is a frame where a scene changes in the video [like a camera cut]. If subs end just a few frames after a keyframe, it looks really bad. We call that a bleed. You need to avoid those like the plague. Basically, if anything starts or ends near a keyframe, it should be snapped to it. You can see them as the purple lines in Aegisub. However, note that these aren't always precise, so there may be scene changes that you won't see on the audio track, and you must notice those when watching the video.<br><br>
+
+If you scroll up to the last picture, you'll see that 2 lines end just before a keyframe. They will have to be snapped to those keyframes. The fine-timed lines will look like this:
+
+
+<br><br>
+<center><img src="px/time-audio1.png"></center><br><br>
+
+So how do you get from rough-timed to fine-timed? Either you use TPP, then watch it and fix whatever is wrong, or, if you're not using TPP, you fine-time it in the first place, basically skipping rough-timing completely.<br><br>
+
+So <b>how to use TPP</b> and what it does.<br><br>
+
+TPP adds those lead ins and lead outs, links lines, and snaps to keyframes. The advantage is, it does that in a split second. The disadvantage is, it can actually ruin a few things, which is why many timers choose not to use it. And if you are gonna use it, you need the right settings.<br><br>
+
+I've done some experiments with different settings and got the best results with roughly this:
+
+<br><br><center>
+
+<img src="tpp30.png">
+
+</center><br><br>
+
+
+You can probably use 100 for lead in. I don't like too much lead in, so this works for me.<br>
+Generally lead in should be about 80-100, lead out 250-350, and line linking 400-500, with the slider about 90% to the right.<br><br>
+
+In case you have trouble understanding how this works, once you click OK, it adds 80ms lead in and 300ms lead out to ALL lines, without them overlapping [so if they're closer than 380, you won't get the full values].<br>
+Then for any 2 lines that are 450ms apart or closer, it links them, turning 90% of the gap into lead out for the 1st and 10% into lead in for the 2nd.<br>
+Then it snaps to keyframes any lines that<br>
+1. start 250ms or less before a keyframe<br>
+2. start 250ms or less after<br>
+3. end 400ms or less before<br>
+4. end 500ms or less after.<br><br>
+
+Because this is a mathematical calculation with no judgement of what's really going on, there will be places where these values add up to something you don't really want. Therefore you need to do <b>Fine-Timing</b>, which is just as important as rough-timing.<br><br>
+
+What it means is that you watch the video and focus on the subs, catching anything that's not right.<br>
+Note that TPP can only "see" keyframes that have those purple lines, so depending on the encoding settings of the video you may have a lot of scene changes without the purple lines, which means TPP won't see them and there will be bleeds.<br>
+So one of the main things you have to look out for when fine-timing is bleeds. It takes some training and requires your full attention. Whenever you see a bleed, or just spot that something felt off about the start/end [usually end] of the line, go back to that line and use arrow keys to play it frame by frame to check if the line really started/ended on the frame it was supposed to. If it's off, you need to fix it. I'll talk later about how to set the time to the exact right frame.<br><br><br>
+
+
+<center><a href="px/flicker.png"><img src="px/flicker.png" width=720></a></center><br>
+An example of poorly fine-timed script in somebody's first attempt at a full episode. You can see 5 cases of flickering and one bleed here. All of that has to be fixed.<br><br><br>
+
+
+One more thing about bleeds - if only one syllable or a short word goes beyond a keyframe, you generally want it snapped to the keyframe [case in point - picture above]. When watching, you won't even notice there was a short sound after the scene change, and the subs look a lot better if they don't intrude into the next scene.<br><br>
+
+Aside from bleeds, you must notice if some lines end too soon, start too late, if there's flickering, or if you actually missed some silent words, or simply clicked somewhere totally wrong by mistake. It may also happen that when rough-timing, you mistime some lines and at some point end up being one line off. All of that needs to be fixed during fine-timing.<br><br>
+
+If you've watched the whole video and fixed everything that was off, you're done.<br><br><br>
+
+
+Just one more thing that will drive you nuts in the beginning - overlapping dialogue.<br>
+When two or more characters are speaking at the same time, it can be quite difficult to time everything correctly. I recommend timing one character first, then the other. You can even rearrange the lines to put one character first. It will be better for linking, too. Since it's difficult to read many lines at once, you may want to use more lead in/out and linking for overlapping dialogue. When 2 people are speaking and subs keep disappearing, you might end up not being able to read anything.<br><br>
+
+Aside from just timing it, there's the issue of where to place all the lines. If you leave them all in default position, it'll be hard to tell which lines are whose, and they may stack on top of each other and end up in the middle of the screen. We'll talk about that later, for now you just need to time everything correctly.<br><br><br><br>
+
+
+
+
+Next part: <a href="timing-without-tpp.htm">Timing without TPP</a>
+
+
+
+
+
+<br><br><br>
+</td></tr>
+</table><br><br></html>
+

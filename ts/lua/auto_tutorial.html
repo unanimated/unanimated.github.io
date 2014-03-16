@@ -1,0 +1,2014 @@
+<h1 id="intro">Introduction</h1>
+
+(last revision: 6/5/2013)
+<br><br>
+This tutorial is meant to serve as a basic guide to creating Lua automations for use in Aegisub. If youíve worked on an advanced substation alpha script, especially if youíre a typesetter, youíve probably encountered tasks that are tedious, repetitive, and/or require more calculations than youíre willing to do. In most cases, these tasks can be automated using macros written in Lua code, and often quite easily.
+<br><br>
+This tutorial is based on my own knowledge and experience. There are many features of the Lua language and the Aegisub API that I've never used and won't cover. This tutorial should provide a solid starting point, but advanced users will have to do their own research. 
+<br><br>
+The next section will cover basic programming concepts for people who have never programmed before. If you already know a programming language (HTML doesnít count), you can skip to <a href="#experienced">"Lua for Experienced Programmers"</a>. If you already know Lua, or if you'd rather start writing macros right away and learn Lua as you go, then you can skip to <a href="#environment">"The Aegisub Environment"</a>.
+<br><br>
+I recommend frequently referencing the <a href="http://docs.aegisub.org/3.0/Automation/">documentation</a> provided in the Aegisub user manual. 
+<br><br>
+ 
+<h1 id="beginner">Programming for Beginners</h1>
+ 
+This section will briefly introduce basic programming concepts using Lua. On the advice of some people who helped proofread this tutorial, I've vastly condensed this section, as it is not the main focus. You can find many good resources for learning Lua on the <a href="http://lua-users.org/">lua-users.org</a> page.
+
+<h2 id="vars">Variables, data types, arithmetic, and logic</h2>
+ 
+A variable is the name of the place where you store data. They behave similarly to the variables in algebra, but can store any kind of data, not just numbers.
+<br><br>
+<code>
+x=5<br>
+y=12<br>
+z=x+y
+</code>
+<br><br>
+Another simple data type in addition to numbers is the <strong>string</strong>, which represents text and is defined with quotes. In Lua, you can join one string to another using the <code>..</code> operator.
+<br><br>
+<code>
+first_name="John"<br>
+last_name="Smith"<br>
+full_name=first_name.." "..last_name<br>
+message="Hello world!"
+</code>
+<br><br>
+Note that the backslash (<code>\</code>) is an "escape character" (<a href="http://en.wikipedia.org/wiki/Escape_character">more info here</a>). If you want to type a normal backslash, type "<code>\\</code>".
+<br><br>
+Another data type is the <strong>Boolean</strong>, which can only have two values: <code>true</code> or <code>false</code>. You can use Booleans to evaluate <code>if</code> conditions or loops.
+<br><br>
+<code>
+is_happy=true<br>
+if is_happy then<br>
+&nbsp;&nbsp;&nbsp;&nbsp;print("Iím happy too!")<br>
+end
+</code>
+<br><br>
+In most cases, you will be using Boolean <em>expressions</em> that can be <code>true</code> or <code>false</code> depending on the situation. The following are examples of boolean expressions.
+<br><br>
+<code>
+x &gt; y<br>
+number &lt;= 0<br>
+count == 5<br>
+command ~= "quit"<br>
+x &lt; 0 or x &gt; 10<br>
+x &gt; 0 and y &gt; x
+</code>
+<br><br>
+The greater than and less than sign mean what you expect. "&lt;=" and "&gt;=" mean "less than or equal to" and "greater than or equal to", respectively. "~=" means "not equal to". Conditions can be combined using <code>and</code> and <code>or</code>.
+<br><br>
+Note the double equals sign. In many programming languages, including Lua, the single equals sign does not mean "is equal to". Instead, the single equals sign represents assignment. That is, it is a command that means "store this value in this variable". The expression <code>count = 5</code> means "store the value 5 in count", which is not what we want here. To check for equality, use <code>count == 5</code>, which means "count is equal to 5".
+<br><br>
+If you are working with number variables, you can perform arithmetic on them normally. In Lua, multiplication is <code>*</code>, division is <code>/</code>, and exponentiation is <code>^</code>. The <a href="http://en.wikipedia.org/wiki/Modulo_operation">modulo operation</a> is <code>%</code>.
+<br><br>
+<code>
+x=21<br>
+y=3*x+46<br>
+z=((y-x)/(y+x))^2<br>
+x=15+y
+</code>
+<br><br>
+Keeping in mind that the equals sign is the <em>assignment</em> operator, note that at runtime, the expressions on the right are evaluated and their numeric results are stored in the variables. Changing the value of <code>x</code> on line 4 does not affect <code>y</code> or <code>z</code>.
+<br><br>
+Lua has a special value called <code>nil</code> that can be stored in any variable. It means "nothing". This is not the same as the number 0, nor is it the same as a string with no text in it. If a variable is <code>nil</code>, it means "no valid data is stored in this variable". Uninitiated variables and failed function calls will generally result in <code>nil</code>.
+<br><br>
+You might think having <code>nil</code> values is an error that should be avoided, but <code>nil</code> values can be very useful. For example, you can see whether <code>tonumber(foo)</code> returns <code>nil</code> (i.e. "failed to covert to number") to determine whether <code>foo</code> is a valid number or not.
+<br><br>
+The last thing I have to say about variables concerns naming them. A variable name can contain letters, numbers, and the underscore, but no spaces. The first character in a variable name must be a letter or the underscore. Also, you cannot use any Lua keywords as variable names. For example, you cannot name your variables <code>end</code>, <code>if</code>, <code>for</code>, or <code>in</code>, because all of these serve other purposes in Lua.
+
+<h2 id="loops">Control structures and loops</h2>
+
+Now we can start doing some more complicated tasks than arithmetic. I already briefly touched on the <code>if</code> statement. An <code>if</code> statement checks whether a condition is true, and if it is, it performs all of the code until <code>end</code>. Otherwise, it skips the code and continues after the <code>end</code>.
+<br><br>
+<code>
+x=5<br>
+y=10<br>
+z=0<br>
+if x&lt;y then<br>
+&nbsp;&nbsp;&nbsp;&nbsp;z=x*y<br>
+&nbsp;&nbsp;&nbsp;&nbsp;print("Foobar")<br>
+end<br>
+print("The value of z is "..z)
+</code>
+<br><br>
+Here, because <code>x</code> is less than <code>y</code>, the code inside the <code>if</code> statement executes. <code>z</code> is set to 50, and "Foobar" is printed out to the console. Afterwards, "The value of z is 50" is printed to the console as well.
+<br><br>
+You can extend an <code>if</code> statement using <code>elseif</code> and <code>else</code>.
+<br><br>
+<code>
+if command=="quit" then<br>
+&nbsp;&nbsp;&nbsp;&nbsp;print("Goodbye!")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return<br>
+elseif command=="say hi" then<br>
+&nbsp;&nbsp;&nbsp;&nbsp;print("Hello, "..name.."!")<br>
+else<br>
+&nbsp;&nbsp;&nbsp;&nbsp;print("I didn't understand your command.")<br>
+end
+</code>
+<br><br>
+Next up are loops. Loops will execute the code inside them over and over until some condition is met. Two basic loops are <code>while... do</code> and <code>repeat... until</code>. These should be self-explanatory, so I'll just show some examples and move on.
+<br><br>
+<code>
+x=100<br>
+y=0<br>
+while x&gt;0 do<br>
+&nbsp;&nbsp;&nbsp;&nbsp;x=x-1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;y=y+x<br>
+end<br>
+print("The value of y is "..y)<br>
+<br>
+repeat<br>
+&nbsp;&nbsp;&nbsp;&nbsp;print("Say quit to exit this program")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;user_input=io.read()<br>
+until user_input=="quit"<br>
+print("Goodbye!")
+</code>
+<br><br>
+One very important kind of loop, and one that many beginners find hard to understand, is the <code>for</code> loop. The <code>for</code> loop will cycle a variable or variables through a set of values, and execute the code in the loop once each time. The simplest use of a <code>for</code> loop is as a counter, to cycle a variable from a starting value to an ending value. For example, to count from 1 to 10, we simply do:
+<br><br>
+<code>
+for x=1,10,1 do<br>
+&nbsp;&nbsp;&nbsp;&nbsp;print(x)<br>
+end
+</code>
+<br><br>
+This <code>for</code> statement says "define a variable named <code>x</code>, which will start at 1, end at 10, and count by 1." The third number is optional; if you put <code>for x=1,10 do</code> Lua will count by 1 by default. If you want to count by 2, then use <code>for x=0,10,2 do</code>, and if you want to count down, use a negative number. The commands inside the <code>for</code> statement (in this case, a <code>print</code>) will be executed for each value of x.
+<br><br>
+As a simple example, let's use <code>for</code> to calculate the factorial of 10.
+<br><br>
+<code>
+result=1<br>
+for num=1,10 do<br>
+&nbsp;&nbsp;&nbsp;&nbsp;result=result*num<br>
+end<br>
+print("10! = "..result)
+</code>
+<br><br>
+The variable <code>num</code> stores values from 1 to 10, and the code inside the loop is executed once for each of those numbers, thus multiplying <code>result</code> by all the numbers from 1 through 10.
+
+<h2 id="arrays">Arrays and other data structures</h2>
+
+So far, we've covered three simple data types: numbers, strings, and Booleans. Now we can move on to compound data types, the most basic of which is the <strong>array</strong>, which exists in all programming languages. An array is an ordered list of values. Because it's ordered, each value has an associated index: 1 for the first value in the list, 2 for the second value, and so on. You use this value to access specific elements in the array.
+<br><br>
+<code>
+my_array={8, 6, 7, 5, 3, 0, 9}<br>
+print(my_array[3])
+</code>
+<br><br>
+In the above code, <code>my_array[3]</code> refers to the third value in the array. 7 is at the third position in the list, so the output of this code is 7.
+<br><br>
+We can use a <code>for</code> loop to perform operations on every item in an array. By placing a <code>#</code> in front of the name of the array, we can get the size of the array (the number of items in the list). We can use this as the upper bound for our <code>for</code> loop.
+<br><br>
+<code>
+my_array={8, 6, 7, 5, 3, 0, 9}<br>
+for i=1,#my_array do<br>
+&nbsp;&nbsp;&nbsp;&nbsp;print("The number at index "..i.." is "..my_array[i])<br>
+end
+</code>
+<br><br>
+Since arrays are used so often in Lua (they're actually a part of a bigger data type, known as <strong>tables</strong>), a special function is provided that lets you cycle through an array more easily. This is the <code>ipairs</code> function. The i presumably stands for indexed, meaning this function gives the elements of an array in order based on their index. The "pairs" is because it returns index-value pairs. You use <code>ipairs</code> like this:
+<br><br>
+<code>
+my_array={"Never", "gonna", "give", "you", "up"}<br>
+for index, value in ipairs(my_array) do<br>
+&nbsp;&nbsp;&nbsp;&nbsp;print("The string at index "..index.." is "..value)<br>
+end
+</code>
+<br><br>
+Any data type can be stored in an array: numbers, strings, and even other arrays. If you have an array of arrays, then you can, for example, access the third element in the second array using <code>array[2][3]</code>. Unlike many programming languages, Lua allows you to have different kinds of values stored in the same array. You can thus have a list of mixed numbers, strings, booleans, and tables.
+<br><br>
+The other main compound data type in Lua is the hash table (again, this is actually a part of the table data type; more on this later). Instead of storing an ordered list of values, a hash table can be thought of as a dictionary or a lookup table. A hash table stores pairs of "keys" and associated "values". You use the key to look up the corresponding value in the table. The key is usually a string.
+<br><br>
+The example below shows how to define a hash table to store data on a person.
+<br><br>
+<a name="objexample"></a>
+<code>person={<br>
+&nbsp;&nbsp;&nbsp;&nbsp;fname="John",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;lname="Smith",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;age=17,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;favfood="pizza"<br>
+}
+</code>
+<br><br>
+To access the person's first name, simply use <code>person["fname"]</code>. Lua also allows you to access the data in a way that looks more "<a href="#objoriented">object-oriented</a>" (if you don't know what this is, don't worry about it). The code <code>person.fname</code> means the exact same thing as <code>person["fname"]</code>.
+<br><br>
+Note that you cannot compare arrays and hash tables using <code>==</code> and other similar operators. Well, you can, but it probably won't do what you want it to.
+<br><br>
+An important caveat! When you want to make a copy of a simple data type, you can simply create a new variable and set it equal to the old one. This doesn't work for compound data types like tables, because the variable is a <a href="http://en.wikipedia.org/wiki/Reference_(computer_science)">reference</a> to the table data, and not the data itself.
+<br><br>
+Aegisub comes with a function to copy tables. See the <a href="#utils">"Utils"</a> section for more details.
+
+<h2 id="functions">Functions</h2>
+
+Functions are similar to the functions you learn about in pre-algebra. You give the function some parameters, it does some work on the parameters, and it usually gives you a result. If you have a function like f(x)=4x+2 and you ask for the value of f(6), then 6 is your "parameter" or "argument" and 26 is your result or, in programming terms, your "return value". You can have a function with multiple parameters, such as g(x,y)=x+y-4.
+<br><br>
+The below code defines a function that acts like g(x,y) above.
+<br><br>
+<code>
+function add_and_minus_four(num1, num2)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;result=num1+num2-4<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return result<br>
+end
+</code>
+<br><br>
+This function takes two parameters, does some math using them, and <code>return</code>s the result to us. You can use this function elsewhere in the program like this:
+<br><br>
+<code>
+x=12<br>
+y=16<br>
+z=add_and_minus_four(x,y)<br>
+print(z)
+</code>
+<br><br>
+The resulting value of the function, 24, will be stored in <code>z</code>. For reference, the above code can be written in one line as:
+<br><br>
+<code>print(add_and_minus_four(12,15))</code>
+<br><br>
+A function does not need to have a <code>return</code> value, because unlike math functions, a function in a program can do tasks other than calculating a result. Functions also need not have any parameters, but when you use the function, you <em>always</em> need the parentheses, even if there is nothing in them.
+<br><br>
+Also, unlike math functions, a Lua function can return multiple values, separated by commas. To return multiple values, just write <code>return value1, value2, ...</code> at the end of your function. Then, when you use the function, store the multiple returns in variables separated by commas: <code>x1, x2, ... = ...</code>.
+<br><br>
+It's important to note that a function immediately ends once it gets to a <code>return</code> statement. Any code after the <code>return</code> statement will not execute. Thus, if you have a <code>return</code> inside an <code>if</code> statement, there is no need to put an <code>else</code>.
+<br><br>
+<code>
+function greater_of_two(num1, num2)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if num1 &gt; num2 then<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return num1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;end<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return num2<br>
+end
+</code>
+<br><br>
+
+<h1 id="experienced">Lua for Experienced Programmers</h1>
+
+This section will give a quick overview of what you need to know about Lua if you already have programming experience. If you're a beginner programmer who has just finished reading the previous section, I still recommend reading this section in full, especially the "<a href="#useful">Useful libraries</a>" section. You might not recognize all of the terms, but there's a lot of essential information. I'll also repeat a lot of what I covered in the previous section, but with higher-level explanation.
+
+<h2 id="editors">Writing Lua code</h2>
+
+First things first: what program should you use to write Lua code? Personally, I use Notepad++, which comes with syntax highlighting for Lua and many other languages. If you download <a href="https://code.google.com/p/luaforwindows/">Lua for Windows</a>, it comes with an editor specifically designed for Lua. Otherwise, I'm sure you can just google "Lua editors" and find something to your liking.
+<br><br>
+Keep in mind that macros you write will only run in the Aegisub environment and can only be tested within Aegisub. However, you can test out code snippets outside of Aegisub so long as they don't use to the Aegisub API.
+
+<h2 id="syntax">Basic syntax and features</h2>
+
+Lua is a lightweight, weakly typed, interpreted (sort of) programming language designed as a scripting language (yes, this was paraphrased from Wikipedia). You can define variables on the fly without having to specify what data type they store, and the same variable can be used to store any kind of data.
+<br><br>
+There are only three simple data types (that I can think of): number, string, and Boolean. All numbers are double-precision floating point numbers.
+<br><br>
+Lua arrays start counting at 1, not 0, so be careful. The size operator for arrays and strings is the prefix <code>#</code>.
+<br><br>
+The end of a control structure or function's scope is marked by the <code>end</code> keyword. There is no <code>begin</code> keyword; the function definition or the head of the control structure serves to begin the scope. An exception is <code>repeat... until</code>, where the two keywords define the scope and no <code>end</code> is needed.
+<br><br>
+Lua supports the <code>local</code> keyword for variables and functions, if you need to control the scope. Generally you don't need to worry about this if there's no chance of confusion, but it's still good practice. Variables not declared <code>local</code> are global.
+<br><br>
+Uninitiated variables or array entries are set to <code>nil</code>. This is more or less equivalent to the <code>null</code> value in Java. Failed function calls often return <code>nil</code>. This can be used, for example, to detect if a string does <em>not</em> contain a certain substring: <code>string.match(str, substr) == nil</code> (incidentally, <code>=</code> is assignment and <code>==</code> is equality).
+<br><br>
+Lua supports multiple return values and arbitrary numbers of function parameters. If you pass a function more parameters than it uses, the extra parameters are ignored. If you pass the function too few parameters, the remaining parameters are <code>nil</code>. A function can receive an arbitrary number of parameters using <code>...</code> (look it up).
+<br><br>
+Lua does not have a full regular expression implementation. Lua uses a bare-bones kind of regex known as "patterns". <a href="http://lua-users.org/wiki/PatternsTutorial">This tutorial</a> and Google should teach you all you need to know. Patterns will come up again later when I introduce the string library. For strings, the escape character is the backslash (<code>\</code>). Remember to escape slashes when writing .ass override tags.
+<br><br>
+In Lua, functions are "first-class citizens". That means you can toss around a function as if it were a variable. Pass a function as a parameter, store a function in an arrayógo wild.
+<br><br>
+Boolean operators are <code>and</code> and <code>or</code>. "Not equals to" is <code>~=</code>. String concatenation is <code>..</code>. You don't need semicolons at the ends of lines, and superfluous whitespace is ignored.
+<br><br>
+Comments are defined as follows:
+<br><br>
+<code>
+--This is a single line comment<br>
+<br>
+--[[<br>
+This is a<br>
+multi-line<br>
+comment<br>
+]]
+</code>
+
+<h2 id="tables">The table data structure</h2>
+
+The <strong>table</strong> is the only native compound data structure in Lua. It can be used like an array, a hash table, or both. Multiple data types can be stored in the same table. Fundamentally, a table is a collection of key-value pairs. If the keys are all numbers, then the table behaves like an array. If the keys are all strings, then the table behaves like a hash table. If you have both at the same time, then welcome to the joys of Lua tables!
+<br><br>
+The iterator function <code>pairs</code> returns all the key-value pairs in a table, in both the array part and the hash table part. The <code>pairs</code> function does not guarantee any order to the values it returns, not even for the array part of the table. You use the function like this:
+<br><br>
+<code>
+for key, value in pairs(my_table) do<br>
+&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+end
+</code>
+<br><br>
+You might be familiar with "for each" loops in other programming languages; this is basically that. If you want to iterate through only the array part of the table, in order, then replace <code>pairs</code> with <code>ipairs</code>.
+
+<h3 id="objoriented">Object-oriented Lua</h3>
+
+As you may have realized, tables are pretty similar to objects. Indeed, Lua allows you to extend tables to use them like objects using <strong>metatables</strong>. I've never used them personally, but if you are interested, you can find more information online.
+<br><br>
+But insofar as a table can be a hash table, the keys are a lot like an object's fields. Defining a table can look a lot like defining an object; scroll up to see an <a href="#objexample">example</a>. Lua even allows you to write <code>my_table["key1"]</code> as <code>my_table.key1</code>.
+
+<h2 id="useful">Useful libraries</h2>
+
+In addition to the <code>pairs</code> and <code>ipairs</code> functions, Lua also provides the useful <code>tonumber</code> and <code>tostring</code> functions.
+<br><br>
+The <code>table</code> library is worth looking into, but the only functions from it that I regularly use are <code>table.insert</code> and <code>table.remove</code>.
+
+<h3 id="stringlib">The string library</h3>
+
+I could just link to the <a href="http://lua-users.org/wiki/StringLibraryTutorial">string library tutorial</a> and the <a href="http://lua-users.org/wiki/PatternsTutorial">patterns tutorial</a> on the Lua users wiki and call it a day, and honestly, you should find most of what you need on there. But I'll go through it in a bit more detail anyway.
+<br><br>
+First, it's worth noting that you can call string library functions on strings in an object-oriented-like way. For example, if you have a string named <code>str</code> and a pattern named <code>pat</code> that you want to match, you can use either <code>string.match(str, pat)</code> <em>or</em> <code>str:match(pat)</code>. This is a bit shorter and somewhat more intuitive, especially if you're used to object-oriented.
+<br><br>
+The functions I use most frequently when writing Aegisub automations are <code>string.match</code>, <code>string.format</code>, <code>string.gmatch</code>, and <code>string.gsub</code>. I used to use <code>string.find</code>, but I found that in most cases, <code>string.match</code> is a better option.
+<br><br>
+These functions are, in general, pretty well explained on the Lua users wiki. Note that <code>string.match</code> returns the section of the string that matches the pattern, or the captures if the pattern contained any (these are returned as multiple return values). If you've used format strings in C before, <code>string.format</code> is basically the same thing. You can often get the same functionality just by concatenating strings (since numbers are automatically converted to string when concatenated), but it's often neater and more convenient to use <code>string.format</code>.
+<br><br>
+The real workhorse, though, is <code>string.gsub</code>. This is the bread and butter of most automation scripts that I've written, because most Aegisub automation involves modifying the text of your subtitle script. There's no better or more versatile way to modify text in Lua than <code>string.gsub</code>. Its many capabilities can be overwhelming for some, so I've written an example script that should walk you through what you can do with it.
+<br><br>
+You can download the example script <a href="gsub_example.lua">here</a>.
+
+<h3 id="mathlib">The math library</h3>
+
+<a href="http://lua-users.org/wiki/MathLibraryTutorial">Here's the math library tutorial</a>. There's not much I can add to this. The math functions you'll use depend heavily on the sort of automation you're writing, so it's best to look them up as you need them. However, I will mention a couple things.
+<br><br>
+First off, be aware that <em>all trig functions in the math library use radians!</em> I cannot stress this enough. As you're probably aware, advanced substation alpha angles are always in degrees, so if you want to do any math involving angles, it is <em>imperative</em> that you use <code>math.rad</code> and <code>math.deg</code> to convert from degrees to radians and vice versa. Many a time I have been stymied by misbehaving code, only to realize I'd forgotten to convert. Also note that the math library includes the constant <code>math.pi</code>.
+<br><br>
+Another thing to note is Lua's pseudorandom number generator. The seed is always the same, so if you run your automation multiple times, <code>math.random</code> will produce the exact same sequence of pseudorandom numbers. If you want to get a different pseudorandom number sequence, use <code>math.randomseed</code> to seed the random number generator with a different number. A good solution is to use your constantly-changing system time as a seed: <code>math.randomseed(os.time())</code>. This will produce a new sequence of numbers each time you run the automation... so long as you wait a second. Sadly, Lua doesn't do milliseconds.
+<br><br>
+
+<h1 id="environment">The Aegisub Environment</h1>
+
+Finally, it's time to see how we can put Lua to work in Aegisub's automation environment. All this information and more is on the <a href="http://docs.aegisub.org/3.0/Automation/">official user manual</a> on the Aegisub website, but I'll be presenting it here step-by-step, with explanations and examples. Nonetheless, I strongly encourage you to read the manual thoroughly on your own time.
+
+<h2 id="macrofunc">Writing a macro function</h2>
+
+The most basic skeleton of an automation script should look something like this:
+<br><br>
+<code>
+--[[<br>
+README:<br>
+<br>
+Put some explanation about your macro at the top! People should know what it does and how to use it.<br>
+]]<br>
+<br>
+--Define some properties about your script<br>
+script_name="Name of script"<br>
+script_description="What it does"<br>
+script_author="You"<br>
+script_version="1.0" --To make sure you and your users know which version is newest<br>
+<br>
+--This is the main processing function that modifies the subtitles<br>
+function macro_function(subtitle, selected, active)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;--Code your function here<br>
+&nbsp;&nbsp;&nbsp;&nbsp;aegisub.set_undo_point(script_name) --Automatic in 3.0 and above, but do it anyway<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return selected --This will preserve your selection (explanation below)<br>
+end<br>
+<br>
+--This optional function lets you prevent the user from running the macro on bad input<br>
+function macro_validation(subtitle, selected, active)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;--Check if the user has selected valid lines<br>
+&nbsp;&nbsp;&nbsp;&nbsp;--If so, return true. Otherwise, return false<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return true<br>
+end<br>
+<br>
+--This is what puts your automation in Aegisub's automation list<br>
+aegisub.register_macro(script_name,script_description,macro_function,macro_validation)
+</code>
+<br><br>
+To view this skeleton script with syntax highlighting, you can download it <a href="script_skeleton.lua">here</a> and open it up in your <a href="#editors">Lua editor</a> of choice.
+<br><br>
+When you run the automation from Aegisub, it will call <code>macro_function</code> (or whatever you choose to name your function) and execute the contents of the function. The function is given three parameters: the subtitle object, a list of selected lines, and the line number of the currently active line. Most scripts only use the first two. If that's the case, feel free to not include the <code>active</code> parameter. Also, to save typing, I usually abbreviate the parameter names to <code>sub, sel, act</code>. You can name the parameters whatever you want. Much like in math, f(x)=2x+3 is exactly the same as f(y)=2y+3.
+<br><br>
+For convenience, I will use my preferred variable names <code>sub, sel, act</code> to stand in for the three parameters in code examples.
+<br><br>
+The subtitles object is the only object that contains data about your .ass script. It's a table, but it's a pretty special one. The array part of the table stores all the header, style, and dialogue lines in the script. To get line 5, you simply type <code>sub[5]</code>.
+<br><br>
+Now this is important: if you want to modify lines, you <em>never modify the subtitles object directly</em>. Not only is it a pain to type, I don't think it actually works (like I said, the subtitles object is a special table). You have to first read out the line using something like <code>line=sub[line_number]</code>. Then you modify the line, and put it back in the subtitles object with <code>sub[line_number]=line</code>. Incidentally, these lines that you read out are <a href="#linetable">line data tables</a>, which I'll cover later.
+<br><br>
+I'm going to be honest: to this day, the subtitles object is something of a black box to me. It's pretty complicated, but all you really need to know is how to retrieve dialogue lines. Aegisub comes with some very useful functions that do the rest of the work for you (I'll cover them in the <a href="#karaskel">section on karaskel</a>).
+<br><br>
+Next up is the list of selected lines, which I usually call <code>sel</code>. To reiterate: only the subtitles object contains data about the script. You won't find the selected lines in <code>sel</code>. Instead, you'll find a list of the <em>line numbers</em> of the selected lines. In other words, <code>sel</code> is a list of indices for the subtitles object. To get the first selected line, you have to write <code>sub[sel[1]]</code>. This can be a bit confusing, especially if you use <code>ipairs</code> on <code>sel</code>, as I will show you how to do later. You'll end up with two indices: one that refers to a position in <code>sel</code> and one that refers to a position in <code>sub</code>. Don't get confused.
+<br><br>
+The final parameter is the line number of the currently active line. I've never used it, but you can access the relevant line using <code>sub[act]</code>.
+<br><br>
+Use these parameters to do all sorts of fancy stuff to the subtitles in the body of the function. At the end, you should set an undo point. Aegisub 3.0 now automatically does this even if you forget, but it's good practice to do so anyway. The return value of the function is optional, but if you return an array of line numbers, then the selection will be set to those lines once the macro finishes running.
+<br><br>
+With this in mind, here's a skeleton for a processing function that will allow you to modify every line in the user's selection.
+<br><br>
+<code>
+function do_for_selected(sub, sel, act)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;--Keep in mind that si is the index in sel, while li is the line number in sub<br>
+&nbsp;&nbsp;&nbsp;&nbsp;for si,li in ipairs(sel) do<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--Read in the line<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;line = sub[li]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--Do stuff to line here<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--Put the line back in the subtitles<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sub[li] = line<br>
+&nbsp;&nbsp;&nbsp;&nbsp;end<br>
+&nbsp;&nbsp;&nbsp;&nbsp;aegisub.set_undo_point(script_name)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return sel<br>
+end
+</code>
+<br><br>
+Download this skeleton <a href="do_for_selected.lua">here</a>.
+
+<h2 id="linetable">The dialogue line table</h2>
+
+<a href="http://docs.aegisub.org/3.0/Automation/Lua/Modules/karaskel.lua/#dialoguelinetable">Read this</a>. Just do it. Be aware that without using <a href="#karaskel">karaskel</a>, you only have access to the "basic fields".
+<br><br>
+The dialogue line data table stores all the information you will need about a line in your script, all in a nice, convenient table. You can access the actor and effect fields, you can get the start and end time in milliseconds, you can tell whether the line has been commented out (and you can change a line to a comment or vice versa), and most importantly, you can access and modify the text of a line.
+<br><br>
+There are a plethora of useful macross that you can write using nothing but the skeletons I provided above, the string library, the math library, and <code>line.text</code>. If you just want to take care of some simple text modifications such as adding italics, or even some basic math like shifting position, then you have all you need to know. You can stop reading after the following two example scripts.
+<br><br>
+For those who want to get the most out of the Aegisub automation API, continue on to the <a="#environmentadv">advanced section</a>.
+<br><br>
+
+<h1 id="ex1">Guided Example: Add Italics to Selected Lines</h1>
+
+<strong>[<a href="add_italics.lua">Download example script</a>]</strong>
+<br><br>
+This is one of the simplest examples I can provide. I've only added one line of code (line 25) to the skeleton scripts I've provided above.
+<br><br>
+In this script, I use the string concatenation operator to add an italics tag to the start of each selected line's text. Note that there are two backslashes. As mentioned in the <a href="#vars">variables</a> section, the backslash is a special character. To type an actual backslash, we need to "escape" it.
+<br><br>
+When using the skeleton scripts, don't forget to fully delete pieces of code that you are not using, and make sure you reflect name changes across the entire script. Here I've named the processing function "italicize", so I also have to use "italicize" when I register the macro. Furthermore, I did not need a validation function since this script can be run on any selection of lines, so I deleted the validation function and removed it from the macro registration at the bottom.
+<br><br>
+Finally, remember to set your script properties at the top, and write a readme.
+<br><br>
+
+<h1 id="ex2">Guided Example: Modify Font Size for Mocha</h1>
+
+<strong>[<a href="font_refactor_simple.lua">Download example script</a>]</strong>
+<br><br>
+Nowadays xy-vsfilter, which supports non-whole-number scaling, is becoming standard, so this trick is no longer quite as useful. Nonetheless, it makes for a good example automation script that involves both the string library and the math library.
+<br><br>
+This script decreases the font size (\fs) by a factor of ten and increases the scaling (\fscx and \fscy) by a factor of ten. At the end, the size of the text still looks the same, but the scaling is ten times more precise. For font sizes that are not evenly divisible by ten, the script will round down to the nearest whole number. Then it divides the original font size by the new font size to determine how much it needs to increase \fscx and \fscy to balance it out.
+<br><br>
+All this math takes place in lines 40 to 48 of the example script, so you can see it for yourself. <code>math.floor</code> is the function that rounds down to the nearest whole number (the opposite is <code>math.ceil</code>).
+<br><br>
+The script makes use of <code>string.gsub</code> with an anonymous function. If you're having trouble with understanding this use of <code>string.gsub</code>, you can check out the <a href="gsub_example.lua">example script</a> I wrote, or the <a href="http://lua-users.org/wiki/StringLibraryTutorial">string library tutorial</a> on the Lua users wiki. The pattern <code>"\\fs(%d+)"</code> looks for the string "\fs" followed by a number, and the parentheses around <code>%d+</code> will "capture" the number and send it to the anonymous function (another reminder that you have to escape backslashes).
+<br><br>
+The script also shows how to use <code>string.format</code> to insert values into a format string. The formatted string is then returned by the function, and substituted into the original string.
+<br><br>
+Unlike the previous script, this one has a validation function that makes sure the selected lines all contain "\fs". Note that I do not read out a line table, but directly access the subtitles object. Since I'm not going to be modifying the lines, I'm not going to bother reading the line into a full line data table. Validation functions run every time you open the automations menu, so they should be as short and as fast as possible.
+<br><br>
+
+<h1 id="environmentadv">The Aegisub Environment - Advanced</h1>
+
+Before you go off writing your own functions to do useful subroutines, make sure that you're not reinventing the wheel. Aegisub comes with two libraries that will vastly extend the capabilities of your automation scripts and make common tasks much easier. Later in this section, I'll also introduce the API for creating simple GUIs that allow the user to configure the behavior of the automation script.
+
+<h2 id="karaskel">karaskel.lua</h2>
+
+The full documentation for this library can be found <a href="http://docs.aegisub.org/3.0/Automation/Lua/Modules/karaskel.lua/">here</a>. To use karaskel functions in your script, put this at the top:
+<br><br>
+<code>
+include("karaskel.lua")
+</code>
+<br><br>
+Remember all the extra fields that you might have seen when reading about the <a href="#linetable">dialogue line data tables</a>? Well, karaskel will give you access to all of that. You'll also be able to access style data about a line, so you can detect its style defaults, which is huge if you're writing an advanced script.
+<br><br>
+Since my scripts are typesetting-focused, I only use two functions from karaskel. If you want to write an automation that actually deals with karaoke, then you'll probably find the numerous other features of karaskel quite useful.
+<br><br>
+The first essential function is <code>karaskel.collect_head</code>, which collects the meta and style data that other karaskel functions use. You'll need a line at the top of your processing function that looks something like this:
+<br><br>
+<code>
+local meta, styles = karaskel.collect_head(sub,false)
+</code>
+<br><br>
+You probably want <code>false</code>, because <code>true</code> will generate a lot of mysterious extra styles in your script. That's not where the magic happens, though. After you've read in your line to process it, you can do this:
+<br><br>
+<code>
+karaskel.preproc_line(sub,meta,styles,line)
+</code>
+<br><br>
+This gives you access to all the extra dialogue line fields that you saw earlier. In particular, it gives you access to <code>line.styleref</code>, which is <em>exciting</em>. Seriously. Be excited.
+<br><br>
+Because now you can do things like <code>line.styleref.color1</code> to figure out what the default main color of your line is. You can check the default font size using <code>line.styleref.fontsize</code>. Need to know the border weight? <code>line.styleref.outline</code> is your friend.
+<br><br>
+Be warned that the color codes extracted from the style are not ready to use in <code>\c</code> tags just yet. Color codes in style definitions contain both color and alpha data, and look a bit different from in-line override codes. You'll need a function from <a href="#utils">utils.lua</a> to extract properly formatted color and alpha codes for use in override tags.
+<br><br>
+As a side note: a function that isn't part of karaskel but can be very useful is the <code>aegisub.text_extents</code> function, found in the <a href="http://docs.aegisub.org/3.0/Automation/Lua/Miscellaneous_APIs/">miscellaneous APIs</a>. You'll need to use <code>karaskel.collect_head</code> before you can use this function, which is why I mention it here. This function takes a style table and a bit of text and calculates the pixel height and width of the text. If you pass it <code>line.styleref</code>, then it will give you the size of the text in the line's default style. But you can do more.
+<br><br>
+If the user overrides the default font properties in-line, you can use the strings library to detect the changes. Now make a copy of the line's style table, modify it until it matches the user's override tags, and pass it to <code>aegisub.text_extents</code>. You can determine the size of any typeset that the user makes, even if he changes the font or font size in the line. <em>That</em> opens up a lot of possibilities.
+
+<h2 id="utils">utils.lua</h2>
+
+The full documentation for this library can be found <a href="http://docs.aegisub.org/3.0/Automation/Lua/Modules/utils.lua/">here</a>. To use utils functions in your script, put this at the top:
+<br><br>
+<code>
+include("utils.lua")
+</code>
+<br><br>
+This library defines the essential <code>table.copy</code> function. If you want to create new lines in your subtitle script, you're going to need this function. As mentioned in an <a href="#arrays">earlier section</a>, copying a table is more involved than copying a number or a string. To create a new line, you're going to have to make a proper copy of your original line data table, and you'll need this function to do that.
+<br><br>
+In addition, utils contains lots of useful functions for working with .ass color and alpha codes. There are functions to extract colors and alphas from styles, to convert to and from RGB values and HSV values, to transition smoothly between colors and alphas, and so on. If you're stuck working with colors or alpha, odds are one of the functions here will help you out.
+
+<h2 id="GUIs">Creating GUIs</h2>
+
+For those who don't already know, GUI stands for Graphical User Interface. Anything that has a pretty window with buttons you can click is a GUI, and we can create simple GUIs to allow users to set options for your automation before it is run.
+<br><br>
+The GUI documentation is <a href="http://docs.aegisub.org/3.0/Automation/Lua/Dialogs/">here</a>, and if you're anything like me, you're going to want an example so you can see how this thing works, because it's a little hard to grasp just reading the documentation.
+<br><br>
+Let's work backwards. The function that actually displays your dialog box is <code>aegisub.dialog.display</code>. This function takes two parameters, both of which are tables. The second table is easy enough. It's just a list of the buttons you want at the bottom of the table. Something like <code>{"Run", "Options", "Cancel"}</code> would work. The function's first return value is the button that was pressed.
+<br><br>
+The first parameter is the real meat of the GUI. This is the dialog definition table, which will describe how your GUI is laid out, what options the user has, and what their default values are. You can see all the options available to you <a href="http://docs.aegisub.org/3.0/Automation/Lua/Dialogs/#configurationdialoginterface">here</a>.
+<br><br>
+You position components using a grid of rows and columns. Imagine each component is a cell in a spreadsheet. The top left corner is (0,0). To the right of it is (1,0), and below is (0,1). If you want a component to occupy more than one cell, then set its coordinates to the top left cell, and use "width" and "height" to tell it how many columns and rows it takes up. You can make your GUI as many columns wide and as many rows tall as you want, and the window will stretch to fitóbut keep it within reason.
+<br><br>
+The type of component is defined by the "class" property. You can have labels, which simply provide instruction text, you can have checkboxes, dropdowns, color selectors, text fields, and so forth. Components that take user input also need a "name" so that your automation can retrieve the results later on. Additional properties will depend on the class of the component. Checkboxes can be set to "true" or "false" by default, and can also have their own labels. Dropdowns will contain a list of the options to include in the dropdown menu, and so forth.
+<br><br>
+All right, enough of that. You want to see an example. So here we go.
+<br><br>
+Let's say we want to add some options to our <a href="#ex1">italics script</a>. We want a dropdown box to let the user select "Apply to selected lines" or "Apply to all lines". This will be set to "Apply to selected lines" by default. Also, perhaps the user wants to unitalicize lines that are italic already. So we should have a checkbox for "Unitalicize already italic lines", but this will be off by default. Also, maybe the normal italic isn't slanted enough, so we can provide a text box to let the user define a \fax value, to tilt the text more (humor me here). We'll need to label this text box so the user knows what it does, and let's set its default value to zero.
+<br><br>
+Here's what our dialog configuration table looks like:
+<br><br>
+<code>
+dialog_config=<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;class="dropdown",name="lineselect",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x=0,y=0,width=1,height=1,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;items={"Apply to selected lines","Apply to all lines"},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value="Apply to selected lines"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;class="checkbox",name="unitalic",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x=1,y=0,width=1,height=1,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;label="Unitalicize already italic lines",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value=false<br>
+&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;class="label",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x=0,y=1,width=1,height=1,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;label="\\fax value:"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;class="floatedit",name="faxvalue",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x=1,y=1,width=1,height=1,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value=0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}
+</code>
+<br><br>
+When we call <code>aegisub.dialog.display(dialog_config)</code>, we see this:
+<br><br>
+<img src="test_gui.png" />
+<br><br>
+Well okay, the arrangement could use a bit of work. Let's see if we can't make this look better by modifying the x, y, and width properties. Let's make the dropdown and the checkbox two columns wide, and we'll move the checkbox to (0,1), below the dropdown. The label and the float edit box will still be one column wide, and we'll move them down a row.
+<br><br>
+<img src="test_gui2.png" />
+<br><br>
+There! Much nicer. We've created our first GUI. If you want to change the default OK and Cancel buttons, just add a second parameter containing a list of desired buttons and you'll be set.
+<br><br>
+Now that we know how to display GUIs, we need to know how to use the results of the user input. These results are stored as a hash table and are the second return value of <code>aegisub.dialog.display</code>. The keys in this hash table are the names of the components that we defined in the dialog configuration table. If, in our example, we store our results in a table named <code>results</code>, then to access the selected option in the dropdown box we use <code>results["lineselect"]</code>. To see whether the checkbox was checked, we'll see if <code>results["unitalic"]</code> is <code>true</code> or <code>false</code>. To get the value we should use in the "\fax" tag, simply take a look at the number in <code>results["faxvalue"]</code>.
+<br><br>
+So, to summarize:
+<br><br>
+<code>
+buttons={"Italicize","Cancel"}<br>
+dialog_config= --See above<br>
+<br>
+pressed, results = aegisub.dialog.display(dialog_config,buttons)<br>
+<br>
+if pressed=="Cancel" then<br>
+&nbsp;&nbsp;&nbsp;&nbsp;aegisub.cancel()<br>
+end<br>
+<br>
+--Handle the results table...
+</code>
+<br><br>
+
+<h2 id="misc">Miscellaneous</h2>
+
+I'll add to this section as I think of miscellaneous things worth mentioning. If you've followed the tutorial so far, you should be set for the most part.
+<br><br>
+The automation progress bar can be controlled using functions found on <a href="http://docs.aegisub.org/3.0/Automation/Lua/Progress_reporting/">this page</a>. The functions are entirely self-explanatory. It's mostly aesthetic, but can also help in debugging by giving you a rough idea of where in the processing your script encounters an error. Speaking of debugging, further down on the same page are a few debug output functions.
+<br><br>
+The <a href="http://docs.aegisub.org/3.0/Automation/Lua/Miscellaneous_APIs/">miscellaneous APIs</a> page I mentioned earlier also has some great functions for getting information about the video. Furthermore, there's the <code>aegisub.decode_path</code> function that's very useful if you want to save and load files. Aegisub defines several helpful <a href="http://docs.aegisub.org/3.0/Aegisub_path_specifiers/">path specifiers</a> that let you access directories such as the application data folder or the location of the video file.
+<br><br>
+Lua patterns are powerful enough for the most part, but still limited. Aegisub's documentation includes the <a href="http://docs.aegisub.org/3.0/Automation/Lua/Modules/re/">re module</a> which is supposed to allow for more robust regular expressions. I tried to use it once and ended up ragequitting. Perhaps I was doing something basic wrong and the module will give you no problems, but consider yourself warned. I, for one, will stick to patterns.
+<br><br>
+My point of view when writing this tutorial was mainly that of a typesetter, but if you're a kfxer, you'll find tons more good stuff in the <a href="#karaskel">karaskel</a> library that I didn't even mention here. Knowing all the capabilities of Aegisub's Lua environment more in depth will help you pull off more advanced karaoke.
+<br><br>
+<h1 id="ex2">Guided Example: Modify Font Size Revisted</h1>
+
+<strong>[<a href="font_refactor_advanced.lua">Download example script</a>]</strong>
+<br><br>
+Remember the long list of exceptions in the "simple" version of this macro? It was only really useful in a specific set of cases, and relied heavily on the typesetter not doing anything that the macro did not expect.
+<br><br>
+I really hate writing macros like this, and your users will be frustrated too. This is a bit of a tangent, but truly useful automations should be robust. They should behave as the user expects them to behave in the vast majority of cases. The previous version of this script couldn't handle relatively common situations like having a \fscx or \fscy tag in the line. Well, we can fix that.
+<br><br>
+Off the top of my head, the only thing this version of the macro doesn't handle is \t transforms (and if you're going to motion-track it, you shouldn't need to use \t). The comments do most of the explaining, but I'll still walk through the script here.
+<br><br>
+First up, we see our first use of karaskel, using the two functions explained <a href="#karaskel">in the karaskel section</a>. Here karaskel is necessary to allow us to access style defaults. After that come some basic <a href="#stringlib">string manipulations</a> to set up the text of our line for later. It's important that the line start with an override block, and that the first override block contain an \fs tag.
+<br><br>
+After that comes the first somewhat tricky part. I parse the line's text into a table, separating text from override blocks, structured in such a way that I can easily see what part of the line each override block affects. I can easily manipulate this table and use it to reconstruct the line at the end.
+<br><br>
+I don't have a proper name for this data structure, but let's call it a tag-text table. Here I've named the variable "tt_table". If you're having trouble telling how tt_table parses the line, I've drawn up a diagram. If our original line is:
+<br><br>
+<code>{\fscx120\fs40}Never {\c&H0000FF&}gonna {\fs80}give {\fscy50}you {\fs69\fscx40\fscy115}up</code>
+<br><br>
+Then once we've parsed it, our table looks something like this:
+<br><br>
+<style type="text/css">
+.obj
+{
+	background-color:#C796E9;
+	border:2px solid #000000;
+	width:1060px;
+	padding:0px;
+}
+.subobj
+{
+	background-color:#B6EFCA;
+	border:2px solid #000000;
+	padding:2px;
+}
+.subobj_visited
+{
+	background-color:#E4FFF5;
+	border:2px solid #000000;
+	padding:2px;
+}
+.element
+{
+	background-color:#FFFED2;
+	border:2px solid #000000;
+	margin:0px;
+}
+.label
+{
+	border:0px;
+	width:100%;
+	text-align:center;
+	color:#000000;
+}
+</style>
+
+<div class="obj">
+<table class="label">
+<tr><td><code>tt_table</code></td></tr>
+<tr><td>
+<table class="label">
+<tr><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>1</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fscx120\fs40}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			Never
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+	
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>2</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\c&H0000FF&}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			gonna
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>3</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs80}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			give
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>4</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fscy50}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			you
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>5</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs69\fscx40\fscy115}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			up
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td></tr>
+</table>
+</td></tr>
+</table>
+</div>
+
+<br><br>
+This means <code>tt_table[3].text</code> is "give", while <code>tt_table[2].tag</code> is "{\c&H0000FF&}". Plus, since an override tag affects everything to the right of it until it gets overridden again, we know that the contents of <code>tt_table[2].tag</code> are going to affect all the text stored in <code>tt_table[3]</code> through <code>tt_table[5]</code>. In other words, we can start at the left side of the table and move to the right, and at any point in the table we'll know exactly how the text will be rendered, based on all the override tags we've seen so far.
+<br><br>
+This data structure is the key to several of my most powerful macros, including fbf-transform and gradient-everything, and is what makes them so robust. With this, someone writing a macro can tell what the typesetter is doing at any point in the line.
+<br><br>
+It is worth noting that this relies on there being an override block at the beginning of the line. It's easy to check if an override block exists at the beginning, and simply append an empty one ("{}") if it doesn't.
+<br><br>
+Now, we make use of this data structure to help us properly refactor the font size. First, we'll store the state before the start of the line using style defaults. Let's say the default font size is 20, while the default x and y scales are 100.
+<br><br>
+
+<div class="obj">
+<table class="label">
+<tr><td><code>tt_table</code></td></tr>
+<tr><td>
+<table class="label">
+<tr>
+<td>&nbsp;</td>
+<td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>1</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fscx120\fs40}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			Never
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+	
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>2</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\c&H0000FF&}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			gonna
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>3</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs80}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			give
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>4</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fscy50}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			you
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>5</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs69\fscx40\fscy115}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			up
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td></tr>
+<tr>
+	<td colspan=2 style="text-align:left">
+	Å&#x2191;<br>
+	<code>
+	cur_fs=20<br>
+	cur_fscx=100<br>
+	cur_fscy=100
+	</code>
+	</td>
+</tr>
+</table>
+</td></tr>
+</table>
+</div>
+
+<br><br>
+Then we enter the for loop and begin looking at the first override tag. We'll detect the \fscx and \fs values defined in <code>tt_table[1].tag</code>, and use them to update our state variables. Since there is no \fscy tag, <code>cur_fscy</code> remains unchanged.
+<br><br>
+
+<div class="obj">
+<table class="label">
+<tr><td><code>tt_table</code></td></tr>
+<tr><td>
+<table class="label">
+<tr><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>1</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fscx120\fs40}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			Never
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+	
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>2</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\c&H0000FF&}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			gonna
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>3</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs80}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			give
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>4</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fscy50}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			you
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>5</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs69\fscx40\fscy115}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			up
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td></tr>
+<tr>
+	<td style="text-align:left;padding-left:15px">
+	Å&#x2191;<br>
+	<code>
+	cur_fs=40<br>
+	cur_fscx=120<br>
+	cur_fscy=100
+	</code>
+	</td>
+</tr>
+</table>
+</td></tr>
+</table>
+</div>
+
+<br><br>
+Using these values, we can calculate that the new font size should be 4. In the previous version of the macro, \fscx and \fscy were simply set to 100 times the scale factor. This time, we'll use the scale values parsed from the line, so \fscx and \fscy values will become 1200 and 1000, respectively. The macro then removes the old tags, adds the new ones, and moves on to the next element in the table.
+<br><br>
+
+<div class="obj">
+<table class="label">
+<tr><td><code>tt_table</code></td></tr>
+<tr><td>
+<table class="label">
+<tr><td>
+
+	<div class="subobj_visited">
+	<table class="label">
+	<tr><td colspan=2><code>1</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs40\fscx1200\fscy1000}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			Never
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+	
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>2</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\c&H0000FF&}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			gonna
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>3</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs80}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			give
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>4</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fscy50}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			you
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>5</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs69\fscx40\fscy115}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			up
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td></tr>
+<tr>
+	<td></td>
+	<td style="text-align:left;padding-left:15px">
+	Å&#x2191;<br>
+	<code>
+	cur_fs=40<br>
+	cur_fscx=120<br>
+	cur_fscy=100
+	</code>
+	</td>
+</tr>
+</table>
+</td></tr>
+</table>
+</div>
+
+<br><br>
+This time, there are no font size or scale tags in this override block. The text here inherets the font size and scale changes we added to the previous tag block, so there's no need to add any more tags. We move on to <code>tt_table[3]</code>.
+<br><br>
+
+<div class="obj">
+<table class="label">
+<tr><td><code>tt_table</code></td></tr>
+<tr><td>
+<table class="label">
+<tr><td>
+
+	<div class="subobj_visited">
+	<table class="label">
+	<tr><td colspan=2><code>1</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs40\fscx1200\fscy1000}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			Never
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+	
+</td><td>
+
+	<div class="subobj_visited">
+	<table class="label">
+	<tr><td colspan=2><code>2</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\c&H0000FF&}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			gonna
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>3</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs80}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			give
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>4</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fscy50}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			you
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>5</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs69\fscx40\fscy115}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			up
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td></tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td style="text-align:left;padding-left:15px">
+	Å&#x2191;<br>
+	<code>
+	cur_fs=80<br>
+	cur_fscx=120<br>
+	cur_fscy=100
+	</code>
+	</td>
+</tr>
+</table>
+</td></tr>
+</table>
+</div>
+
+<br><br>
+The macro detects the font size change, adds the relevant tags, and moves on.
+<br><br>
+
+<div class="obj">
+<table class="label">
+<tr><td><code>tt_table</code></td></tr>
+<tr><td>
+<table class="label">
+<tr><td>
+
+	<div class="subobj_visited">
+	<table class="label">
+	<tr><td colspan=2><code>1</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs40\fscx1200\fscy1000}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			Never
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+	
+</td><td>
+
+	<div class="subobj_visited">
+	<table class="label">
+	<tr><td colspan=2><code>2</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\c&H0000FF&}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			gonna
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj_visited">
+	<table class="label">
+	<tr><td colspan=2><code>3</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs8\fscx1200\fscy1000}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			give
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>4</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fscy50}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			you
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>5</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs69\fscx40\fscy115}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			up
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td></tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td style="text-align:left;padding-left:15px">
+	Å&#x2191;<br>
+	<code>
+	cur_fs=80<br>
+	cur_fscx=120<br>
+	cur_fscy=50
+	</code>
+	</td>
+</tr>
+</table>
+</td></tr>
+</table>
+</div>
+
+<br>
+
+<div class="obj">
+<table class="label">
+<tr><td><code>tt_table</code></td></tr>
+<tr><td>
+<table class="label">
+<tr><td>
+
+	<div class="subobj_visited">
+	<table class="label">
+	<tr><td colspan=2><code>1</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs40\fscx1200\fscy1000}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			Never
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+	
+</td><td>
+
+	<div class="subobj_visited">
+	<table class="label">
+	<tr><td colspan=2><code>2</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\c&H0000FF&}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			gonna
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj_visited">
+	<table class="label">
+	<tr><td colspan=2><code>3</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs8\fscx1200\fscy1000}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			give
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj_visited">
+	<table class="label">
+	<tr><td colspan=2><code>4</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fscy500}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			you
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj">
+	<table class="label">
+	<tr><td colspan=2><code>5</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs69\fscx40\fscy115}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			up
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td></tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td style="text-align:left;padding-left:15px">
+	Å&#x2191;<br>
+	<code>
+	cur_fs=69<br>
+	cur_fscx=40<br>
+	cur_fscy=115
+	</code>
+	</td>
+</tr>
+</table>
+</td></tr>
+</table>
+</div>
+
+<br>
+
+<div class="obj">
+<table class="label">
+<tr><td><code>tt_table</code></td></tr>
+<tr><td>
+<table class="label">
+<tr><td>
+
+	<div class="subobj_visited">
+	<table class="label">
+	<tr><td colspan=2><code>1</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs40\fscx1200\fscy1000}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			Never
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+	
+</td><td>
+
+	<div class="subobj_visited">
+	<table class="label">
+	<tr><td colspan=2><code>2</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\c&H0000FF&}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			gonna
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj_visited">
+	<table class="label">
+	<tr><td colspan=2><code>3</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs8\fscx1200\fscy1000}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			give
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj_visited">
+	<table class="label">
+	<tr><td colspan=2><code>4</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fscy500}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			you
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td><td>
+
+	<div class="subobj_visited">
+	<table class="label">
+	<tr><td colspan=2><code>5</code></td></tr>
+	<tr><td>
+		<div class="element">
+		<table class="label">
+		<tr><td><code>tag</code></td></tr>
+		<tr><td><hr>
+			{\fs6\fscx460\fscy1322}
+		</td></tr>
+		</table>
+		</div>
+		
+	</td><td>
+	
+		<div class="element">
+		<table class="label">
+		<tr><td><code>text</code></td></tr>
+		<tr><td><hr>
+			up
+		</td></tr>
+		</table>
+		</div>
+	</tr></td>
+	</table>
+	</div>
+
+</td></tr>
+</table>
+</td></tr>
+</table>
+</div>
+
+<br><br>
+And we're left with our final converted line:
+<br><br>
+<code>{\fs40\fscx1200\fscy1000}Never {\c&H0000FF&}gonna {\fs8\fscx1200\fscy1000}give {\fscy500}you {\fs6\fscx460\fscy1322}up</code>
+<br><br>
+Our macro handled all the crazy font size and scale variations in this line like a boss.
+<br><br>
+That being said, there's room for improvement in this example. Note that several redundant scale tags were inserted, when our script should be capable of detecting which scale tags are necessary to insert and which are not. I leave it as an exercise for the reader to come up with a way to fix this (hint: handle \fscx and \fscy the same way \fs is handled, and guarantee that \fscx and \fscy appear in the first override block).
+<br><br><br>
+I've shared more or less everything important about making automations that I know. Any other Lua libraries or techniques you might need will have to be researched on a case-by-case basis. Hopefully you found this tutorial useful in automating your own tasks. Happy coding!
+
+
+
+
+
+

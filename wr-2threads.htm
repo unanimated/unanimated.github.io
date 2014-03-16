@@ -1,0 +1,124 @@
+<html><head><title>wr fast</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+A:hover {color:e0e3e6}
+
+</style>
+</head>
+<body bgcolor=000000 text=808386 topmargin=0 link=668899 vlink=668899 alink=668899>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=800>
+<tr><td bgcolor=000000><br>
+
+This is how to encode a workraw in 2 [or more] threads without needing any scripts or avisynth<br><br><br><br>
+
+
+
+• Create <b>wr2.bat</b>, type in:
+<br><br>
+<blockquote>
+<font color=666666>
+x264 --video-filter resize:640,360,method=bilinear --qp 35 --preset ultrafast --scenecut 98 --min-keyint 1 --keyint 600 --seek %2 --frames 20000 -o %1_wr%2.mkv %1
+</font></blockquote>
+
+<br><br>
+
+
+
+• Create <b>wraw.bat</b>, type in:
+<br><br>
+<blockquote>
+<font color=666666>
+start wr2 %1_premux.mkv 0<br>
+start wr2 %1_premux.mkv 20000<br>
+@pause<br>
+start /wait mkvmerge -o %1_wrv.mkv -A %1_premux.mkv_wr0.mkv -A +%1_premux.mkv_wr20000.mkv
+</font></blockquote>
+
+
+<br><br>
+
+• Have <b>wr2.bat, wraw.bat, x264.exe</b> [8-bit] and <b>??????_premux.mkv</b> in the same folder
+
+
+<br><br><br>
+
+• open <b>cmd.exe</b>, type "<font color=666666>wraw ??????</font>"
+
+
+<br><br>
+<blockquote>
+2 encoding processes will start, first window will show "press any key to continue..."<br><br>
+</blockquote>
+
+• wait for both processes to finish & then press any key in the first window. done.
+
+
+<br><br><br><br><br>
+
+?????? is the episode name/number in standard Commie premux naming,
+<br>for example for shana20_premux.mkw you type <font color=666666>wraw shana20</font><br>
+I do this to avoid having to type/copypaste the _premux.mkv part<br>
+this can, of course, be modified to suit your needs [if you understand how it works]
+
+<br><br><br><br>
+_______________________________________________________________________________________________
+<br><br><br>
+
+How it works...
+<br><br>
+
+wr2.bat says<br>
+"encode 20000 frames of this premux, starting from a specified frame"<br>
+<br>
+wraw.bat says<br>
+"use wr2.bat to encode premux starting on frame 0, same starting on frame 20000; merge them with mkvmerge"<br><br>
+
+2 encoding processes start simultaneously, one encodes 20000 frames from frame 0, the other from frame 20000<br>
+an episode usually has somewhere between 35000 and 38000 frames, so this is designed for that length<br>
+you could probably do well with the split point at 19000 instead of 20000, this is just in case<br><br>
+
+encoding speed totally depends on your CPU, but just for comparison...<br>
+my regular wr settings take 10 minutes to encode. the fastest settings [the ones used here but in 1 thread] get it down to 8 minutes. with 2 threads it's between 5 and 6 minutes. 1 thread alone uses about 60% of my CPU, which is why 2 threads don't double the speed.<br><br>
+
+if 1 thread takes 90% of your CPU, it's of little use to run 2 threads. [your PC just sucks. deal with it.]<br>
+if it's under 40%, you can make use of more than 2 threads.<br><br>
+
+for example if you want to use <b>4 threads</b>, you'll modify like this:<br><br>
+
+<blockquote>
+in wr2.bat change <font color=666666>--frames 20000</font> to <font color=666666>--frames 10000</font><br><br>
+
+
+wraw.bat will be:<br><br>
+<font color=666666>
+start wr2 %1_premux.mkv 0<br>
+start wr2 %1_premux.mkv 10000<br>
+start wr2 %1_premux.mkv 20000<br>
+start wr2 %1_premux.mkv 30000<br>
+@pause<br>
+start /wait mkvmerge -o %1_wrv.mkv -A %1_premux.mkv_wr0.mkv -A +%1_premux.mkv_wr10000.mkv -A %1_premux.mkv_wr20000.mkv -A +%1_premux.mkv_wr30000.mkv
+</font></blockquote>
+<br><br><br>
+
+if you need to work with differently named premuxes, change the first lines in <b>wraw.bat</b> to 
+"<font color=666666>start wr2 %1 0</font>" etc, mkvmerge lines to "<font color=666666>-A %1_wr0.mkv</font>", and use "<font color=666666>wraw wholefilename.mkv</font>" as a command line <br>
+[in other words remove all <font color=666666>_premux.mkv</font> from wraw.bat] [don't change anything in wr2.bat]
+<br>
+[if there are spaces in the filename, you have to use quotation marks: <font color=666666>wraw "whole file name.mkv"</font>]
+<br><br>
+
+I hope this is detailed enough so that even people more technically challenged than me can get it
+<br><br><br><br><br><br>
+
+
+
+
+
+
+
+
+
+

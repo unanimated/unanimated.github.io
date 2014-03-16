@@ -1,0 +1,167 @@
+<html><head><title>Timing in Aegisub Without Using TPP</title>
+<META NAME="description" CONTENT="Timing in Aegisub Without Using TPP">
+<META NAME="keywords" CONTENT="Timing, Aegisub, Tips">
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold}
+A:hover {color:e0e3e6}
+
+</style>
+</head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=668899 vlink=668899 alink=668899>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=760>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>Timing in Aegisub Without Using TPP
+</center></td></tr>
+
+
+<tr><td bgcolor=000000><br>
+
+
+You've read the <a href="timing-basics.htm">Basics of Timing in Aegisub</a> [hopefully], so here's the next part.
+<br><br>
+
+I've tried experimenting with TPP, and I can get it to produce somewhat decent results, but it just lacks human intelligence and adaptability, and tends to screw up things more than I'm willing to deal with. You may time a certain way to make up for the TPP imperfections, but then again you can also time a certain way so that you don't need it at all. In the end rough-timing with TPP takes me longer than without it, because I have to be more precise with hitting the exact start/end of the audio to make sure the imperfections in that won't add up with TPP settings. It also adds to fine-timing because there are a lot more things to correct after TPP than after my own rough-timing.
+<br><br>
+
+Even if you <i>do</i> use TPP though, this will still give you some guidelines for the various thresholds. I'm basically describing what you want to end up with. If you use TPP, you want to get these results after applying it, if you don't use it, you simply use these tips for "rough" timing. I say "rough" because rather than rough- & fine-timing, if you don't use TPP, you're still doing two passes, but it's something more akin to fine-timing and QC of your timing.
+<br><br><br>
+
+
+
+
+It used to be pretty rare not to use TPP, but nowadays almost everyone times without it. It requires a different approach to the first pass, so I want to explain that, so that new timers can get a better idea of both ways and decide which one they want to go with.
+<br><br>
+
+The idea here is that you apply lead in, lead out, and do line linking and keyframe snapping in the first pass.<br>
+TPP users argue that TPP makes things faster, but I don't really see a difference between clicking the start time exactly at the start of audio, and clicking it a little bit before to create the lead in. In fact this way seems faster to me because I don't have to be too precise, since no additional actions will fuck up my lead in once I've applied it. Same with lead out.
+<br><br>
+
+Line linking requires a bit of attention and thinking, but you'll get used to it quickly. Where TPP settings would be for example 100ms lead in, 300ms lead out, and 450ms for linking, you get a total threshold of 850ms between end of one line and start of the next. The audio in aegisub has those blue vertical lines in 1s intervals, so you can easily see how much time there is between 2 lines. We don't need to calculate it too precisely. Let's say the threshold is somewhere between 700 and 900ms. If the lines are closer than that, you link them. You want them linked somewhere around 80-90% toward the second line. For example if the gap is 800ms, you'll have 650-700ms lead out and 100-150ms lead in. More details on linking later.
+<br><br>
+
+The last thing is keyframe snapping. Here is where I think your eyes will do a much better job than any TPP settings. While looking at the audio track you can judge lead in/out, linking and snapping all at once, without worrying about how these things will stack up. 
+<br><br>
+
+Let's look at end times first. If the line ends before a keyframe, there shouldn't be less than 500ms between the end time and a keyframe. Anything under 500ms should be snapped. The upper limit would be around 800-1000ms. In other words when the audio ends 900ms before a keyframe, you can still snap it, but you can also apply 300ms lead out and leave 600ms gap before the keyframe. At 1000ms you should only snap if the line is long and requires more time to read. This is something that TPP can never judge.
+<br><br>
+
+Now, if the line ends after a keyframe, it's even more about human judgement instead of rigid settings. Usually if only one syllable goes beyond the keyframe, you should snap it, even if the last syllable is long, like part of a scream. If you try watching it, you'll see that in most cases you'll barely notice that the subs disappeared a bit earlier, because the disappearance on a keyframe just looks natural. In fact, subs staying on screen a bit after a keyframe look weird even in cases where you have no choice but to do it anyway. So this should be avoided as much as you can. Even if a whole word is after the keyframe, it may be ok to snap, as long as you get to read the whole line comfortably. The only reliable way to judge this is by watching, so that'll be left to fine-timing, but in rough-timing you can lean more toward snapping. Only if that looks bad when watching it or if you can't read the line before it disappears, you'll extend the line when fine-timing.
+<br><br>
+
+Now start times. A line starting just before a keyframe isn't much to worry about. Firstly, it doesn't happen too often, and secondly, it doesn't look nearly as bad as the other keyframe related things. So in most cases you can disregard the keyframe and just make a regular lead in. Only if the start of audio is less that about 5 frames before a keyframe, you should snap to it. If you watch a few lines of this kind, you will see that it looks worse if a character starts talking and you go "subs fucking where?" than if subs appear normally and then there's a keyframe. <font color=667788>You may also note that at the start of a line you're busy reading subtitles, so you don't pay that much attention to scene changes, while at the end of a line you're probably finished reading and notice bleeds easily.</font>
+<br><br>
+
+If a line starts after a keyframe, there's roughly a 300ms threshold under which you should snap. A gap under 300ms is what you could call flickering subtitles. That's bad. Lead in over 300ms looks odd because subtitles appear when nobody's talking.
+<br><br>
+
+That's it for the basics. As far as I'm concerned, all of this doesn't really take any longer than timing to exactly the start/end points of the speech.
+<br><br><br><br>
+
+
+
+
+Now just a few tips for fine-tuning your timing. This won't work much with TPP because unless you have an extremely efficient calculator in your brain, you don't really know what TPP will do with all those times. Then again if you could calculate all that, you wouldn't need TPP in the first place.
+<br><br>
+
+It should also be made clear that if you <b>are</b> gonna use TPP, you have to time like this:
+<br><br>
+<center><a href="px/audio-rough.png"><img width=700 src="px/audio-rough.png"></a></center><br>
+No lead in/out, linking or keyframe snapping. <br><br>
+
+<b>Without</b> TPP you do all those things immediately.<br><br>
+
+
+There are several things you can consider when deciding whether to apply more or less lead in/out, or which lines to link or snap. One would be the length of the text compared to the length of the audio. If the audio is long, like characters talking slowly or stammering, you can apply less lead in/out because you will have plenty of time to read the line. If they're talking really fast or the translation is really wordy, you will need more - sometimes even over 1 second lead out may be justified. 
+<br><br>
+
+If the translation is only 1-2 words, you can even go without lead in, though some lead out should always be there [unless keyframe], and generally no line should be under about 600ms. With short, stand alone lines, make sure to always have more lead out than lead in.
+<br><br>
+
+Line linking is where you can use even more intuition. When you're around the threshold for linking and you're deciding whether to link or not, there are a few factors that will help you. One, as mentioned, is the length of both lines. If they both have enough time for reading, you can make the lead in/out a bit shorter so that the gap doesn't seem that awkward. If it's wordy or talking fast, you can link even when the gap is over 1 second. 
+<br><br>
+
+You should be more inclined to link when both lines are a part of one sentence. When the 2 lines are spoken by 2 different characters, you may lean toward less linking than when it's the same person.
+<br><br>
+
+As should be clear by now, linking is different when there's a keyframe in there. Say you have an 800ms gap between lines. With no keyframe, you're most likely gonna link them together. But if there's a keyframe 200ms after the end of line 1, you'll snap that one and apply ~100ms lead in to the 2nd. That will leave 500ms between the keyframe and start of line 2, which is fine.
+<br><br>
+
+<br><br>
+
+
+Line Splitting
+<br><br>
+
+Timers should also split lines when needed. Translators don't always pay attention to how much they write in one line, and editors often don't change any of that, so the timer may have to fix some things. If the translator puts two sentences in one line, and there's a pause in the audio, this line should be split unless both together are really short. If it's one sentence, but there's a 2 second pause in the audio, it should be split as well in most cases [unless... the sentence is actually so short that there really isn't anywhere to split it]. You can also split a line when the character reveals the important part of the line at the very end, as long as there's a reasonable pause. This can also be solved with 
+<a href="alpha-timing.htm">alpha timing</a>, but don't overuse it.
+<br><br><br>
+
+
+Joining lines
+<br><br>
+
+Sometimes the opposite is needed. The translator may split a line pretty logically but you'll find that the audio doesn't have any pause where you could link those lines. You may try to estimate a good place, but subtitles changing when there's no pause in the audio just doesn't look good. As long as the result isn't a 3-liner on screen, it is best to join these lines into one. If you join them, aegisub will insert \N between the two original lines, so we usually nuke those. [If, however, you work for Daiz, keep it and add a few more.] 
+<br><br>
+
+You may also wanna join lines when you have a longer audio segment, pause, and shorter audio segment, while at the same time you have 2 lines where the first one is shorter, and you can't split them differently. Linking them at the pause may cause the 2nd one to disappear too quickly. Linking them elsewhere brings us back to the problem we've just described. So again, if they don't cause a 3-liner, you can join these to avoid awkward linking.
+<br><br>
+
+<br><br>
+
+That's [not] all. <a href="timing-notes.htm">Some more here.</a>
+<br><br><br><br>
+
+
+A video capture of my timing with written notes: <a target="_blank" href="http://minus.com/mB3nu0Vda/">[Commie] Timing Without TPP - 01 [137066CF].mkv</a>
+<br><br>
+
+A sequel with no commentary: <a target="_blank" href="http://minus.com/mNuoNOANm/">[Commie] Timing Without TPP - 02 [4EDC5E9E].mkv</a><br>
+This is just raw video for reference. 240 lines timed in about 14 minutes.
+<br><br>
+
+
+Part 3 with the actual audio from Aegisub: <a target="_blank" href="http://minus.com/m0dirY4pn/">[Commie] Timing Without TPP - 03 [987359BC].mkv</a><br>
+Half an episode. Roughly 200 lines / 16 minutes.
+<br><br>
+
+[ <a target="_blank" href="http://www.mediafire.com/?ldtuexum01k6q">Mediafire</a> links: 
+<a target="_blank" href="http://www.mediafire.com/?yn9xjv9e7zh885j">Part I</a> •
+<a target="_blank" href="http://www.mediafire.com/?29sik6i91jrru5b">Part II</a> •
+<a target="_blank" href="http://www.mediafire.com/?xoafjc6h7wjtfgb">Part III</a> ]
+
+
+<br><br>
+As for how accurate this 3rd one was, here's what I had to fix in the 2nd pass:<br><br>
+
+<font color=666666>
+
+&nbsp; Dialogue: 0,0:05:44.32,0:05:46.82,Default,Guiche,0000,0000,0000,,No matter what dangers we may face,<br>
+&nbsp; - missing first word, because silently spoken, not well visible on audio track » 0:05:43.87,0:05:46.82<br><br>
+
+&nbsp; Dialogue: 0,0:05:51.18,0:05:5,Default,Malicorne,0000,0000,0000,,Was this really something that big?<br>
+&nbsp; - same thing - start should be snapped to keyframe » 0:05:50.66,0:05:53.09<br><br>
+</font>
+
+That's all.
+
+
+
+
+<br><br><br>
+
+
+
+
+
+
+
+<br><br><br>
+</td></tr>
+</table><br><br></html>

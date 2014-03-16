@@ -1,0 +1,103 @@
+<html><head><title>wr</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+A:hover {color:e0e3e6}
+
+</style>
+</head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=668899 vlink=668899 alink=668899>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=1020>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>wr
+</center></td></tr>
+
+
+<tr><td bgcolor=000000><br>
+
+
+<b>Workraw / Keyframe file</b><br><br>
+
+Something that may be quite useful to you as a timer is to encode a workraw or create keyframes.<br>
+If you only have a premux, there may be many scene changes without keyframes on your audio track in aegisub, which makes fine timing more difficult.<br>
+Workraw is encoded with different settings, among other things to have more keyframes.<br><br>
+
+You can also just create a keyframe file that you load in aegisub.<br>
+You can either do this with xvid [<a href="scxvid.htm">instructions here</a>], or with x264.<br>
+After some experimentation I'd say x264 works almost just as well as xvid with good settings [but xvid should be a bit better].<br><br>
+
+For a keyframes file you use this:<br><font color=666666>
+x264 --pass 1 --preset veryfast --scenecut 100 --min-keyint 1 --keyint infinite -o NUL %1</font><br>
+You create a batch file, for example kf.bat, and put this line ^ in it. Put this in your working folder for timing, along with x264.exe [8-bit].<br>
+Then open cmd.exe from the folder and type "kf another01_premux.mkv" where another01_premux.mkv is your premux, obviously.<br>
+This will produce a .log file in a few minutes. In Aegisub's menu - Video - Open Keyframes... you load this file.<br>
+It will replace the keyframes from the premux with the ones you just made.<br><br>
+
+The option that determines the amount of keyframes is --scenecut, with values from 0 to 100. 0 will produce the least, 100 the most keyframes.<br>
+It basically checks the difference between each 2 consecutive frames, and if the change is more than a certain factor, it places a keyframe.<br>
+That's my explanation anyway. I'm not an encoder so I don't know the details. But I know premux is the default --scenecut 40.<br>
+--scenecut 100 may place unnecessary keyframes, in other words too many of them, so maybe you want a value somewhere between 90 and 100.<br>
+Best way to find out is through experiments.<br><br>
+
+Personally I prefer to make a workraw instead, as it takes the same amount of time, and using a wr is less CPU demanding than premux.<br>
+So I do the first timing pass with wr and second with the premux.<br><br>
+
+For the wr you can use something like this:<br><font color=666666>
+x264 --video-filter resize:640,360 --qp 35 --preset ultrafast --tune fastdecode --scenecut 100 --min-keyint 1 --keyint infinite -o %1_wr.mkv %1</font><br>
+This will give you a very shitty workraw, which is good when your PC is slow.<br>
+Personally I prefer when I can actually see somethnig on the wr, so I use this:<br><font color=666666>
+x264 --video-filter resize:848,480 --crf 32 --ref 1 --bframes 1 --me hex --subme 1 --scenecut 95 --min-keyint 3 --keyint infinite -o %1_wr.mkv %1_premux.mkv</font><br>
+It's 480p and less blocky. Also I use different naming so I only type "wr another01" where wr.bat is my batch file.<br>
+Of course this only works if the premux has this naming pattern.<br>
+[I understand you can supposedly just "drag" the premux onto the .bat file... <br>
+this doesn't work for me at all but you can try it - but you'll need the former naming with just %1 at the end.]<br>
+Then you can either mux in audio from the premux, or just load it in aegi from the premux.<br>
+Don't forget that all files involved in the encoding need to be in the same folder.<br><br>
+
+<br>
+
+
+
+<b>Update:</b><br><br>
+I've done some experiments with this and here's what I've found...<br><br>
+
+<br>
+"--scenecut 100" is pretty useless. Compared to "--scenecut 95" it produces about 30% extra keyframes where they shouldn't be.<br>
+I checked the differences on one episode in quite some detail, and virtually none of the extra keyframes were useful.<br>
+Any high action scene gets overloaded with keyframes and you can't possibly have a clue which one matters.<br>
+Having 20 keyframes in 2 seconds is just as useless as having none.<br>
+<br>
+
+I use "--min-keyint 3" since it doesn't give me as many useless keyframes in action scenes as "--min-keyint 1". It doesn't really matter that much, just a preference, but you probably shouldn't go with higher values than 3.<br>
+<br>
+
+I don't know what settings -pass 1 uses but it seems actually slower than the wr line I use.<br>
+Additionally, if you encode a wr, you can load it in aegi and save keyframes file from that, which you can use later for premux even if you delete the wr.<br>
+So if I can encode wr faster and I can make keyframes from that [and have a wr on top of that] it seems more convenient than the --pass 1 thing.<br><br>
+
+I have also found that changing just --crf has little impact on encoding speed, so you can use --crf 22 or so to get a pretty decent wr.<br>
+As the other settings are still light, it'll still be CPU easy, so you shouldn't have a problem working with it.<br>
+Even more, I found that using "--video-filter resize:1024,576" still doesn't change the encoding speed [or maybe like 5%].<br>
+So if you use --crf 22 at 576p, you have a work raw that looks good enough even for typesetting but is fast to work with.<br>
+<br>
+One more little detail: "--keyint infinite" may produce some long sections without a keyframe, in rare cases even 1 minute or more.<br>
+This may cause some lag when searching in that keyframeless area. While this is hardly an issue with low quality wr, it's pretty bad on premuxes.<br>
+I haven't tested it much but it might be laggy if you go for a higher quality wr. So you can use "--keyint 600" which gives you a max. interval of 25 seconds.<br>
+<br>
+So my current command line is like this:<br><font color=666666>
+x264 --video-filter resize:848,480 --crf 25 --ref 1 --bframes 1 --me hex --subme 1 --scenecut 95 --min-keyint 3 --keyint 600 -o %1_wr.mkv %1_premux.mkv</font><br>
+There are always a few places per episode where it doesn't work quite right, but it's the best I got so far.<br>
+You can change the resizing and crf as needed, and of course you can experiment with scenecut and the intervals some more.<br><br>
+
+
+If your PC is really slow and this takes more than 10 minutes to encode, use this:<br><font color=666666>
+x264 --video-filter resize:640,360,method=bilinear --qp 35 --preset ultrafast --scenecut 95 --min-keyint 3 --keyint infinite -o %1_wr%2.mkv %1</font><br><br>
+
+If that doesn't use 100% of your CPU, you can make it faster by encoding in 2 threads. <a href="wr-2threads.htm">Read more here.</a>
+
+<br><br>

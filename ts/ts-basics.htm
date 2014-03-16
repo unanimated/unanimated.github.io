@@ -1,0 +1,355 @@
+<html><head><title>Typesetting Basics</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold; text-decoration:none}
+A:hover {color:e0e3e6}
+
+</style>
+</head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=557788 vlink=557788 alink=557788>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=1300>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>Typesetting Basics
+</center></td></tr>
+
+<tr><td bgcolor=000000><br>
+
+In order to typeset a sign, you need to time it first. As this needs to be precise, you don't do it on the audio track like with regular lines.<br>
+Signs need to be frame timed, because if your sign is one frame off, you belong in Hadena.<br>
+So you rough time the sign first, whether on the audio or by inputing the timecode you got from the translator/typist/editor.<br>
+Then you go frame by frame with arrow keys till you find the first frame where the sign appears [the relevant line must be selected in the script].<br>
+Then you click the first of the blue icons here:
+
+
+<br><br>
+<img src="frametiming2.png"><br><br>
+That sets the start time. Use arrow keys to check if you did it right. Then navigate to the last frame the sign is visible on and click the second one.<br>
+Again try if it's right. The first one sets the time at the start of the visible frame, the second one at the end, so if you use both at the <i>same</i> frame,<br>
+the sign will be visible on that frame, in other words the duration of the sign will <b>not</b> be zero.<br>
+This can be used for typesetting signs frame by frame by hand.<br><br>
+
+Many signs start/end at a keyframe so you can use the audio track for those, for others you'll need this method.<br>
+<br><br>
+When you've timed your signs, you can begin typesetting. You already know how to create styles, so you'll make one.<br>
+If you need to override anything, you'll use a few tags like \fs \bord \shad etc. You should know all the basic tags and what they do <a target="_blank"href="http://docs.aegisub.org/manual/ASS_Tags"><b>from here.</b></a><br>
+Border is probably what you'll be changing the most often, maybe the shadow and font size, so you should remember \bord \shad \fs at least.<br>
+You may also switch between regular and bold quite a bit, but bold/italics have buttons above the typing area so no need to type those.<br>
+
+<br><br>
+Let's begin. Here's a simple typeset...
+
+<br><br>
+<img src="chihafuru.jpg"><br><br><br>
+This is something that will appear in every episode so you want to set as much as possible in the style.<br>
+The only tags I add here is \fad and \blur. The font, colors and border are set in the style.<br><br>
+Don't make the mistake of using the default (or any extreme) values!<br><br>
+For example the default has a shadow, but you definitely don't want a shadow here, so make sure you set it to 0.<br>
+Also don't just assume it's black and white. If you do that, you're going Hadena style. Get the actual color from the japanese sign with the eyedropper tool.<br>
+Aside from the colors and the border, what will make a difference between a good and bad typeset here is the font choice.<br>
+So don't just take some basic serif or sans serif font, or something like ComicSans, but find something that will actually match and look good.<br>
+Speaking of which, you need to know your fonts, and you need to have them in the first place.<br>
+
+<br><br>
+<img src="fadetime.png"><br><br>
+Now about that fade...<br>
+Use arrow keys to go frame by frame and find the place where the fade of the jp sign ends. ^ Check the numbers here.<br>
+They refer to the currently visible frame, in relation to the start/end time of the line you have selected.<br>
+So this frame is 898ms after the start of your sign and 4102ms before the end of it. If this is where the fade in ends, you need about 900ms fade in.<br>
+No need to be too precise, one frame is about 40ms, so 10ms more or less won't make a difference. You will then have \fad(900,0).<br>
+If there's lead out too, you do the same but use the second number.<br><br>
+
+<br><br>
+<img src="chihatitle.jpg"><br><br>
+Another example of a title. This one uses \blur10 (for the border). Be aware that using this much blur may cause lag, so only use it on simple static signs.<br>
+Notice the positioning, too. The top of the typesets is aligned with the top of the japanese sign.<br>
+Don't just throw the signs somewhere randomly, try to align them with <i>something</i>. Also for episode titles and such, try to keep the same positioning in following episodes.<br><br><br>
+
+A few notes on using <b>blur</b>.<br>
+It works differently depending on the borders and shadows you're using.<br><br>
+
+
+This is text with no border, no shadow, no blur... \bord0\shad0\blur0:
+<br>
+<img src="blur01.jpg"><br><br>
+
+
+No border, no shadow, with blur... \bord0\shad0\blur2:
+<br>
+<img src="blur02.jpg"><br><br>
+
+
+Border, no shadow, blur... \bord4\shad0\blur2:
+<br>
+<img src="blur03.jpg"><br><br>
+
+You see it will only blur the outline, not the body.<br><br>
+
+
+Border, shadow, no blur... \bord4\shad4\blur0:
+<br>
+<img src="blur04.jpg"><br><br>
+
+
+Border, shadow, blur... \bord4\shad4\blur2:
+<br>
+<img src="blur05.jpg"><br><br>
+
+This blurs both the border and shadow, but not the body.<br><br>
+
+
+No border, shadow, blur... \bord0\shad4\blur2:
+<br>
+<img src="blur06.jpg"><br><br>
+
+This, however, will blur both the shadow AND the body.<br>
+So you see it's the border that determines whether the body will be blurred or not.<br><br>
+
+You can't separate the border from shadow for blurring.<br>
+If you use both, both will be blurred.<br>
+To bypass that, you'd have to use 2 layers. More on that later.<br><br>
+
+
+Same if you want to blur the outline AND the body, you need layers.<br>
+It would look like this:
+<br><br>
+<img src="blur08.jpg"><br><br>
+
+"Test" is regular mode, "Blur" is 2 layers with the body blurred.<br>
+Again, more on that in the "Layers" section.<br><br>
+
+
+
+Note: This works the same with 'blur edges' - \be.<br>
+Experiment to find out the difference between one and the other (shows more with higher values).<br><br><br>
+
+
+
+Two things related to blur:<br><br>
+
+<b>Blur is the most essential tag for typesetting.</b><br>
+Signs without blur look like shit, so never forget to use it.<br>
+What I do before I start is to use a script to add blur to all signs. Check the <a href="scripts.htm">scripts section</a>.<br>
+That way you start with blur already present on all signs. 0.5-0.6 will work most of the time. You'll change it to higher when needed.<br><br>
+
+NOTE 1: Do not use \blur.5 instead of \blur0.5<br>
+NOTE 2: \blur0.3 does nothing visible. \blur0.4 blurs VERY LITTLE and is only applicable for really sharp video.<br>
+Don't swarm the script with \blur0.3 when you can see it's not doing anything. ALWAYS check signs at 100% zoom. Use your damn eyes.<br><br>
+<br>
+
+Here you can see 3 modes of using blur:<br><br>
+
+1. The "Mer" part. Completely wrong, because it's only 1 layer and the body is not blurred.<br>
+2. The "maid" part. Also wrong. It's two layers, but the primary color of the bottom layer is the same as the top layer.<br>
+3. The "Meal" part. This is correct. You can see it looks like the japanese sign.
+<br><br>
+<img src="muromiblur.png"><br><br>
+
+If you can't see the difference, you're blind (or your monitor is terrible) and probably shouldn't typeset.<br><br>
+
+When I separate the layers, it looks like this:
+<br><br>
+<img src="muromiblur2.png"><br><br>
+
+This is one of the most important things to learn about typesetting, so make sure you get this right.<br>
+The middle part doesn't work because the blurred edges of the top layer create partial transparency,<br>
+so you can partly see the sharp edges of the font body of the bottom layer.<br>
+Same thing happens when you use \1a&HFF& on the bottom layer, so DON'T do that either.<br>
+The "Layers" section of this guide explains it in detail.
+
+
+<br><br><br>
+<b>Sort the script by time!</b><br>
+[menu -> Subtitle -> Sort All Lines -> Start Time]<br>
+If you don't do this, vsfilter will screw up blur pretty much whenever there are two or more lines visible on the screen at the same time.<br><br>
+
+Top is sorted by time:
+<br><br>
+<img src="sortbytime.jpg"><br><br>
+Bottom is not sorted by time. You can see the border on the default style is screwed up.<br>
+This and worse things happen when you don't sort the sript by time.<br>
+Of course you don't need that when working, and it's more convenient to have different sorting while working,<br>
+but always sort the final script you're putting in a release.
+<br><br><br><br>
+
+
+Back to the basics...
+<br><br><br>
+<img src="hor-title.jpg"><br><br>
+Here's another title. Very simple but beginners will often fail. This one has a shadow but does <b>not</b> have a border.<br>
+Beginners will often use a border because there's something black around there and who would bother to look carefully... border is first so... bam! Well, nope. If your style has border, use \bord0 to kill it.<br>
+Align your typeset properly. It would be dumb if it was clearly closer to one side. Don't put it under the sign here because it might overlap with main dialogue.<br>
+Other things to pay attention to: the shadow in this case is not transparent at all; get the shadow distance close enough to the original;<br>
+try to match the thickness of the letters; and for god's sake don't use a sans serif font like Arial for this.
+<br><br>
+
+Alternatives that work:
+<br><br>
+<img src="hor-ok2.jpg"><br><br>
+
+<img src="hor-ok1.jpg"><br><br>
+
+These two are fine. The thickness matches, they have some pointy ends like the original, <br>
+horizontal lines a bit thinner than the vertical ones... everything all right.<br><br>
+<br><br>
+<img src="hor-ok3.jpg"><br><br>
+
+<img src="hor-ok4.jpg"><br><br>
+
+These two are not too bad, but not as good as the previous examples. They're a bit too roundish, lacking any pointy/thin parts.
+<br><br>
+<br><br>
+
+Alternatives that <b>don't</b> work:<br><br>
+<img src="hor-nope1.jpg"><br><br>
+
+Sans Serif doesn't fit here. Square ends don't match at all. Looks dull and inelegant.<br><br>
+<br><br>
+<img src="hor-nope2.jpg"><br><br>
+
+This is too thick/wide.<br><br>
+<br><br>
+<img src="hor-nope3.jpg"><br><br>
+
+While handwriting is often useful for typesetting anime, because of the calligraphic nature of kanji,<br>
+here the kanji is actually pretty simple and orderly. The handwriting looks too disorganized.
+
+<br><br>
+<img src="hor-end1.jpg"><br><br>
+Next episode title. Pretty simple - get the sizes right, choose a reasonable alignment, get the border color right and use blur.<br>
+You can see it's pretty easy to match the original, so I don't want to see things like this:
+
+<br><br>
+<img src="hor-end2.jpg"><br><br>
+Using thin outline without blur = nope. Using thick sans serif font = nope. Vertically it's not aligned with anything. That's a fail on a sign that takes a minute to do right.<br><br>
+
+<br><br>
+<img src="trdr-circles.jpg"><br><br>
+
+Here's something more interesting. In case it wasn't clear, the smaller circles with To Ra Do Ra are typeset.<br>
+So what you need is letters <b>and</b> circles. The easiest way to make circles is to use a font with symbols, like wingdings. Find out which letter is a circle and use that.<br>
+Then find a font that has round edges and isn't too thick. Mine was actually too thin but i solved it by adding some outline in the same color as the primary - white.<br>
+It was also narrow so i used something like \fscx120. All of this can be set in the style so no tags needed.<br>
+To get the letters exactly in the middle of the circles, i used \an5 - align to center. That way you can use the same \pos coordinates for both the circle and letters and you know it's right in the center.<br>
+Now you just need to find the right place to put the circles. Make sure the vertical coordinate is the same for all of them, and that the spaces between them are always the same.<br>
+The only thing left is to get the right color for each circle. Tools for colors are above the typing area, use the eyedropper tool to get the exact ones you need.<br>
+Speaking of which - always match the colors exactly, not just approximately.<br><br>
+
+<br><br>
+<img src="chihanames1.jpg"><br><br>
+
+Simple typesets for some names. Handwriting font, match the color, no border, no shadow, use blur. Easy.<br><br>
+
+<br><br>
+<img src="chihaname1.jpg"><br><br>
+This close up is different than what they had in the first screenshot. <br>
+It's thicker and darker so you can use bold, or outline in the same color... however...<br><br>
+
+If you're gonna use some outline to make the font look thicker, <br>
+make sure you can actually afford it without making the font look unreadable.<br><br>
+
+This is already pushing it, though still not too bad:
+<br><br>
+<img src="sure1.png"><br><br>
+Without the border for comparison:<br><br>
+<img src="sure2.png"><br><br>
+
+This is pretty bad:
+<br><br>
+<img src="borderthick.png"><br><br>
+
+Letters like 'e' or 's' become hard to read, especially if you stretch the font in one direction.<br>
+Please avoid stretching fonts more than about 10% in one direction unless you have an extremely good reason.<br>
+In this case the letters even merge with one another, so try to find a better font instead.
+
+<br><br><br>
+<img src="chihasmirk.jpg"><br><br>
+White font, thick dark red border, no reason to fail on this. Clearly here you need some handwriting/cartoonish font, and not some Arial/Times New Roman thing.<br>
+[Actually this fails with blur, but hey, it was a long time ago.]
+<br><br>
+
+
+<br><br>
+<img src="chihamails.jpg"><br><br>
+Sometimes you have a bit more to typeset than one line.<br>
+Here you need a simple sans serif font. I used this one not because it was the best but because I was already using it in the episode and it was good enough.<br>
+Aside from the "49 New Messages" in white this is all done in one line.<br>
+<pre>
+Dialogue: 0,0:08:08.63,0:08:08.67,mail,Caption,0000,0000,0000,,{\blur0.8\c&HBD8B5F&\pos(126,186)}Subject             Thanks!\N\N\N\NSubject             This is Chihaya\N\N\N\NSubject
+             It's getting warmer\N\N\N\NSubject             It's starting to rain\N\N\N\NSubject             Rain was leaking into our clubroom \N\N\N\NSubject             This is our 
+clubroom. \N\N\N\NSubject             I got in trouble with Dr. Harada \N\N\N\NSubject             How do I cut down on faults? \N\N\N\NSubject             This is Chihaya \N\N\N\N
+Subject             Karuta players are... \N\N\N\NSubject             About hakama \N\N\N\NSubject             Guess what happened today \N\N\N\NSubject             Notice for the 
+\N\N\N\NTokyo regional tournament</pre>
+
+You can see there are 4 line breaks between the text lines (\N\N\N\N) so that I don't have to make 6+ separate script lines to typeset.<br>
+Choose font size that will make the lines fit in between the japanese lines. When you have the font size, make spaces between the Subject and the rest of each line.<br>
+You could typeset each line separately but... the whole thing was scrolling up in a non-linear fashion. That also means you can't use \move.<br>
+So I did this frame by frame, always changing just the \pos tag (you may notice the whole line has more text than you see on the screen - this text scrolls up in the following frames).<br>
+It was about 20 frames so I had 20 lines in the script. If you typeset each line of text separately, you'd have more than 10 times as many lines in the script.<br>
+A 20-frame sign is usually pretty pointless to typeset, but the way I did this wasn't really difficult and didn't take much time so I did it anyway.<br><br>
+[Note: The color should be darker and the font should be thicker.]<br>
+
+<br><br>
+<img src="st09.jpg"><br><br>
+
+This was not bad a few years ago but is pretty bad now. If you can't match the colors precisely, you suck.<br>
+The Japanese is not black and white, so use the eyedropper tool to get it right.<br>
+You can easily make this so natural that it won't even look like it was typeset. You could also use \fscx110 or so for a better match. And it's missing blur.
+
+
+
+<br><br>
+<br><br>
+<img src="hor-map2.jpg"><br><br>
+So I gave somebody the task of typesetting this... and this was his first attempt.<br>
+Positioning is ok. 1 point there. Colors are fine as well. Another point. Alignment of the text is... well, pretty default. More on that in the next chapter.<br>
+I don't know why the red sign is serif and the rest is sans serif when the jp signs are all the same font. Also the red looks like crap on the light grey background.<br>
+All that would be passable for a beginner if it wasn't for one obvious problem - no blur. Just adding blur would make it look <b>much</b> better even with the other problems.<br>
+
+<br><br>
+<img src="hor-map1.jpg"><br><br>
+
+Here for reference is my own typesetting. You can see the blur makes it blend in beautifully, though the slant helps a lot as well, and the font is much better than the Arial-ish thing above.<br>
+As a sidenote, see the hand moving "over" the Guard Ships sign? That can be done with the \clip tag. More on that later.<br>
+<br><br>
+
+A simple typeset:
+
+<br><br>
+<img src="kyushu.png"><br><br>
+
+1. Matching font with roughly matching thickness of letters.<br>
+[as the English is usually longer, you may need a lot more letters than the jp, so you can't always match the thickness.]<br>
+2. Matching colors.<br>
+3. Matching border size.<br>
+4. Two layers for blur.
+<br><br><br><br>
+
+
+
+
+
+That should cover the basics. Just a few more notes. Sometimes instead of blur you can use \be - blur edges. With value 1 they're pretty much the same but with higher values you'll see the difference.<br>
+Other tags you can use to override the style are \fscx, \fscy, \fsp... again, you should know all these from the link mentioned at the top.<br>
+I didn't explain \pos because it's so basic that if you can't figure it out on your own, you're hopeless.<br>
+\an can be useful for signs with a line break - \N. Type something short, then \N, then something long, like "This is \N a meaningless test sentence."<br>
+Use \pos to place it somewhere on the screen. Then add \an9 or \an1 to see how the text changes alignment while using \pos.<br><br>
+
+One last note about changing margins. Let's use this screenshot:<br><br>
+<img src="../px/aegitype.png"><br><br>
+Numbers 5, 6 and 7 are left/right/vertical margin.<br>
+Change those numbers to change the margin. The values don't add up, they override the defaults.<br>
+It's only meaningful when you're NOT using the \pos tag, mostly for default dialogue.<br>
+You can use this if you need to move the subs to avoid overlapping with something else.<br>
+For example changing right margin to 500 will move them to the left, changing vertical to 100 will move them up etc.<br>
+
+
+<br><br><br><br>
+
+<center><a href="index.htm"><b>« Back to Typesetting Main
+<br><br><br>

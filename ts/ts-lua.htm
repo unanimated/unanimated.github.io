@@ -1,0 +1,592 @@
+﻿<html><head><title>Typesetting - More Lua Scripting</title>
+<meta charset="utf-8">
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold; text-decoration:none}
+b {color:708090}
+pre {color:609080}
+h3 {color:4488cc}
+#c {color:669966}
+A:hover {color:e0e3e6}
+</style></head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=557788 vlink=557788 alink=557788>
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=800>
+<tr><td bgcolor=000000>
+<center><b><font size=5 color=446677>More Lua Scripting
+</center></td></tr>
+<tr><td bgcolor=000000>
+I keep hearing people say "I need to learn some Lua" or "I need to learn to write automation scripts", and not many seem to really have gotten into it. This should help get you started. You should read lyger's guide first, because I'm not gonna explain the same things again, but I want to provide some more practical tips. Rather than explaining lua itself, I'll explain more about scripts for Aegisub specifically.<br><br>
+
+Learning Lua is not much of an issue. You can learn all the Lua stuff you need in an hour. It's mostly just <b>if/then/end</b>, the <b>for</b> cycle, <b>gsub</b>, and a few other things.<br><br>
+
+A large part of what you need is regular expressions, or rather Lua's simplified pattern matching. That, again, is something you can learn in an hour.<br><br>
+
+What I want to talk about the most is how to work with the Subtitles object, which is not really a matter of Lua, but rather of Aegisub and the ASS format. This is explained in the Aegisub manual, but since that may be confusing for beginners, I'll provide some specific practical examples. The goal is to explain how to write a basic automation script in as simple terms as possible. Once you understand how a script that adds blur works, adding more complex functions will be easy because that's just maths.<br><br>
+
+Here's the very basics:<br><br>
+
+<pre>
+script_name="test"
+script_description="testing stuff"
+script_author="some guy"
+script_version="1"
+
+function test(subs, sel, act)
+	<i id="c">-- stuff goes here</i>
+end
+
+aegisub.register_macro(script_name, script_description, test)
+
+</pre>
+
+The last line puts an entry in your automation menu. It has 3 parts. 2 of them are defined at the beginning - script_name and script_description. The name will appear in the menu and as an undo entry when you run the script. You can see description in the Automation Manager. The 3rd part means that running this script will run a function called "test".<br><br>
+
+<b>script_author</b> and <b>script_version</b> aren't really important, but I'm sure you get the idea.<br><br>
+
+Let's look at <b>function test(subs, sel, act)</b>. I probably wrote at least 20 scripts before I actually understood what this is. Since this function is referenced by <b>register_macro</b>, it's the main function of the script, and as such is by default given the Subtitles object to work with. The 3 parts — subtitles, selected lines, and active line — give you 3 things you can work with.<br><br>
+
+You can name them whatever you want. You just have to stick to the naming. I tend to keep everything short, though I'm sure I'm not the only one who uses subs/sel/act. It's probably best to use these even just because of the fact that others do it too, which makes it easier to make sense of each others' scripts.<br><br>
+
+<b>subs</b> is the whole subtitles object. You always have to use this. In simple terms, it's like a table of all lines in the ASS script, including headers, styles, etc.<br><br>
+
+<b>sel</b> is selected lines, and if you want your function applied to all lines, you don't have to use this. You can have <b>function test(subs)</b>.<br><br>
+
+<b>act</b> is the active line, and you probably won't need it very often. You can use it for functions that are supposed to run on only one line or read some info from the active line. If you select one line and use <b>sel</b>, it's pretty much the same as using <b>act</b>.<br><br>
+
+The "stuff goes here" part is where the actual function will be written.<br><br>
+
+Here's an example of a simple function that runs on the whole script:<br><br>
+
+<pre>
+function test(subs)
+    for i=1,#subs do
+        if subs[i].class=="dialogue" then
+            line=subs[i]
+            text=subs[i].text
+	    
+	    <font color=886688>line.effect="test"</font>
+	    
+	    line.text=text
+            subs[i]=line
+	end
+    end
+    aegisub.set_undo_point(script_name)
+end
+
+</pre>
+
+The green part is what you'll usually have for every script that runs on all lines.<br>
+The purple part is the actual specific function.<br><br>
+
+<b>#subs</b> is how many lines there are in <b>subs</b> (including headers and all). If the ASS file has 200 lines, the <b>for</b> cycle will run 200 times. You only want to apply this to dialogue lines, not to styles or headers, so you have to specify this condition:<br>
+<b>if subs[i].class=="dialogue"</b>.<br><br>
+
+So, the iterator <b>i</b> is going from 1 to 200, so when it's let's say 25, <b>subs[i]</b> is <b>subs[25]</b>, or the 25th line in the ASS file. <b>line=subs[i]</b> means that you create element <b>line</b> and put <b>subs[i]</b> into it. Note that single <b>=</b> does not mean "equals". You could read it as "line is now subs[25]" (when <b>i</b> is 25). Then you work with <b>line</b>, and for it to be of any use, you have to put the <b>line</b> back in <b>subs[i]</b> at the end. <b>line</b> is something you created, <b>subs[i]</b> is the actual line in the subtitles, so you need the <b>subs[i]=line</b> at the end.<br><br>
+
+You see the same with <b>text</b>, even though in this case I don't need it, but usually you work with <b>text</b> the most. The purpose is to use something that's short instead of typing <b>subs[i].text</b> all the time. Also, it could also say <b>text=line.text</b> since <b>line</b> is already defined at that point. You can name those things anything you want, for example just <b>l</b> and <b>t</b>, which may be good for a short script, but again, <b>line</b> and <b>text</b> are commonly used by most of us, so it keeps things clear.<br><br>
+
+<b>aegisub.set_undo_point(script_name)</b> sets the undo point, and should be at the end of the main function, though I think Aegisub does it automatically anyway. You can, however, create multiple undo points, like for every function in your script, but it's usually only confusing and not very practical.<br><br>
+
+Now, the actual thing this script does is <b>line.effect="test"</b>. <b>line.effect</b> is the effect filed, and here it takes the value "test", which means the text of the effect field will be "test". So what this script does is that it puts "test" in the effect field of every dialogue line.<br><br>
+
+Now, the thing I did here with <b>text</b> would have made more sense if I'd done it with "effect" instead (because I didn't actually do anything with text), ie. <b>effect=line.effect</b>. Then the purple line could be just <b>effect="test"</b>. You have to always think about what pays off and what doesn't. For this script, the purple line would be 5 characters shorter, but you would need two extra lines, to assign value to <b>effect</b> and to give the value back to <b>line.effect</b>, so that doesn't pay off. If you use something only once, you might as well keep it as is. The more often you use something, the more sense it makes to assign it to something with a short name.<br><br>
+
+Let's look at working with selected lines now.<br><br>
+
+<pre>
+function test(subs, sel)
+    for x, i in ipairs(sel) do
+        line=subs[i]
+        text=line.text
+	    
+	<font color=886688>if text:match("you're tie is crooked") then line.effect="the editor is an idiot" end</font>
+	    
+	line.text=text
+        subs[i]=line
+    end
+    aegisub.set_undo_point(script_name)
+    return sel
+end
+
+</pre>
+
+I'm too lazy to do high-effort html, but you can paste the code into Notepad++ for proper syntax highlighting. You can see the <b>for</b> loop is using <b>ipairs</b>. <b>sel</b> consists of pairs of two numbers. The first is the index of the selection, and the second is the index in <b>subs</b>. If the ASS file has 50 lines and you select the last 3, then the <b>x</b> in <b>ipairs</b> will be 1, 2, and 3, and <b>i</b> will be 48, 49, and 50. In the previous example, <b>x</b> and <b>i</b> are the same thing because it goes through all lines.<br><br>
+
+Don't forget that the function must have <b>(subs, sel)</b>. Of course you can always include the <b>sel</b> even if you're not using it, just to be sure that you never forget it. I pretty much always use <b>(subs, sel)</b> and in rare cases add <b>act</b>.<br><br>
+
+The purple line is a basic example of an action dependent on a condition. You can read it as:<br>
+If you find "you're tie is crooked" in <b>text</b>, put "the editor is an idiot" in <b>effect</b>.<br><br>
+
+<b>return sel</b> makes sure that you keep the selection you started with (or new selection if you changed it).<br><br>
+
+You could also use <b>for i=1,#sel do</b> instead of <b>ipairs</b>, like we did with <b>subs</b>. If your script is deleting or adding lines, you need to go backwards, because the new/deleted lines are changing the index of the selected lines. If you delete line 1, line 2 becomes line 1 and line 3 becomes line 2, so going in the normal direction you'd either be skipping lines or going through them twice.<br><br>
+
+<pre>
+    for i=#sel,1,-1 do
+        local line=subs[sel[i]]
+	
+	...
+	
+	subs[sel[i]]=line
+
+</pre>
+
+This is what I use. It starts at the last selected line and goes backwards to the first. <b>i=a,b,c</b> means it goes from a to b by steps of c. <b>i=8,2,-2</b> would go through lines 8, 6, 4, 2. The default for steps is 1, so unless you go backwards like here, you don't need to write it.<br><br>
+
+An important thing is that if you use this, then <b>line</b> is <b>subs[sel[i]]</b>, not <b>subs[i]</b>. here <b>i</b> is the number of the selected line, starting from 1, so if you used <b>subs[i]</b> when <b>i</b> is 1, you'd have the first line in the ASS file, not the first selected line. <b>sel[3]</b> is the number in <b>subs</b> corresponding to the 3rd selected line.<br><br>
+
+This thing kept confusing me for quite a while, so let's try a more specific example. Let's say <b>subs</b> has 50 lines (including headers and styles) and you select last 5 lines.<br>
+<b>sel</b> would now be <b>{46,47,48,49,50}</b>.<br>
+sel[1]==46<br>
+sel[2]==47<br>
+sel[5]==50<br>
+Using the <b>for</b> cycle will go from 1 to 5, so <b>i</b> will be 1-5, and <b>sel[i]</b> will be 46-50. <b>subs[i]</b> would be lines 1-5, which is not what you want. <b>subs[sel[i]]</b> will be lines 46-50. That's what you need.<br><br>
+
+
+So, that about covers the structure of the main function. With this and a bunch of if/then/end lines you can make simple scripts.<br><br><br>
+
+Now, let's look at some ways to manipulate <b>text</b>.<br>
+
+<pre>
+
+text=text.." end of line"
+</pre>
+
+This attaches a string to the end of <b>text</b>.<br>
+
+<pre>
+
+text="Start of line "..text
+</pre>
+
+This attaches a string to the beginning of <b>text</b>. This way you can add tags:<br>
+
+<pre>
+
+text="{\\blur0.6}"..text
+</pre>
+
+This is how the old "Add edgeblur" script worked. Of course, this doesn't join it with other tags, doesn't replace existing blur, etc.<br>
+
+<pre>
+
+text="This is a test."
+
+text=""
+
+</pre>
+
+Here the first one sets "This is a test." as <b>text</b>, deleting whatever was there before.<br>
+The second one just deletes <b>text</b>, by making it an empty string.<br><br>
+<br>
+
+<h3>gsub</h3>
+
+<b>gsub</b> is pretty much the core of every automation script. It's what replaces one thing with another.<br>
+It works like this:
+
+<pre>
+
+text2=text:gsub("string A","string B")
+
+</pre>
+
+This translates to: If you find "string A" in <b>text</b>, replace it with "string B" and assign the modified <b>text</b> to <b>text2</b>.<br>
+I used <b>text2</b> for the sake of explanation, but normally you'd use <b>text=text:gsub</b>, which just keeps the result in <b>text</b>.<br><br>
+
+"I could not see him."
+
+<pre>
+text=text:gsub("could not","couldn't")
+</pre>
+
+» "I couldn't see him."<br><br>
+
+This way you can, for example, write a script for making contractions.
+
+<pre>
+
+text=text
+:gsub("([cws]h?)ould not","%1ouldn't")
+:gsub("did not","didn't")
+:gsub("was not","wasn't")
+
+</pre>
+
+You only need the <b>text=text</b> part once. Then you can add as many <b>:gsub</b> lines as you want and create a whole list of contractions.<br>
+While you can just add them one by one, you can also use pattern matching (lua's version of regexp) to keep the code short. The first gsub line will match could, would, and should. It will also match chould and whould, but as those don't exist, that doesn't bother us. The part in parentheses is a capture. <b>[cws]</b> means "c or w or s", and <b>h?</b> means "h if it's there or nothing if it's not". In standard regexp you could replace this capture with (c|w|s|ch|wh|sh) to get the same result. Lua doesn't have this option, so sometimes you just need more lines than you'd need with full regexp.<br>
+The <b>%1</b> is the capture, so whatever it matched in the first part will be pasted in the second.<br><br>
+
+Now we can use this to replace existing blur value with our new value.
+
+<pre>
+
+text=text:gsub("\\blur[%d%.]+","\\blur0.6")
+
+</pre>
+
+Blur can have numbers and a decimal point, so use <b>[%d%.]+</b> to match anything that's a number or a dot as many times in a row as possible, so whatever value the blur has will be replaced with 0.6.<br>
+The same effect could be achieved in different ways:
+
+<pre>
+
+text=text:gsub("(\\blur)[%d%.]+","%10.6")
+text=text:gsub("\\blur[^\\}]+","\\blur0.6")
+
+</pre>
+
+The first one captures the <b>\\blur</b> part, so you don't have to type it again (may be useful if it's something longer).<br>
+The second one matches anything that's not a backslash or } as many times it can, ie. until it hits something that IS a backslash or }, which is where the blur value would logically end. This can pretty efficiently capture the whole value of any tag, since any tag has to end with \ or }. Of course with tags like <b>\pos</b>, you'll want to capture the coordinates rather than include the ().<br><br>
+
+You can also use a function within <b>gsub</b>:
+
+<pre>
+
+text=text:gsub("(\\blur)([%d%.]+)",function(a,b) return a .. 2*b end)
+
+</pre>
+
+<b>a</b> and <b>b</b> are the captures. The function uses them, returning <b>a</b> (\\blur) as is, and multiplying <b>b</b> by 2, thus giving you the blur value doubled. So you can divide your pattern into a bunch of captures and do some operations with them.<br><br>
+
+Here's how you capitalize the first letter of a line:
+
+<pre>
+
+text=text:gsub("^(%l)([^{]-)", function (c,d) return c:upper()..d end)
+
+</pre>
+
+First capture is a lowercase letter at the beginning of a line. Second capture is from after the first letter until {, meaning before it hits a comment or tag. Returned is the first capture capitalized and second capture as is (which means it doesn't even have to be there in this case, but you could for example return <b>d:lower()</b> to be sure that the rest of the string will be lowercase).<br><br>
+
+Now you can understand how my Teleporter works:
+
+<pre>
+
+text=text:gsub("\\pos%(([%d%.%-]+),([%d%.%-]+)%)",function(a,b) return "\\pos(".. a+xx.. "," ..b+yy..")" end)
+
+</pre>
+
+Notice that literal ( and ), as in not captures, have to be escaped with %. Coordinates captures are <b>[%d%.%-]+</b>. You see that compared to what we had for blur, thse include %-, because coordinates can be negative. If you don't include that, the script will only work when coordinates are positive. So it captures X and Y coordinate, and adds to them the user input, which is xx and yy here. Yep, that simple.<br><br>
+
+One more example. This is "reverse move":
+
+<pre>
+
+text=text:gsub("\\move%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)","\\move(%3,%4,%1,%2")
+
+</pre>
+
+That's the whole thing. Capture the 4 coordinates and return them in changed order: 3, 4, 1, 2. This is a good example of how captures can be useful. You may notice that the ( is not escaped in the right half. Things in the right part of gsub don't need to be escaped with % - it's only used for captures. Only the left part uses regexp.<br><br><br>
+
+
+<h3>Escape characters</h3>
+
+When using regexp, these characters have to be escaped with %: <b>. ? * - + ( ) [ ]</b> and <b>%</b> itself<br><br>
+
+Characters that have to be escaped with \: <b>" '</b> and <b>\</b> itself<br><br>
+
+Backslashes and quotation marks always have to be escaped, even in literal strings. (An actual quotation mark ends the string.)<br>
+If you want to match an actual question mark in a sentence, you must match <b>%?</b>.<br><br><br>
+
+
+<h3>Regular Expressions</h3>
+
+I'm not gonna explain regexp from scratch, because there's plenty about that on the Internet. What I'm gonna do is list some patterns that are useful for Aegisub automation scripts.<br><br>
+
+<pre>
+
+{[^\\}]-}	<i id="c">-- comment (stuff between { and } that doesn't have a backslash)</i>
+{\\[^}]-}	<i id="c">-- tags (stuff between { and } that starts with a backslash)</i>
+{[^}]-}		<i id="c">-- comment or tags (stuff between { and })</i>
+
+</pre>
+
+The third one shows you a typical way of matching stuff between two markers. You match the first marker, then what's-not-the-second-marker with a - or *, and then the second marker.<br>
+The difference between - and * is that {.-} matches only one comment or set of tags, while {.*}, if you have a string like "abc{def}ghi{jkl}" will match from the first { to the last }, so "{def}ghi{jkl}". You always have to think about whether you need +, -, or *. If you choose the wrong one, it may still work in simple cases, like if there's only one comment in the line, but it will break on more complex lines. I recommend creating a testing ASS file and fill it with all kinds of different lines, including with mistakes, bad tags, broken comments, etc. Have all combinations of text, tags, and comments, use some transforms, some mocha lines, anything that can be in a script. If you write a function, it needs to do what it's supposed to do no matter what line you apply it to.
+
+<pre>
+
+%d+		<i id="c">-- sequence of numbers</i>
+[%d%.]+		<i id="c">-- sequence of numbers, can have decimal point (values of \bord, \blur, \fscx, and so on)</i>
+[%d%.%-]+	<i id="c">-- sequence of numbers, can have decimal point, can be negative (\xshad, \fsp, \frz...)</i>
+&H%x+&		<i id="c">-- values for colours and alpha</i>
+%([^%)]-%)	<i id="c">-- stuff between ( and )</i>
+
+%(([%d%.%-]+),([%d%.%-]+)%)
+</pre>
+This will capture coordinates of \pos or \org. It could also capture fade in and out in \fad, though that doesn't need the -.<br>
+For \move, capture 4 coordinates and don't include the ending %), because \move may or may not have timecodes.
+
+<pre>
+
+[%a']+		<i id="c">-- word (sequence of letters or apostrophes, to match words like "don't")</i>
+[^%s]+		<i id="c">-- word (sequence of what's not a space)</i>
+</pre>
+
+You may need different ways of matching a word. The first one here will not include punctuation, the second one will. Sometimes you may need one, sometimes the other. You may also wanna replace %a with %w, if you want to include "words" like AK47 or just count 20 in "I'm 20 years old." as a word.
+
+<pre>
+
+\\[1234]?c&	<i id="c">-- colour tag (doesn't match value, just matches that the tag is there)</i>
+</pre>
+This matches \c, \1c, \2c, \3c, \4c, but not \clip (important!).<br>
+(Also note that \\fs matches \\fsp and \\fscx, so be careful about patterns that may match things you don't want.)<br>
+Since primary can be \c or \1c, in order to avoid complicated code that would deal with both,<br>
+I recommend using this at the beginning:
+
+<pre>
+text=text:gsub("\\1c&","\\c&")
+</pre>
+
+\c is what the inbuilt Aegisub tool creates, so keep those as standard.<br><br>
+
+Speaking off... tricks like this are often very useful. If your code needs to account for a lot of different things, see if you can reduce the number of these things with some easy trick. A common issue is for example matching the beginning of a word. A word starts either after a space, or at the beginning of a line. You need to match two patterns for that. However, you can start with adding a space at the beginning of a line, then use just one matching pattern, and then remove the space at the end of the script.<br><br>
+
+Another thing is dealing with lines with and without tags (when working with text). You can start with this:
+
+<pre>
+tags=""
+if text:match("^{\\[^}]*}") then tags=text:match("^({\\[^}]*})") end
+text=text:gsub("^{\\[^}]*}","")
+</pre>
+
+If the line has no tags, then <b>tags</b> will be an empty string. If it finds tags at the beginning, they will be saved to <b>tags</b>, thus replacing the empty string. Then the <b>gsub</b> deletes the tags.<br>
+Now you can work with the text knowing that you have no tags in the way.<br>
+When you're done with the text, you'll do this:
+
+<pre>
+text=tags..text
+</pre>
+
+This attaches your saved tags at the start of the line. If there were no tags, you have an empty string saved there, so basically nothing happens.<br><br>
+
+Another trick I use is when I want to add some tags, and the line may or may not already have some tags.
+
+<pre>
+
+text="{\\tag}"..text				<i id="c">-- add tag when no tags are present</i>
+text=text:gsub("^{\\","{\\tag\\")		<i id="c">-- attach tag before other tags</i>
+text=text:gsub("^({\\[^}]-)}","%1\\tag}")	<i id="c">-- attach tag after other tags</i>
+</pre>
+These would be the regular options. The second and third depend on what you want to do. Just a matter of preference. It works either way. But you have to first find out if the line has tags, and then use the appropriate method. So again, there's a way to avoid that.
+
+<pre>
+if not text:match("^{\\") then text="{\\}"..text end
+</pre>
+
+You start with adding {\} at the beginning of a line without tags. The second and third method of adding tag now work just fine, but you have an extra backslash somewhere in there. It will end up as either a doubleslash somewhere in there, or at the end before }. So at the end of the script, you do a simple cleanup.
+
+<pre>
+:gsub("\\\\","\\")
+:gsub("\\}","}")
+
+:gsub("{}","")
+</pre>
+
+The first two are what you really need. The third is another "cleanup" line, useful when you've removed some tags and possibly ended up with just empty {}. (Of course the <b>gsub</b> is for <b>text</b>.)
+
+
+<pre>
+
+\\t%([^%(%)]-%)				<i id="c">-- transforms</i>
+\\t%([^%(%)]-%([^%)]-%)[^%)]-%)		<i id="c">-- transforms with \clip in them</i>
+</pre>
+
+The tricky thing about transforms is that they can have () within () if there's a transform for a clip, so to efficiently get all transforms, you always need both patterns. Yeah, this is a bit messy.<br>
+Matching transforms is useful when you modify tags' values but don't want to change the tags inside transforms. You create <b>transforms=""</b>. Then you match those two patterns and save them for example to <b>tf1</b> and <b>tf2</b>. Then do <b>transforms=transforms..tf1..tf2</b> and you'll have transforms saved in the <b>transforms</b> string. Then you remove them from the text with gsub and work with the text... and at the end put them back.
+This is a bit complex and you actually need <b>gmatch</b> because there may be many trnasforms. So once you get familiar enough with the code and everything, here's what I do:
+
+<pre>
+
+function trem(tags)
+	trnsfrm=""
+	for t in tags:gmatch("(\\t%([^%(%)]-%))") do trnsfrm=trnsfrm..t end
+	for t in tags:gmatch("(\\t%([^%(%)]-%([^%)]-%)[^%)]-%))") do trnsfrm=trnsfrm..t end
+	tags=tags:gsub("(\\t%([^%(%)]+%))","")
+	tags=tags:gsub("(\\t%([^%(%)]-%([^%)]-%)[^%)]-%))","")
+	return tags
+end
+</pre>
+You run this function on tags. It goes through every instance of a transform and adds it to the <b>trnsfrm</b> string. When you're done with whatever you're doing to the other tags, you put this string at the end of the tags.<br><br>
+
+Some more regexp examples:
+<pre>
+\\i?clip	<i id="c">-- match clip or iclip</i>
+\\[xy]?bord	<i id="c">-- match bord or xbord or ybord</i>
+
+<i id="c">-- remove spaces at the beginning and end of a line</i>
+text=text:gsub("^%s+","")  :gsub("%s+$","")
+
+</pre>
+
+
+<h3>GUI</h3>
+
+Here's a very simple GUI:
+
+<pre>
+dialog_config=
+{
+    {x=0,y=0,width=1,height=1,class="label",label="\\blur",},
+    {x=1,y=0,width=1,height=1,class="floatedit",name="blur",value=0.6},
+} 	
+buttons={"blur","cancel"}
+pressed,res=aegisub.dialog.display(dialog_config,buttons)
+if pressed=="cancel" then aegisub.cancel() end
+if pressed=="blur" then blur(subs, sel) end
+
+</pre>
+
+<b>dialog_config</b> is a table with all the stuff in the GUI except the buttons. This one contains two things - a label, and an editbox for numbers. The label is "\\blur". That's what you'll see in the GUI, followed by the editbox, which will have "0.6" in it as default value.<br>
+<b>buttons</b> is the buttons you will click on.<br>
+<b>aegisub.dialog.display</b> is what displays the GUI, using the <b>dialog_config</b> and <b>buttons</b>.
+<b>pressed</b> determines which button was pressed. (You can name this whatever you want.)<br>
+<b>res</b> is the user input from editboxes, checkboxes, etc.<br>
+I started with "pressed, result", as that's what lyger's guide had, but over time changed "result" to "res" because it gets typed a lot. Again, it can be anything you want.<br>
+As you can see in the last line, if you press the "blur" button, function <b>blur(subs, sel)</b> will be executed.<br>
+To get the blur value inside that function, you'll use this:
+
+<pre>
+blurtag="\\blur"..res.blur
+</pre>
+<b>res.blur</b> is the value given by the user, so if you type "1.5" in the editbox, <b>blurtag</b> will now be "\\blur1.5".<br><br><br>
+
+Other types of input:
+
+<pre>
+<i id="c">-- Checkbox</i>
+{x=0,y=1,width=1,height=1,class="checkbox",name="nobreak",label="remove linebreaks",value=false},
+</pre>
+Usage: <b>if res.nobreak==true then</b> (stuff)<br>
+You don't have to type "==true" because that's implied by default, so it can be just:<br>
+<b>if res.nobreak then</b> followed by what should be done if the checkbox is checked.<br><br>
+
+The opposite would be either <b>if res.nobreak==false then</b> or <b>if not res.nobreak then</b>.
+
+<pre>
+
+<i id="c">-- Dropdown menu</i>
+{x=3,y=0,width=1,height=1,class="dropdown",name="an",
+	items={"an1","an2","an3","an4","an5","an6","an7","an8","an9"},value="an8"},
+</pre>
+
+
+<pre>
+
+<i id="c">-- Colour</i>
+{x=4,y=0,width=1,height=1,class="color",name="c1"},
+</pre>
+The colours come in this format: "#000000" in RRGGBB order. The actual tag is "&H000000&" in BBGGRR order, so you have to transform the result, for example like this:
+
+<pre>
+colour1=res.c1:gsub("#(%x%x)(%x%x)(%x%x)","&H%3%2%1&")
+</pre>
+<br><br><br>
+
+
+<h3>Debugging / logging</h3>
+
+This is very useful when you're getting errors. If you want to find where exactly your script has failed, you can use </b>aegisub.log</b>. There are two main ways to use it. One is to check whether the script passed a certain point, and another is to check a specific value.<br><br>
+
+The first one will usually go after <b>then</b>, like this:
+
+<pre>
+if text:match("\\blur") then aegisub.log("check")	<i id="c">-- function continues after this</i>
+</pre>
+
+If this "check" gets logged, you know the condition has been met, ie. "\blur" was found in the text. This tells you how far the function has gone before something broke and helps you narrow down where the problem is.<br><br>
+
+The second way is for checking the value of something.
+
+<pre>
+aegisub.log("abc: "..abc)
+</pre>
+
+The first part is just text, so that you know what's being logged if you're using several logs. The part after .. is the value of the variable called "abc".<br>
+I often log multiple things when testing/debugging, and it gets chaotic unless each log is on a new line, so I automatically put "\n" into each log:
+
+<pre>
+aegisub.log("\n text: "..text)
+</pre>
+This would be the most common one. Usually you work with <b>text</b> and make changes to it, so this shows you which changes did or didn't happen.<br>
+So if you're getting errors, use logging to find out what exactly breaks and where.
+
+
+
+
+<br><br><br><br>
+
+<h3>Various stuff</h3>
+
+<pre>
+
+<i id="c">-- duration of a line</i>
+dur=line.end_time-line.start_time
+
+
+<i id="c">-- character count
+-- this counts the string length after removing comments/tags. you can add :gsub(" ","") to not count spaces.</i>
+visible=text:gsub("{[^}]-}","")
+characters=visible:len()
+
+
+<i id="c">-- working with the line after the current one
+-- if you're on the last line, there is no next line and you'd get an error, thus the condition</i>
+if i~=#subs then nextline=subs[i+1] end
+
+
+<i id="c">-- working with previous line
+-- previous line always exists, but the one before the first dialogue line would be a style or something</i>
+prevline=subs[i-1]
+if prevline.class=="dialogue" then blabla end
+
+
+<i id="c">-- counting stuff. "count=0" must be at the beginning, before the <b>for</b> loop.</i>
+count=0
+<i id="c">-- then in the main function:</i>
+if text:match("stuff") then count=count+1 end
+<i id="c">-- at the end, after the <b>for</b> loop, you can log the result like this:</i>
+aegisub.log("Stuff apears "..count.." times.")
+
+
+<i id="c">-- error messages to the user
+-- if a script requires \pos tag and the user runs it on a line that doesn't have one, you can do this:</i>
+if not text:match("\\pos") then aegisub.dialog.display({{class="label",
+	label="No \\pos tag found.",x=0,y=0,width=1,height=2}},{"OK"}) aegisub.cancel() end
+
+
+<i id="c">-- marking lines that have changed (running gsub doesn't tell you whether the pattern was found)</i>
+text2=text
+text=text:gsub("\\1c&","\\c&")
+if text2~=text then effect=effect.."colour tag modified" end
+
+
+<i id="c">-- a simple script to convert between clip and iclip
+-- you can't do one and then the other, because that would just convert the iclips you made back to clips
+-- therefore, you need <b>elseif</b>, which only comes to play if the first condition isn't met</i>
+if text:match("\\clip") then text=text:gsub("\\clip","\\iclip")
+elseif text:match("\\iclip") then text=text:gsub("\\iclip","\\clip") end
+</pre>
+<br><br><br>
+
+
+<h3>Functions</h3>
+
+<a target="lua" href="luapaste.htm">Click here</a> for some small functions that I've written (or got from someone, in a few cases) and that you can use.
+<br><br><br>
+
+<a target="lua" href="italicize.htm">Here is my Italicize script</a> explained line by line. I figured I would take the smallest script I've made and explain it, but it kinda turns out that this one is actually pretty complicated and I could barely make sense of it myself (because it checks the style, deals with inline tags, checks for some mistakes, etc.). Anyway, I explained it as best I could, so hopefully it helps. (Every comment refers to what comes after it.)
+
+<br><br><br>
+
+This should be more than enough to get you started. Once you learn all this, you can figure out more from looking at existing scripts.
+
+<br><br><br><br>
+
+<center><a href="index.htm"><b>« Back to Typesetting Main
+<br><br><br>
+
+
+

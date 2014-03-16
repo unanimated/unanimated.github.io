@@ -1,0 +1,59 @@
+<html><head><title>Alpha Timing</title>
+<style>
+td {font-family:Verdana; font-size:12; text-align:justify}
+a {font-weight:bold}
+A:hover {color:e0e3e6}
+
+</style>
+</head>
+
+<body bgcolor=000000 text=808386 topmargin=0 link=668899 vlink=668899 alink=668899>
+
+
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=620>
+
+
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>Alpha Timing
+</center></td></tr>
+
+
+<tr><td bgcolor=000000><br>
+Alpha Timing is a practice used to make some parts of text appear later than others.<br>
+Some groups started to use it for dialogue lines that had a pause in them.<br><br>
+
+For example a line like "Are you... serious?" would have a pause in the middle.<br>
+With regular timing you can read the rest of the line before the character says it,<br>
+which can sometines reduce dramatic effect, so you may want to avoid it,<br>
+and splitting this into 2 lines might be a bit too weird.<br><br>
+
+So what you do is make the "serious" part appear only when the character says it,<br>
+while the start of the sentence stays in the same place. The way to do it is this:<br><br>
+
+Dialogue: 0,0:00:00.00,0:00:01.00,Default,,0,0,0,,Are you... {\alpha&HFF&}serious?<br>
+Dialogue: 0,0:00:01.00,0:00:02.00,Default,,0,0,0,,Are you... serious?<br><br>
+
+First line timed to first second, second to the second (no puns intended).<br>
+Basically it makes the latter part of the line invisible, but since it's technically there,<br>
+you don't have to change the positioning of the line.<br><br>
+
+Sometimes this is also useful for typesetting, like when a period or an exclamation mark<br>
+appear later than the rest of the text.<br><br><br>
+
+Of course this also works with more than just 2 segments:<br><br>
+
+Dialogue: 0,0:00:00.00,0:00:01.00,Default,,0,0,0,,Weird{\alpha&HFF&}...<br>
+Dialogue: 0,0:00:01.00,0:00:02.00,Default,,0,0,0,,Weird.{\alpha&HFF&}..<br>
+Dialogue: 0,0:00:01.98,0:00:02.98,Default,,0,0,0,,Weird..{\alpha&HFF&}.<br>
+Dialogue: 0,0:00:02.98,0:00:03.98,Default,,0,0,0,,Weird...<br><br><br>
+
+
+Be aware that a lot of people hate alpha timing for dialogue, mainly because some groups,<br>
+like Lunar, abused the shit out of it and used it almost like karaoke.
+
+
+
+
+<br><br><br>
+
