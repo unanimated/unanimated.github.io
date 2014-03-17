@@ -4,7 +4,7 @@
 script_name="Hyperdimensional Relocator"
 script_description="Makes things appear different from before"
 script_author="reanimated"
-script_version="2.1"
+script_version="2.11"
 
 --	SETTINGS	--
 
@@ -123,8 +123,9 @@ function positron(subs,sel)
 	-- shake
 	elseif res.posi=="shake" then
 	    diam=res.post
-	    shx=math.random(-100,100)/100*diam
-	    shy=math.random(-100,100)/100*diam
+	    if diam==0 then diamx=res.eks diamy=res.wai else diamx=diam diamy=diam end
+	    shx=math.random(-100,100)/100*diamx
+	    shy=math.random(-100,100)/100*diamy
 	    text=text:gsub("\\pos%(([%d%.%-]+),([%d%.%-]+)%)",function(x,y) return "\\pos("..x+shx..","..y+shy..")" end)
 	    if res.rota then
 		shr=math.random(-100,100)/100*diam
