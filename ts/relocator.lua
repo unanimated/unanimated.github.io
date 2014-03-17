@@ -4,7 +4,7 @@
 script_name="Hyperdimensional Relocator"
 script_description="Makes things appear different from before"
 script_author="reanimated"
-script_version="2.0"
+script_version="2.1"
 
 --	SETTINGS	--
 
@@ -64,12 +64,12 @@ function positron(subs,sel)
 	    if res.post~=0 and res.post~=nil then resx=2*res.post resy=2*res.post end
 	    if res.posi=="horizontal mirror" then
 	    text2=text:gsub("\\pos%(([%d%.%-]+),([%d%.%-]+)%)",function(x,y) return "\\pos("..resx-x..","..y..")" end)
-	    	if res.mirr then 
+	    	if res.rota then 
 		    if not text2:match("^{[^}]-\\fry") then text2=addtag("\\fry0",text2) end text2=flip("fry",text2)
 		end
 	    else
 	    text2=text:gsub("\\pos%(([%d%.%-]+),([%d%.%-]+)%)",function(x,y) return "\\pos("..x..","..resy-y..")" end)
-	    	if res.mirr then 
+	    	if res.rota then 
 		    if not text2:match("^{[^}]-\\frx") then text2=addtag("\\frx0",text2) end text2=flip("frx",text2)
 		end
 	    end
@@ -119,6 +119,33 @@ function positron(subs,sel)
 	    text=addtag("\\fax"..faks,text)
 	    text=text:gsub("\\clip%([^%)]+%)","")
 	    text=duplikill(text)
+	
+	-- shake
+	elseif res.posi=="shake" then
+	    diam=res.post
+	    shx=math.random(-100,100)/100*diam
+	    shy=math.random(-100,100)/100*diam
+	    text=text:gsub("\\pos%(([%d%.%-]+),([%d%.%-]+)%)",function(x,y) return "\\pos("..x+shx..","..y+shy..")" end)
+	    if res.rota then
+		shr=math.random(-100,100)/100*diam
+		text=text:gsub("\\frz([%d%.%-]+)",function(z) return "\\frz"..z+shr end)
+		if not text:match("^{[^}]-\\frz") then text=addtag("\\frz"..shr,text) end
+	    end
+	
+	-- shake rotation
+	elseif res.posi=="shake rotation" then
+	    diam=res.post
+	    diamx=res.eks
+	    diamy=res.wai
+	    di={diam,diamx,diamy}
+	    rots={"\\frz","\\frx","\\fry"}
+	    for r=1,3 do ro=rots[r] dia=di[r]
+	    if dia~=0 then
+	      shr=math.random(-100,100)/100*dia
+	      text=text:gsub(ro.."([%d%.%-]+)",function(z) return ro..z+shr end)
+	      if not text:match("^{[^}]-"..ro) then text=addtag(ro..shr,text) end
+	    end end
+	
 	end
 
 	line.text=text
@@ -1030,7 +1057,7 @@ function addtag(tag,text) text=text:gsub("^({\\[^}]-)}","%1"..tag.."}") return t
 function guide()
 intro="Introduction\n\nHyperdimensional Relocator offers a plethora of functions, \nfocusing primarily on \pos, \move, \org, \clip, and rotations.\nAnything related to positioning, movement, changing shape, etc., \nRelocator aims to make it happen."
 
-cannon="'Align X' means all selected \\pos tags will have the same given X coordinate. Same with 'Align Y' for Y.\n   Useful for multiple signs on screen that need to be aligned horizontally/vertically\n   or mocha signs that should move horizontally/vertically.\n\n'align with first' uses X or Y from the first line.\n\nHorizontal Mirror: Duplicates the line and places it horizontally across the screen, mirrored around the middle.\n   If you input a number, it will mirror around that coordinate instead,\n   so if you have \\pos(300,200) and input is 400, the mirrored result will be \\pos(500,200).\nVertical Mirror is the logical vertical counetrpart.\n\n'rotate mirrors' will flip the text accordingly for the mirror functions.\n\nOrg to Fax: calculates \\fax from the line between \\pos and \\org coordinates.\nClip to Fax: calculates \\fax from the line between the first 2 points of a vectorial clip.\n   Both of these work with \\frz but not with \\frx and \\fry. Also, \\fscx must be the same as \\fscy.\n   See blog post from 2014-03-03 for more info - http://unanimated.xtreemhost.com/itw/tsblok.htm "
+cannon="'Align X' means all selected \\pos tags will have the same given X coordinate. Same with 'Align Y' for Y.\n   Useful for multiple signs on screen that need to be aligned horizontally/vertically\n   or mocha signs that should move horizontally/vertically.\n\n'align with first' uses X or Y from the first line.\n\nHorizontal Mirror: Duplicates the line and places it horizontally across the screen, mirrored around the middle.\n   If you input a number, it will mirror around that coordinate instead,\n   so if you have \\pos(300,200) and input is 400, the mirrored result will be \\pos(500,200).\nVertical Mirror is the logical vertical counetrpart.\n\n'rotate' will flip the text accordingly for the mirror functions. It also adds \\frz to 'shake'.\n\nOrg to Fax: calculates \\fax from the line between \\pos and \\org coordinates.\nClip to Fax: calculates \\fax from the line between the first 2 points of a vectorial clip.\n   Both of these work with \\frz but not with \\frx and \\fry. Also, \\fscx must be the same as \\fscy.\n   See blog post from 2014-03-03 for more info - http://unanimated.xtreemhost.com/itw/tsblok.htm \n\nShake: Apply to fbf lines with \\pos tags to create a shaking effect.\n   Input radius for how many pixels the sign may deflect from the original position.\n\nShake rotation: Adds shaking effect to rotations. Degrees for frz from Repositioning Field, x and y from Teleporter."
 
 travel="'Horizontal' move means y2 will be the same as y1 so that the sign moves in a straight horizontal manner. \nSame principle for 'vertical.'\n\nTransmove: Main function: create \\move from two lines with \\pos.\n   Duplicate your line and position the second one where you want the \\move the end. \n   Script will create \\move from the two positions.\n   Second line will be deleted by default; it's there just so you can comfortably set the final position.\n   Extra function: to make this a lot more awesome, this can create transforms.\n   Not only is the second line used for \\move coordinates, but also for transforms.\n   Any tag on line 2 that's different from line 1 will be used to create a transform on line 1.\n   So for a \\move with transforms you can set the initial sign and then the final sign while everything is static.\n   You can time line 2 to just the last frame. The script only uses timecodes from line 1.\n   Text from line 2 is also ignored (assumed to be same as line 1).\n   You can time line 2 to start after line 1 and check 'keep both.'\n   That way line 1 transforms into line 2 and the sign stays like that for the duration of line 2.\n   'Rotation acceleration' - like with fbf-transform, this ensures that transforms of rotations will go the shortest way,\n   thus going only 4 degrees from 358 to 2 and not 356 degrees around.\n   If the \\pos is the same on both lines, only transforms will be applied.\n   Logically, you must NOT select 2 consecutive lines when you want to run this, \n   though you can select every other line.\n\nMultimove: when first line has \\move and the other lines have \\pos, \\move is calculated from the first line for the others.\n\nShiftmove: like teleporter, but only for the 2nd set of coordinates, ie x2, y2. Uses input from the Teleporter section.\n\nShiftstart: similarly, this only shifts the initial \\move coordinates.\n\nReverse Move: switches the coordinates, reversing the movement direction.\n\nMove Clip: moves regular clip along with \\move using \\t\\clip."
 
@@ -1057,7 +1084,7 @@ stg_topseq={x=1,y=0,width=1,height=1,class="label",label="   Cloning Laboratory"
 stg_toport={x=1,y=0,width=1,height=1,class="label",label="           Teleportation"}
 
 stg_intro={x=0,y=1,width=2,height=8,class="textbox",name="gd",value=intro}
-stg_cannon={x=0,y=1,width=2,height=11,class="textbox",name="gd",value=cannon}
+stg_cannon={x=0,y=1,width=2,height=14,class="textbox",name="gd",value=cannon}
 stg_travel={x=0,y=1,width=2,height=19,class="textbox",name="gd",value=travel}
 stg_morph={x=0,y=1,width=2,height=16,class="textbox",name="gd",value=morph}
 stg_morph2fbf={x=0,y=1,width=2,height=8,class="textbox",name="gd",value=morph2fbf}
@@ -1099,10 +1126,10 @@ hyperconfig={
     {x=10,y=2,width=3,height=1,class="floatedit",name="wai",hint="Y"},
 
     {x=0,y=0,width=2,height=1,class="label",label="Repositioning Field",},
-    {x=0,y=1,width=1,height=1,class="dropdown",name="posi",items={"Align X","Align Y","org to fax","clip to fax","horizontal mirror","vertical mirror"},value="Align X",},
+    {x=0,y=1,width=1,height=1,class="dropdown",name="posi",items={"Align X","Align Y","org to fax","clip to fax","horizontal mirror","vertical mirror","shake","shake rotation"},value="Align X",},
     {x=0,y=2,width=1,height=1,class="floatedit",name="post",value=0},
     {x=0,y=3,width=1,height=1,class="checkbox",name="first",label="align with first",value=align_with_first,},
-    {x=0,y=4,width=1,height=1,class="checkbox",name="mirr",label="rotate mirrors",value=false,},
+    {x=0,y=4,width=1,height=1,class="checkbox",name="rota",label="rotate",value=false,},
     {x=0,y=5,width=1,height=1,class="checkbox",name="space",label="space travel guide",value=false,},
     
     {x=2,y=0,width=2,height=1,class="label",label="Soul Bilocator"},
@@ -1141,12 +1168,12 @@ hyperconfig={
 
 	pressed,res=aegisub.dialog.display(hyperconfig,
 	{"Positron Cannon","Hyperspace Travel","Metamorphosis","Cloning Sequence","Teleportation","Disintegrate"},{cancel='Disintegrate'})
+	if pressed=="Disintegrate" then aegisub.cancel() end
 	
 	ms2fr=aegisub.frame_from_ms
 	fr2ms=aegisub.ms_from_frame
 	keyframes=aegisub.keyframes()
 		
-	if pressed=="Disintegrate" then aegisub.cancel() end
 	if pressed=="Positron Cannon" then if res.space then guide(subs,sel) else sel=positron(subs, sel) end end
 	if pressed=="Hyperspace Travel" then
 	    if res.move=="multimove" then multimove (subs, sel) else bilocator(subs, sel) end
