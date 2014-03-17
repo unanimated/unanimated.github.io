@@ -4,11 +4,15 @@
 script_name="Hyperdimensional Relocator"
 script_description="Makes things appear different from before"
 script_author="reanimated"
-script_version="2.11"
+script_version="2.13"
 
 --	SETTINGS	--
 
-align_with_first=false
+align_with_first=true
+posi_rotate=false
+shake_smooth=false
+shake_layers=true
+
 keep_both=false
 rotation_acceleration=true
 
@@ -35,6 +39,7 @@ include("utils.lua")
 
 function positron(subs,sel)
     ps=res.post
+    shake={} shaker={}
     for x, i in ipairs(sel) do
         aegisub.progress.title(string.format("Depositing line %d/%d",x,#sel))
 	local line=subs[i]
@@ -122,27 +127,50 @@ function positron(subs,sel)
 	
 	-- shake
 	elseif res.posi=="shake" then
+	    s=line.start_time
 	    diam=res.post
 	    if diam==0 then diamx=res.eks diamy=res.wai else diamx=diam diamy=diam end
-	    shx=math.random(-100,100)/100*diamx
-	    shy=math.random(-100,100)/100*diamy
+	    shx=math.random(-100,100)/100*diamx	if res.smo and lshx~=nil then shx=(shx+3*lshx)/4 end
+	    shy=math.random(-100,100)/100*diamy	if res.smo and lshy~=nil then shy=(shy+3*lshy)/4 end
+	    shr=math.random(-100,100)/100*diam	if res.smo and lshr~=nil then shr=(shr+3*lshr)/4 end
+	    if res.layers then
+		ch=0
+		for p=1,#shake do sv=shake[p]
+		  if sv[1]==s then ch=1 shx=sv[2] shy=sv[3] shr=sv[4] end
+		end
+		if ch==0 then
+		  a={s,shx,shy,shr}
+		  table.insert(shake,a)
+		end
+	    end
+	    	lshx=shx	lshy=shy	lshz=shz
 	    text=text:gsub("\\pos%(([%d%.%-]+),([%d%.%-]+)%)",function(x,y) return "\\pos("..x+shx..","..y+shy..")" end)
 	    if res.rota then
-		shr=math.random(-100,100)/100*diam
 		text=text:gsub("\\frz([%d%.%-]+)",function(z) return "\\frz"..z+shr end)
 		if not text:match("^{[^}]-\\frz") then text=addtag("\\frz"..shr,text) end
 	    end
 	
 	-- shake rotation
 	elseif res.posi=="shake rotation" then
-	    diam=res.post
-	    diamx=res.eks
-	    diamy=res.wai
-	    di={diam,diamx,diamy}
+	    s=line.start_time
+	    ang=res.post
+	    angx=res.eks
+	    angy=res.wai
+	    angl={ang,angx,angy}
 	    rots={"\\frz","\\frx","\\fry"}
-	    for r=1,3 do ro=rots[r] dia=di[r]
-	    if dia~=0 then
-	      shr=math.random(-100,100)/100*dia
+	    for r=1,3 do ro=rots[r] an=angl[r]
+	    if an~=0 then
+	      shr=math.random(-100,100)/100*an
+	      if res.layers then
+		ch=0
+		for p=1,#shaker do sv=shaker[p]
+		  if sv[1]==s and sv[2]==r then ch=1 shr=sv[3] end
+		end
+		if ch==0 then rt=r
+		  a={s,rt,shr}
+		  table.insert(shaker,a)
+		end
+	      end
 	      text=text:gsub(ro.."([%d%.%-]+)",function(z) return ro..z+shr end)
 	      if not text:match("^{[^}]-"..ro) then text=addtag(ro..shr,text) end
 	    end end
@@ -1058,7 +1086,7 @@ function addtag(tag,text) text=text:gsub("^({\\[^}]-)}","%1"..tag.."}") return t
 function guide()
 intro="Introduction\n\nHyperdimensional Relocator offers a plethora of functions, \nfocusing primarily on \pos, \move, \org, \clip, and rotations.\nAnything related to positioning, movement, changing shape, etc., \nRelocator aims to make it happen."
 
-cannon="'Align X' means all selected \\pos tags will have the same given X coordinate. Same with 'Align Y' for Y.\n   Useful for multiple signs on screen that need to be aligned horizontally/vertically\n   or mocha signs that should move horizontally/vertically.\n\n'align with first' uses X or Y from the first line.\n\nHorizontal Mirror: Duplicates the line and places it horizontally across the screen, mirrored around the middle.\n   If you input a number, it will mirror around that coordinate instead,\n   so if you have \\pos(300,200) and input is 400, the mirrored result will be \\pos(500,200).\nVertical Mirror is the logical vertical counetrpart.\n\n'rotate' will flip the text accordingly for the mirror functions. It also adds \\frz to 'shake'.\n\nOrg to Fax: calculates \\fax from the line between \\pos and \\org coordinates.\nClip to Fax: calculates \\fax from the line between the first 2 points of a vectorial clip.\n   Both of these work with \\frz but not with \\frx and \\fry. Also, \\fscx must be the same as \\fscy.\n   See blog post from 2014-03-03 for more info - http://unanimated.xtreemhost.com/itw/tsblok.htm \n\nShake: Apply to fbf lines with \\pos tags to create a shaking effect.\n   Input radius for how many pixels the sign may deflect from the original position.\n\nShake rotation: Adds shaking effect to rotations. Degrees for frz from Repositioning Field, x and y from Teleporter."
+cannon="'Align X' means all selected \\pos tags will have the same given X coordinate. Same with 'Align Y' for Y.\n   Useful for multiple signs on screen that need to be aligned horizontally/vertically\n   or mocha signs that should move horizontally/vertically.\n\n'align with first' uses X or Y from the first line.\n\nHorizontal Mirror: Duplicates the line and places it horizontally across the screen, mirrored around the middle.\n   If you input a number, it will mirror around that coordinate instead,\n   so if you have \\pos(300,200) and input is 400, the mirrored result will be \\pos(500,200).\nVertical Mirror is the logical vertical counetrpart.\n\nOrg to Fax: calculates \\fax from the line between \\pos and \\org coordinates.\nClip to Fax: calculates \\fax from the line between the first 2 points of a vectorial clip.\n   Both of these work with \\frz but not with \\frx and \\fry. Also, \\fscx must be the same as \\fscy.\n   See blog post from 2014-03-03 for more info - http://unanimated.xtreemhost.com/itw/tsblok.htm \n\nShake: Apply to fbf lines with \\pos tags to create a shaking effect.\n   Input radius for how many pixels the sign may deflect from the original position.\n\nShake rotation: Adds shaking effect to rotations. Degrees for frz from Repositioning Field, x and y from Teleporter.\n\n'rotate' will flip the text accordingly for the mirror functions. It also adds \\frz to 'shake'.\n\n'layers' will keep position/rotations the same for all layers with 'shake'. (Same value for same start time.)\n\n'smooth' will make shaking smoother."
 
 travel="'Horizontal' move means y2 will be the same as y1 so that the sign moves in a straight horizontal manner. \nSame principle for 'vertical.'\n\nTransmove: Main function: create \\move from two lines with \\pos.\n   Duplicate your line and position the second one where you want the \\move the end. \n   Script will create \\move from the two positions.\n   Second line will be deleted by default; it's there just so you can comfortably set the final position.\n   Extra function: to make this a lot more awesome, this can create transforms.\n   Not only is the second line used for \\move coordinates, but also for transforms.\n   Any tag on line 2 that's different from line 1 will be used to create a transform on line 1.\n   So for a \\move with transforms you can set the initial sign and then the final sign while everything is static.\n   You can time line 2 to just the last frame. The script only uses timecodes from line 1.\n   Text from line 2 is also ignored (assumed to be same as line 1).\n   You can time line 2 to start after line 1 and check 'keep both.'\n   That way line 1 transforms into line 2 and the sign stays like that for the duration of line 2.\n   'Rotation acceleration' - like with fbf-transform, this ensures that transforms of rotations will go the shortest way,\n   thus going only 4 degrees from 358 to 2 and not 356 degrees around.\n   If the \\pos is the same on both lines, only transforms will be applied.\n   Logically, you must NOT select 2 consecutive lines when you want to run this, \n   though you can select every other line.\n\nMultimove: when first line has \\move and the other lines have \\pos, \\move is calculated from the first line for the others.\n\nShiftmove: like teleporter, but only for the 2nd set of coordinates, ie x2, y2. Uses input from the Teleporter section.\n\nShiftstart: similarly, this only shifts the initial \\move coordinates.\n\nReverse Move: switches the coordinates, reversing the movement direction.\n\nMove Clip: moves regular clip along with \\move using \\t\\clip."
 
@@ -1085,7 +1113,7 @@ stg_topseq={x=1,y=0,width=1,height=1,class="label",label="   Cloning Laboratory"
 stg_toport={x=1,y=0,width=1,height=1,class="label",label="           Teleportation"}
 
 stg_intro={x=0,y=1,width=2,height=8,class="textbox",name="gd",value=intro}
-stg_cannon={x=0,y=1,width=2,height=14,class="textbox",name="gd",value=cannon}
+stg_cannon={x=0,y=1,width=2,height=16,class="textbox",name="gd",value=cannon}
 stg_travel={x=0,y=1,width=2,height=19,class="textbox",name="gd",value=travel}
 stg_morph={x=0,y=1,width=2,height=16,class="textbox",name="gd",value=morph}
 stg_morph2fbf={x=0,y=1,width=2,height=8,class="textbox",name="gd",value=morph2fbf}
@@ -1122,49 +1150,51 @@ if tk:match"\\move" then
 m1,m2,m3,m4=tk:match("\\move%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)") M1=m3-m1 M2=m4-m2 mlbl="mov: "..M1..","..M2
 else mlbl="" end
 hyperconfig={
-    {x=10,y=0,width=3,height=1,class="label",label="Teleportation"},
-    {x=10,y=1,width=3,height=1,class="floatedit",name="eks",hint="X"},
-    {x=10,y=2,width=3,height=1,class="floatedit",name="wai",hint="Y"},
+    {x=11,y=0,width=3,height=1,class="label",label="Teleportation"},
+    {x=11,y=1,width=3,height=1,class="floatedit",name="eks",hint="X"},
+    {x=11,y=2,width=3,height=1,class="floatedit",name="wai",hint="Y"},
 
-    {x=0,y=0,width=2,height=1,class="label",label="Repositioning Field",},
-    {x=0,y=1,width=1,height=1,class="dropdown",name="posi",items={"Align X","Align Y","org to fax","clip to fax","horizontal mirror","vertical mirror","shake","shake rotation"},value="Align X",},
-    {x=0,y=2,width=1,height=1,class="floatedit",name="post",value=0},
-    {x=0,y=3,width=1,height=1,class="checkbox",name="first",label="align with first",value=align_with_first,},
-    {x=0,y=4,width=1,height=1,class="checkbox",name="rota",label="rotate",value=false,},
-    {x=0,y=5,width=1,height=1,class="checkbox",name="space",label="space travel guide",value=false,},
+    {x=0,y=0,width=3,height=1,class="label",label="Repositioning Field",},
+    {x=0,y=1,width=2,height=1,class="dropdown",name="posi",items={"Align X","Align Y","org to fax","clip to fax","horizontal mirror","vertical mirror","shake","shake rotation"},value="Align X",},
+    {x=0,y=2,width=2,height=1,class="floatedit",name="post",value=0},
+    {x=0,y=3,width=1,height=1,class="checkbox",name="first",label="by first",value=align_with_first,hint="align with first line"},
+    {x=1,y=3,width=1,height=1,class="checkbox",name="rota",label="rotate",value=posi_rotate,},
+    {x=0,y=4,width=1,height=1,class="checkbox",name="layers",label="layers",value=shake_layers,hint="synchronize shaking for all layers"},
+    {x=1,y=4,width=1,height=1,class="checkbox",name="smo",label="smooth",value=shake_smooth,hint="smoothen shaking"},
+    {x=0,y=5,width=2,height=1,class="checkbox",name="space",label="space travel guide",value=false,},
     
-    {x=2,y=0,width=2,height=1,class="label",label="Soul Bilocator"},
-    {x=2,y=1,width=1,height=1,class="dropdown",name="move",
+    {x=3,y=0,width=2,height=1,class="label",label="Soul Bilocator"},
+    {x=3,y=1,width=1,height=1,class="dropdown",name="move",
 	items={"transmove","horizontal","vertical","multimove","rvrs. move","shiftstart","shiftmove","move clip"},value="transmove",},
-    {x=2,y=2,width=1,height=1,class="checkbox",name="keep",label="keep both",value=keep_both,hint="keeps both lines for transmove"},
-    {x=2,y=3,width=3,height=1,class="checkbox",name="rot",label="rotation acceleration",value=rotation_acceleration,hint="transmove option"},
-    {x=2,y=5,width=3,height=1,class="label",name="moo",label=mlbl},
+    {x=3,y=2,width=1,height=1,class="checkbox",name="keep",label="keep both",value=keep_both,hint="keeps both lines for transmove"},
+    {x=3,y=3,width=3,height=1,class="checkbox",name="rot",label="rotation acceleration",value=rotation_acceleration,hint="transmove option"},
+    {x=3,y=5,width=3,height=1,class="label",name="moo",label=mlbl},
     
-    {x=4,y=0,width=2,height=1,class="label",label="Morphing Grounds",},
-    {x=4,y=1,width=2,height=1,class="dropdown",name="mod",
+    {x=5,y=0,width=2,height=1,class="label",label="Morphing Grounds",},
+    {x=5,y=1,width=2,height=1,class="dropdown",name="mod",
 	items={"round numbers","line2fbf","join fbf lines","killmovetimes","fullmovetimes","fulltranstimes","move v. clip","set origin","calculate origin","transform clip","FReeZe","rotate 180","flip hor.","flip vert.","negative rot","vector2rect.","rect.2vector","letterbreak","wordbreak"},value="round numbers"},
-    {x=4,y=2,width=1,height=1,class="label",label="Round:",},
-    {x=5,y=2,width=1,height=1,class="dropdown",name="rnd",items={"all","pos","move","org","clip"},value="all"},
-    {x=5,y=3,width=1,height=1,class="dropdown",name="freeze",
+    {x=5,y=2,width=1,height=1,class="label",label="Round:",},
+    {x=6,y=2,width=1,height=1,class="dropdown",name="rnd",items={"all","pos","move","org","clip"},value="all"},
+    {x=6,y=3,width=1,height=1,class="dropdown",name="freeze",
 	items={"-frz-","30","45","60","90","120","135","150","180","-30","-45","-60","-90","-120","-135","-150"},value="-frz-"},
-    {x=4,y=4,width=2,height=1,class="checkbox",name="delfbf",label="delete l2fbf orig.",value=delete_orig_line_in_line2fbf,hint="delete the original line for line2fbf"},
+    {x=5,y=4,width=2,height=1,class="checkbox",name="delfbf",label="delete l2fbf orig.",value=delete_orig_line_in_line2fbf,hint="delete the original line for line2fbf"},
     
-    {x=6,y=0,width=3,height=1,class="label",label="Cloning Laboratory",},
-    {x=6,y=1,width=2,height=1,class="checkbox",name="pos",label="\\posimove",value=cc_posimove },
-    {x=8,y=1,width=1,height=1,class="checkbox",name="org",label="\\org",value=cc_org },
-    {x=6,y=2,width=1,height=1,class="checkbox",name="clip",label="\\[i]clip",value=cc_clip },
-    {x=7,y=2,width=2,height=1,class="checkbox",name="tclip",label="\\t(\\[i]clip)",value=cc_tclip },
-    {x=6,y=5,width=4,height=1,class="checkbox",name="cre",label="replicate missing tags",value=cc_replicate_tags },
-    {x=6,y=3,width=2,height=1,class="checkbox",name="stack",label="stack clips",value=cc_stack_clips },
-    {x=6,y=4,width=1,height=1,class="checkbox",name="copyrot",label="copyrot",value=cc_copy_rotations,hint="Cloning - copy rotations" },
-    {x=8,y=3,width=3,height=1,class="checkbox",name="klipmatch",label="match type    ",value=cc_match_clip_type },
-    {x=8,y=4,width=3,height=1,class="checkbox",name="combine",label="comb. vect.",value=cc_combine_vectors,hint="Cloning - combine vectors" },
+    {x=7,y=0,width=3,height=1,class="label",label="Cloning Laboratory",},
+    {x=7,y=1,width=2,height=1,class="checkbox",name="pos",label="\\posimove",value=cc_posimove },
+    {x=9,y=1,width=1,height=1,class="checkbox",name="org",label="\\org",value=cc_org },
+    {x=7,y=2,width=1,height=1,class="checkbox",name="clip",label="\\[i]clip",value=cc_clip },
+    {x=8,y=2,width=2,height=1,class="checkbox",name="tclip",label="\\t(\\[i]clip)",value=cc_tclip },
+    {x=7,y=5,width=4,height=1,class="checkbox",name="cre",label="replicate missing tags",value=cc_replicate_tags },
+    {x=7,y=3,width=2,height=1,class="checkbox",name="stack",label="stack clips",value=cc_stack_clips },
+    {x=7,y=4,width=1,height=1,class="checkbox",name="copyrot",label="copyrot",value=cc_copy_rotations,hint="Cloning - copy rotations" },
+    {x=9,y=3,width=3,height=1,class="checkbox",name="klipmatch",label="match type    ",value=cc_match_clip_type },
+    {x=9,y=4,width=3,height=1,class="checkbox",name="combine",label="comb. vect.",value=cc_combine_vectors,hint="Cloning - combine vectors" },
     
-    {x=11,y=3,width=1,height=1,class="checkbox",name="tppos",label="pos",value=tele_pos },
-    {x=11,y=4,width=1,height=1,class="checkbox",name="tpmov",label="move",value=tele_move },
-    {x=12,y=3,width=1,height=1,class="checkbox",name="tporg",label="org",value=tele_org },
-    {x=12,y=4,width=1,height=1,class="checkbox",name="tpclip",label="clip",value=tele_clip },
-    {x=11,y=5,width=2,height=1,class="label",label="HR version: "..script_version,},
+    {x=12,y=3,width=1,height=1,class="checkbox",name="tppos",label="pos",value=tele_pos },
+    {x=12,y=4,width=1,height=1,class="checkbox",name="tpmov",label="move",value=tele_move },
+    {x=13,y=3,width=1,height=1,class="checkbox",name="tporg",label="org",value=tele_org },
+    {x=13,y=4,width=1,height=1,class="checkbox",name="tpclip",label="clip",value=tele_clip },
+    {x=12,y=5,width=2,height=1,class="label",label="HR version: "..script_version,},
 } 
 
 	pressed,res=aegisub.dialog.display(hyperconfig,
