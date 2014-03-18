@@ -1,7 +1,7 @@
 script_name="Unimportant"
 script_description="Import stuff, number stuff, do other stuff."
 script_author="unanimated"
-script_version="1.33"
+script_version="1.4"
 
 require "clipboard"
 re=require'aegisub.re'
@@ -186,6 +186,31 @@ function important(subs, sel, act)
 	    -- keep line, restore initial state + comment out
 	    atext=btext aline.comment=true aline.start_time=basetime aline.end_time=basend aline.style=basestyle aline.actor="" aline.effect=""
 	    aline.text=atext subs[act]=aline 
+	    end
+	end
+	
+	-- EXPORT --
+	if res.mega=="export sign" then
+	    exportsign=""
+	    for x, i in ipairs(sel) do
+            line=subs[i]
+            text=line.text
+	    if line.effect=="" then aegisub.dialog.display({{class="label",label="Effect must contain name."}},{"OK"},{close='OK'}) aegisub.cancel() end
+	    if x==1 then snam=line.effect end
+	    exportsign=exportsign..line.raw.."\n"
+	    end
+	    press,reslt=aegisub.dialog.display({
+		{x=0,y=0,width=2,height=1,class="dropdown",name="addsign",
+			items={"Add to signs.ass","Save to new file:"},value="Add to signs.ass"},
+		{x=0,y=1,width=2,height=1,class="edit",name="newsign",value=snam},
+		},{"OK","Cancel"},{ok='OK',close='Cancel'})
+	    if press=="Cancel" then aegisub.cancel() end
+	    if press=="OK" then
+	    newsgn=reslt.newsign:gsub("%.ass$","")
+	    if reslt.addsign=="Add to signs.ass" then file=io.open(path.."signs.ass","a") exportsign="\n"..exportsign end
+	    if reslt.addsign=="Save to new file:" then file=io.open(path..newsgn..".ass","w") end
+	    file:write(exportsign)
+	    file:close()
 	    end
 	end
 
@@ -691,7 +716,7 @@ function info(subs,sel,act)
     infodump=nfo.."Styles Used: "..#styletab.."\nDialogue Lines: "..dc.."\n\n"..aktif
 end
 
-help_i="- IMPORT -\n\nThis allows you to import OP/ED or signs (or whatever) from an external .ass file.\nOP/ED must be saved as OP.ass and ED.ass; a sign can have any name.\nThe .ass file may contain headers, or it can be just the dialogue lines.\nThe imported stuff will be shifted to your currently selected line (or the first one in your selection).\nThe first line of the saved file works as a reference point, so use a \"First frame of OP\" line etc.\n(You can save your OP/ED shifted to 0 or you can just leave it as is; the times will be recalculated to start at the current line.)\n\"keep line\" will keep your current line and comment it. Otherwise the line gets deleted (you can change it in settings).\n\nIMPORT SIGN / IMPORT SIGNS - works like OP/ED, but you have to input the sign's name.\nThe difference between the two is:\nSIGN - each sign must be saved in its own .ass file. \nIn the GUI, input the sign's/file's name, for example \"eptitle\"[.ass].\nSIGNS - all signs must be saved in signs.ass. \nThey are distinguished by what's in the \"effect\" field - that's the sign's name.\nFor SIGN, make something like eptitle.ass, eyecatch.ass;\nfor SIGNS, put \"eptitle\" or \"eyecatch\" in the effect field, and put all the signs in signs.ass.\n(You can have blank lines between signs for clarity. The script can deal with those.)\nThe GUI will then show you a list of signs that it gets from the effect fields.\nI recommend using SIGNS, as it's imo more efficient (but SIGN was written first and I didn't nuke it).\n\nOptions:\nWith nothing checked, stuff is shifted to the first frame of your active line (like OP/ED).\n(SIGN) File name: \"custom\" will use what you type below. The other ones are presets.\n\"match times to current line\" - all imported lines will have the start/end time of your active line\n\"keep current text\" - all imported lines will have their text (not tags) replaced with your active line's text\n\"don't shift times\" - times of imported lines will be kept as they were saved\n\"delete original line\" - this overrides the \"keep line\" option in the main menu. \n(I thought it would be convenient to have it here.)\n\nYou can use relative or absolute paths. (Check the settings below.)\nDefault is the script's folder. If you want the default to be one folder up, use \"..\\\".\nYou can use an absolute path, have one huge signs.ass there, \nand have all the signs marked \"show_name-sign_name\" in the effect field.\n\n"
+help_i="- IMPORT/EXPORT -\n\nThis allows you to import OP/ED or signs (or whatever) from an external .ass file.\nOP/ED must be saved as OP.ass and ED.ass; a sign can have any name.\nThe .ass file may contain headers, or it can be just the dialogue lines.\nThe imported stuff will be shifted to your currently selected line (or the first one in your selection).\nThe first line of the saved file works as a reference point, so use a \"First frame of OP\" line etc.\n(You can save your OP/ED shifted to 0 or you can just leave it as is; the times will be recalculated to start at the current line.)\n\"keep line\" will keep your current line and comment it. Otherwise the line gets deleted (you can change it in settings).\n\nIMPORT SIGN / IMPORT SIGNS - works like OP/ED, but you have to input the sign's name.\nThe difference between the two is:\nSIGN - each sign must be saved in its own .ass file. \nIn the GUI, input the sign's/file's name, for example \"eptitle\"[.ass].\nSIGNS - all signs must be saved in signs.ass. \nThey are distinguished by what's in the \"effect\" field - that's the sign's name.\nFor SIGN, make something like eptitle.ass, eyecatch.ass;\nfor SIGNS, put \"eptitle\" or \"eyecatch\" in the effect field, and put all the signs in signs.ass.\n(You can have blank lines between signs for clarity. The script can deal with those.)\nThe GUI will then show you a list of signs that it gets from the effect fields.\nI recommend using SIGNS, as it's imo more efficient (but SIGN was written first and I didn't nuke it).\n\nOptions:\nWith nothing checked, stuff is shifted to the first frame of your active line (like OP/ED).\n(SIGN) File name: \"custom\" will use what you type below. The other ones are presets.\n\"match times to current line\" - all imported lines will have the start/end time of your active line\n\"keep current text\" - all imported lines will have their text (not tags) replaced with your active line's text\n\"don't shift times\" - times of imported lines will be kept as they were saved\n\"delete original line\" - this overrides the \"keep line\" option in the main menu. \n(I thought it would be convenient to have it here.)\n\nEXPORT SIGN - Saves the selected sign(s) either to 'signs.ass' or to a new file.\nEffect field must contain the signs' names.\n\nYou can use relative or absolute paths. (Check the settings below.)\nDefault is the script's folder. If you want the default to be one folder up, use \"..\\\".\nYou can use an absolute path, have one huge signs.ass there, \nand have all the signs marked \"show_name-sign_name\" in the effect field.\n\n"
 
 help_u="UPDATE LYRICS\n\nThis is probably the most complicated part, but if your songs have some massive styling with layers and mocha tracking,\nthis will make updating lyrics, which would otherwise be a pain in the ass, really easy.\nThe only styling that will prevent this from working is inline tags - gradient by character etc.\n\nThe prerequisite here is that your OP/ED MUST have NUMBERED lines! (See NUMBERS section - might be good to read that first.)\nThe numbers must correspond to the verses, not to lines in the script.\nIf line 1 of the SONG is mocha-tracked over 200 frames, all of those frames must be numbered 01.\nIt is thus most convenient to number the lines before you start styling, when it's still simple.\n\nHow this works:\nPaste your updated lyrics into the large, top-left area of the GUI.\nUse the Left and Right fields to set the markers to detect the right lines.\nWithout markers it will just look for numbers.\nIf your OP lines are numbered with \"OP01eng\", you must set \"OP\" under Left and \"eng\" under Right.\nFor now, everything is case-sensitive (I might change that later if it gets really annoying and pointless).\nYou must also correctly set the actor/effect choice in the bottom-right part of the GUI.\nIf you pasted lyrics, selected \"update lyrics\", and set markers and actor/effect, then hit Import, and lyrics will be updated.\n\nHow it works - example: The lyrics you pasted in the data box get their lines assigned with numbers from 1 to whatever.\nLet's say your markers are \"OP01eng\" and you're using the effect field.\nThe script looks for lines with that pattern in the effect field.\nWhen it finds one, it reads the number (for example \"01\" from \"OP01eng\")\nand replaces the line's text (skipping tags) with line 1 from the pasted lyrics.\nFor every line marked \"OP##eng\" it replaces the current lyrics with line ## from your pasted updated lyrics.\n\nTo make sure this doesn't fuck up tremendously, it shows you a log with all replacements at the end.\n\nThat's pretty much all you really need to know for updating lyrics, but there are a few more things.\n\nIf the script doesn't find any lines that match the markers, it gives you a message like this:\n\"The effect field of selected lines doesn't match given pattern...\"\nThis means the lines either don't exist in your selection, or you probably forgot to set the markers.\n\n\"style restriction\" is an extra option that lets you limit the replacing to lines whose style contains given pattern.\nLet's give some examples:\nYou check the restriction and type \"OP\" in the field below.\nYou can now select the whole script instead of selecting only the OP lines, and only lines with \"OP\" in style will be updated.\nYou may have the ED numbered the same way, but the \"OP\" restriction will ignore it.\nThis can be also useful if you have lines numbered just 01, 02 etc., and you have english and romaji, all mixed together.\nIf your styles are OP-jap and OP-eng, you can type \"jap\" in the restriction field if you're updating romaji\nto make sure the script doesn't update the english lines as well (replacing them with romaji).\nIt is, however, recommended to just use different markers, like j01 / e01.\n"
 
@@ -729,7 +754,7 @@ unconfig={
 	-- import
 	{x=9,y=3,width=2,height=1,class="label",label="Import"},
 	{x=9,y=4,width=2,height=1,class="dropdown",name="mega",
-	items={"import OP","import ED","import sign","import signs","update lyrics"},value=import},
+	items={"import OP","import ED","import sign","import signs","export sign","update lyrics"},value=import},
 	{x=11,y=4,width=1,height=1,class="checkbox",name="keep",label="keep line",value=keep_line,},
 	{x=9,y=5,width=3,height=1,class="checkbox",name="restr",label="style restriction (lyrics)",value=style_restriction,},
 	{x=9,y=6,width=3,height=1,class="edit",name="rest"},
@@ -761,13 +786,13 @@ unconfig={
 	{x=9,y=1,width=3,height=1,class="label",label=" Selected Lines: "..#sel},
 	
 	-- help
-	{x=9,y=0,width=3,height=1,class="dropdown",name="help",items={"--- Help menu ---","Import","Update Lyrics","Do Stuff","Numbers","Chapters"},value="--- Help menu ---"},
+	{x=9,y=0,width=3,height=1,class="dropdown",name="help",items={"--- Help menu ---","Import/Export","Update Lyrics","Do Stuff","Numbers","Chapters"},value="--- Help menu ---"},
 	{x=10,y=17,width=2,height=1,class="label",label=" Unimportant version: "..script_version},
 }
 
 	repeat
 	  if pressed=="Help" then aegisub.progress.title("Loading Help") aegisub.progress.task("RTFM")
-	    if res.help=="Import" then help=help_i end
+	    if res.help=="Import/Export" then help=help_i end
 	    if res.help=="Update Lyrics" then help=help_u end
 	    if res.help=="Do Stuff" then help=help_d end
 	    if res.help=="Numbers" then help=help_n end
