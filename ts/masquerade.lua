@@ -1,7 +1,7 @@
 script_name="Masquerade"
 script_description="Masquerade"
 script_author="unanimated"
-script_version="1.83"
+script_version="1.84"
 
 --[[
 
@@ -65,14 +65,15 @@ function addmask(subs, sel)
 		if res.mask=="from clip" then
 		  text=text:gsub("\\clip%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)","\\clip(m %1 %2 l %3 %2 %3 %4 %1 %4)")
 		  if text:match("\\move") then text=text:gsub("\\move","\\pos") mp="\\move" else mp="\\pos" end
-		  ctext=text:match("clip%(m ([%d%a%s%-]+)")
+		  ctext=text:match("clip%(m ([%d%.%a%s%-]+)")
 		  if text:match("\\pos") then
 		    pos=text:match("\\pos(%([^%)]+%))")
 		    local xx,yy=text:match("\\pos%(([%d%.%-]+),([%d%.%-]+)")
 		    xx=round(xx) yy=round(yy)
-		    ctext2=ctext:gsub("([%d%-]+)%s([%d%-]+)",function(a,b) return a-xx.." "..b-yy end)
+		    ctext2=ctext:gsub("([%d%.%-]+)%s([%d%.%-]+)",function(a,b) return a-xx.." "..b-yy end)
 		  else pos="(0,0)" ctext2=ctext
 		  end
+		  ctext2=ctext2:gsub("([%d%.]+)",function(a) return round(a) end)
 		  l.text="{\\an7\\blur1\\bord0\\shad0\\fscx100\\fscy100"..mcol..mp..pos.."\\p1}m "..ctext2
 		  
 		else
