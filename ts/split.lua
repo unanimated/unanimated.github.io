@@ -5,7 +5,7 @@
 script_name="Split"
 script_description="splits lines"
 script_author="unanimated"
-script_version="1.31"
+script_version="1.33"
 
 function split(subs, sel)
 	for i=#sel,1,-1 do
@@ -15,20 +15,22 @@ function split(subs, sel)
 	    
 	    if not text:match("\\N") then
 		nextline=subs[sel[i]+1]
-		if text:match("that$") then text=text:gsub(" that$","") nextline.text="that "..nextline.text c=1 end
-		if text:match("and$") then text=text:gsub(" and$","") nextline.text="and "..nextline.text c=1 end
-		if text:match("but$") then text=text:gsub(" but$","") nextline.text="but "..nextline.text c=1 end
-		if text:match("so$") then text=text:gsub(" so$","") nextline.text="so "..nextline.text c=1 end
-		if text:match("to$") then text=text:gsub(" to$","") nextline.text="to "..nextline.text c=1 end
-		if text:match("when$") then text=text:gsub(" when$","") nextline.text="when "..nextline.text c=1 end
-		if text:match("with$") then text=text:gsub(" with$","") nextline.text="with "..nextline.text c=1 end
-		if text:match("the$") then text=text:gsub(" the$","") nextline.text="the "..nextline.text c=1 end
+		if text:match(" that$") then text=text:gsub(" that$","") nextline.text="that "..nextline.text c=1 end
+		if text:match(" and$") then text=text:gsub(" and$","") nextline.text="and "..nextline.text c=1 end
+		if text:match(" but$") then text=text:gsub(" but$","") nextline.text="but "..nextline.text c=1 end
+		if text:match(" so$") then text=text:gsub(" so$","") nextline.text="so "..nextline.text c=1 end
+		if text:match(" to$") then text=text:gsub(" to$","") nextline.text="to "..nextline.text c=1 end
+		if text:match(" when$") then text=text:gsub(" when$","") nextline.text="when "..nextline.text c=1 end
+		if text:match(" with$") then text=text:gsub(" with$","") nextline.text="with "..nextline.text c=1 end
+		if text:match(" the$") then text=text:gsub(" the$","") nextline.text="the "..nextline.text c=1 end
 		subs[sel[i]+1]=nextline
 	    end
 	    
 	    if c==0 then
+	    text=text:gsub("{SPLIT}","{split}")
+	    if not text:match("\\N") and text:match("{split}") then text=text:gsub("{split}","\\N") end
 	    if not text:match("\\N") and text:match("%- ") then text=text:gsub("(.)%- (.-)$","%1\\N%2") end
-	    if not text:match("\\N") and text:match("%. {?\\?%a") then text=text:gsub("^(.-)%. ","%1. \\N") end
+	    if not text:match("\\N") and text:match("%. {?\\?%a") then text=text:gsub("^(.-)%. ","%1. \\N") :gsub("([MD][rs]s?%. )\\N","%1") end
 	    if not text:match("\\N") and text:match("%? {?%a") then text=text:gsub("^(.-)%? ","%1? \\N") end
 	    if not text:match("\\N") and text:match("! {?%a") then text=text:gsub("^(.-)! ","%1! \\N") end
 	    if not text:match("\\N") and text:match(", {?%a") then text=text:gsub("^(.-), ","%1, \\N") end
