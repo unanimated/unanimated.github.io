@@ -5,13 +5,15 @@
 -- "Save to File" saves it to a file with the name you see there, in the .ass script's folder. (You can make any number of those.)
 -- "Load from File" loads lines from the file with the filename you see. (Type to change if you want from a different one.)
 -- "Load from Memory" loads from memory, which is also what gets loaded by default (if you saved it before).
+-- "Memory to File" saves the content of memory to a file.
+-- "File to Memory" loads the content of a file to memory.
 -- You can easily switch between different backups.
 -- If you split/join lines, the backup will be off by those, but you can just select more lines to load the ones you need to see.
 
 script_name="Backup Checker"
 script_description="Backup Checker"
 script_author="unanimated"
-script_version="1.0"
+script_version="1.1"
 
 function save(subs, sel)
     B={}
@@ -54,8 +56,8 @@ c=0
     if B==nil then B={} end
     data=""
     for x, i in ipairs(sel) do
-	if B[i-c]==nil then B[i-c]="" end
-	data=data..B[i-c].."\n"
+	if B[i-c]==nil then line="" else line=B[i-c] end
+	data=data..line.."\n"
     end
     data=data:gsub("\n$","")
     if not data:match"%a" then data="--- Nothing saved yet. Click 'Save Backup' / 'Save to File' to back up the script now, or load backup from a file. ---" end
@@ -71,7 +73,7 @@ gui={
     {x=16,y=boxheight+1,width=17,height=1,class="edit",name="msg"},
     {x=33,y=boxheight+1,width=12,height=1,class="edit",name="idk"},
 } 	
-	but={"Load from File","Load from Memory","Save Backup","Save to File","No Comments","OK"}
+	but={"Load from Memory","Load from File","Save to Memory","Save to File","Memory to File","File to Memory","No Comments","OK"}
 	repeat
 	    if pressed=="Load from File" then FB={}
 	      load=io.open(scriptpath.."\\"..filename)
@@ -107,6 +109,46 @@ gui={
 		    else val.value=res[val.name] end
 		end
 	    end
+	    if pressed=="Memory to File" then
+		    if #B>0 then
+			BF=""
+			for i=1,#B do BF=BF..B[i].."\n" end
+			BF=BF:gsub("\n$","")
+			local file=io.open(scriptpath.."\\"..filename, "w")
+			file:write(BF)
+			file:close()
+		    end
+		for key,val in ipairs(gui) do
+		    if val.name=="file" then val.value=savename
+		    elseif val.name=="msg" then if #B==0 then val.value="Nothing in memory." else val.value="Backup saved to "..filename end
+		    else val.value=res[val.name] end
+		end
+	    end
+	    if pressed=="File to Memory" then
+	      load=io.open(scriptpath.."\\"..filename)
+	      if load~=nil then
+		fileback=load:read("*all")
+		io.close(load)
+		fileback=fileback.."\n"
+		B={}
+		for l in fileback:gmatch("(.-)\n") do table.insert(B,l) end
+		data=""
+		    for x, i in ipairs(sel) do
+			if B[i-c]==nil then line="" else line=B[i-c] end
+			data=data..line.."\n"
+		    end
+		for key,val in ipairs(gui) do
+		    if val.name=="file" then val.value=savename
+		    elseif val.name=="msg" then val.value="Saved from "..filename.." to memory."
+		    else val.value=res[val.name] end
+		end
+	      else
+		for key,val in ipairs(gui) do
+		    if val.name=="msg" then val.value="File "..filename.." not found."
+		    else val.value=res[val.name] end
+		end
+	      end
+	    end
 	    if pressed=="No Comments" then
 		for key,val in ipairs(gui) do
 		    if val.name=="dat" then val.value=res.dat:gsub("{[^\\}]-}","")
@@ -116,10 +158,11 @@ gui={
 	pressed,res=aegisub.dialog.display(gui,but,{close='OK'})
 	filename=res.file
 	if not filename:match("%.bak$") then filename=filename..".bak" end
-	until pressed~="Load from File" and pressed~="Load from Memory" and pressed~="No Comments"
+	presd="Load from File,Load from Memory,Memory to File,File to Memory,No Comments"
+	until not presd:match(pressed)
 	
 	if pressed=="OK" then    aegisub.cancel() end
-	if pressed=="Save Backup" then    save(subs,sel) end
+	if pressed=="Save to Memory" then    save(subs,sel) end
 	if pressed=="Save to File" then    savef(subs,sel) end
     aegisub.set_undo_point(script_name)
     return sel
