@@ -6,13 +6,14 @@
 script_name="Jump to Next"
 script_description="Jumps to next 'sign' in the subtitle grid"
 script_author="unanimated"
-script_version="1.0"
+script_version="1.01"
 
 --OPTIONS--
 marker="text"	-- "text" looks for text (without tags/comments) / "style" looks for style
 --THE END--
 
 function nextsel(subs, sel)
+lm=nil
 i=sel[1]
 marks={}
 for x,i in ipairs(sel) do
