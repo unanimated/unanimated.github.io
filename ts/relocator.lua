@@ -4,7 +4,7 @@
 script_name="Hyperdimensional Relocator"
 script_description="Makes things appear different from before"
 script_author="reanimated"
-script_version="2.13"
+script_version="2.15"
 
 --	SETTINGS	--
 
@@ -174,7 +174,7 @@ function positron(subs,sel)
 	      text=text:gsub(ro.."([%d%.%-]+)",function(z) return ro..z+shr end)
 	      if not text:match("^{[^}]-"..ro) then text=addtag(ro..shr,text) end
 	    end end
-	
+	    
 	end
 
 	line.text=text
@@ -397,11 +397,16 @@ function modifier(subs, sel)
 		text=text:gsub("\\move%([%d%.%-]+,[%d%.%-]+,[%d%.%-]+,[%d%.%-]+","\\move("..mo1..","..mo2..","..mo3..","..mo4)
 		end
 		if text:match("\\i?clip") and res.rnd=="all" or text:match("\\i?clip") and res.rnd=="clip" then
-		for klip in text:gmatch("\\i?clip%([^%)]+%)") do
-		klip2=klip:gsub("([%d%.%-]+)",function(c) return round1(c) end)
-		klip=esc(klip)
-		text=text:gsub(klip,klip2)
+		 for klip in text:gmatch("\\i?clip%([^%)]+%)") do
+		 klip2=klip:gsub("([%d%.%-]+)",function(c) return round1(c) end)
+		 klip=esc(klip)
+		 text=text:gsub(klip,klip2)
+		 end
 		end
+		if text:match("\\p1") and res.rnd=="all" or text:match("\\p1") and res.rnd=="mask" then
+		tags=text:match("^{\\[^}]-}")
+		text=text:gsub("^{\\[^}]-}","") :gsub("([%d%.%-]+)",function(m) return round1(m) end)
+		text=tags..text
 		end
 	    end
 	    
@@ -555,6 +560,21 @@ function modifier(subs, sel)
 	    if res.mod=="rect.2vector" then
 		text=text:gsub("\\clip%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)%)",function(a,b,c,d) 
 		a,b,c,d=round(a,b,c,d) return string.format("\\clip(m %d %d l %d %d %d %d %d %d)",a,b,c,b,c,d,a,d) end)
+	    end
+	    
+	    if res.mod=="find centre" then
+		text=text:gsub("\\pos%([^%)]+%)","") t2=text
+		text=text:gsub("\\clip%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)%)",function(a,b,c,d) 
+		x=round1(a/2+c/2) y=round1(b/2+d/2) return "\\pos("..x..","..y..")" end)
+		if t2==text then 
+		aegisub.dialog.display({{class="label",label="Requires rectangular clip"}},{"OK"},{close='OK'})  aegisub.cancel() end
+	    end
+	    
+	    if res.mod=="randomask" then
+		draw=text:match("}m ([^{]+)")
+		draw2=draw:gsub("([%d%.%-]+)",function(a) return a+math.random(0-res.post,res.post) end)
+		draw=esc(draw)
+		text=text:gsub("(}m )"..draw,"%1"..draw2)
 	    end
 
 	    if res.mod=="letterbreak" then
@@ -1090,7 +1110,7 @@ cannon="'Align X' means all selected \\pos tags will have the same given X coord
 
 travel="'Horizontal' move means y2 will be the same as y1 so that the sign moves in a straight horizontal manner. \nSame principle for 'vertical.'\n\nTransmove: Main function: create \\move from two lines with \\pos.\n   Duplicate your line and position the second one where you want the \\move the end. \n   Script will create \\move from the two positions.\n   Second line will be deleted by default; it's there just so you can comfortably set the final position.\n   Extra function: to make this a lot more awesome, this can create transforms.\n   Not only is the second line used for \\move coordinates, but also for transforms.\n   Any tag on line 2 that's different from line 1 will be used to create a transform on line 1.\n   So for a \\move with transforms you can set the initial sign and then the final sign while everything is static.\n   You can time line 2 to just the last frame. The script only uses timecodes from line 1.\n   Text from line 2 is also ignored (assumed to be same as line 1).\n   You can time line 2 to start after line 1 and check 'keep both.'\n   That way line 1 transforms into line 2 and the sign stays like that for the duration of line 2.\n   'Rotation acceleration' - like with fbf-transform, this ensures that transforms of rotations will go the shortest way,\n   thus going only 4 degrees from 358 to 2 and not 356 degrees around.\n   If the \\pos is the same on both lines, only transforms will be applied.\n   Logically, you must NOT select 2 consecutive lines when you want to run this, \n   though you can select every other line.\n\nMultimove: when first line has \\move and the other lines have \\pos, \\move is calculated from the first line for the others.\n\nShiftmove: like teleporter, but only for the 2nd set of coordinates, ie x2, y2. Uses input from the Teleporter section.\n\nShiftstart: similarly, this only shifts the initial \\move coordinates.\n\nReverse Move: switches the coordinates, reversing the movement direction.\n\nMove Clip: moves regular clip along with \\move using \\t\\clip."
 
-morph="Round Numbers: rounds coordinates for pos, move, org and clip depending on the 'Round' submenu.\n\nJoinfbflines: Select frame-by-frame lines, input numer X when asked, and each X lines will be joined into one.\n   (same way as with \"Join (keep first)\" from the right-click menu)\n      \nKillMoveTimes: nukes the timecodes from a \move tag.\nFullMoveTimes: sets the timecodes for \move to the first and last frame.\nFullTransTimes: sets the timecodes for \\t to the first and last frame.\n\nMove V. Clip: Moves vectorial clip on fbf lines based on \\pos tags.\n   Note: For decimals on v-clip coordinates: xy-vsfilter OK; libass rounds them; regular vsfilter fails completely.\n\nSet Origin: set \\org based off of \\pos using teleporter coordinates.\n\nFReeZe: adds \\frz with the value from the -frz- menu (the only point being that you get exact, round values).\n\nRotate/flip: rotates/flips by 180 dgrees from current value.\n\nNegative rot: keeps the same rotation, but changes to negative number, like 350 -> -10, which helps with transforms.\n\nVector2rect/Rect.2vector: converts between rectangular and vectorial clips.\n\nLetterbreak: creates vertical text by putting a linebreak after each letter.\nWordbreak: replaces spaces with linebreaks."
+morph="Round Numbers: rounds coordinates for pos, move, org and clip depending on the 'Round' submenu.\n\nJoinfbflines: Select frame-by-frame lines, input numer X when asked, and each X lines will be joined into one.\n   (same way as with \"Join (keep first)\" from the right-click menu)\n      \nKillMoveTimes: nukes the timecodes from a \move tag.\nFullMoveTimes: sets the timecodes for \move to the first and last frame.\nFullTransTimes: sets the timecodes for \\t to the first and last frame.\n\nMove V. Clip: Moves vectorial clip on fbf lines based on \\pos tags.\n   Note: For decimals on v-clip coordinates: xy-vsfilter OK; libass rounds them; regular vsfilter fails completely.\n\nSet Origin: set \\org based off of \\pos using teleporter coordinates.\n\nFReeZe: adds \\frz with the value from the -frz- menu (the only point being that you get exact, round values).\n\nRotate/flip: rotates/flips by 180 dgrees from current value.\n\nNegative rot: keeps the same rotation, but changes to negative number, like 350 -> -10, which helps with transforms.\n\nVector2rect/Rect.2vector: converts between rectangular and vectorial clips.\n\nFind Centre: A useless function that sets \\pos in the centre of a rectangular clip.\n\nRandomask: Moves points in a drawing, each in a random direction, by a factor taken from the positioning field.\n\nLetterbreak: creates vertical text by putting a linebreak after each letter.\nWordbreak: replaces spaces with linebreaks."
 
 morph2fbf="Line2fbf:\n\nSplits a line frame by frame, ie. makes a line for each frame.\nIf there's \\move, it calculates \\pos tags for each line.\nIf there are transforms, it calculates values for each line.\nConditions: Only deals with initial block of tags. Works with only one set of transforms.\n   Move and transforms can have timecodes. \n   Missing timecodes will be counted as the ones you get with FullMoveTimes/FullTransTimes.\n   \\fad is now somewhat supported too, but avoid having any alpha transforms at the same time.\n   Timecodes must be exact (even for \\fad, for precision), or the start of the transform/move may be a frame off."
 
@@ -1115,7 +1135,7 @@ stg_toport={x=1,y=0,width=1,height=1,class="label",label="           Teleportati
 stg_intro={x=0,y=1,width=2,height=8,class="textbox",name="gd",value=intro}
 stg_cannon={x=0,y=1,width=2,height=16,class="textbox",name="gd",value=cannon}
 stg_travel={x=0,y=1,width=2,height=19,class="textbox",name="gd",value=travel}
-stg_morph={x=0,y=1,width=2,height=16,class="textbox",name="gd",value=morph}
+stg_morph={x=0,y=1,width=2,height=17,class="textbox",name="gd",value=morph}
 stg_morph2fbf={x=0,y=1,width=2,height=8,class="textbox",name="gd",value=morph2fbf}
 stg_morphorg={x=0,y=1,width=2,height=8,class="textbox",name="gd",value=morphorg}
 stg_morphclip={x=0,y=1,width=2,height=8,class="textbox",name="gd",value=morphclip}
@@ -1172,9 +1192,9 @@ hyperconfig={
     
     {x=5,y=0,width=2,height=1,class="label",label="Morphing Grounds",},
     {x=5,y=1,width=2,height=1,class="dropdown",name="mod",
-	items={"round numbers","line2fbf","join fbf lines","killmovetimes","fullmovetimes","fulltranstimes","move v. clip","set origin","calculate origin","transform clip","FReeZe","rotate 180","flip hor.","flip vert.","negative rot","vector2rect.","rect.2vector","letterbreak","wordbreak"},value="round numbers"},
+	items={"round numbers","line2fbf","join fbf lines","killmovetimes","fullmovetimes","fulltranstimes","move v. clip","set origin","calculate origin","transform clip","FReeZe","rotate 180","flip hor.","flip vert.","negative rot","vector2rect.","rect.2vector","find centre","randomask","letterbreak","wordbreak"},value="round numbers"},
     {x=5,y=2,width=1,height=1,class="label",label="Round:",},
-    {x=6,y=2,width=1,height=1,class="dropdown",name="rnd",items={"all","pos","move","org","clip"},value="all"},
+    {x=6,y=2,width=1,height=1,class="dropdown",name="rnd",items={"all","pos","move","org","clip","mask"},value="all"},
     {x=6,y=3,width=1,height=1,class="dropdown",name="freeze",
 	items={"-frz-","30","45","60","90","120","135","150","180","-30","-45","-60","-90","-120","-135","-150"},value="-frz-"},
     {x=5,y=4,width=2,height=1,class="checkbox",name="delfbf",label="delete l2fbf orig.",value=delete_orig_line_in_line2fbf,hint="delete the original line for line2fbf"},
