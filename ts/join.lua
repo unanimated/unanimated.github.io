@@ -6,7 +6,7 @@
 script_name = "Join"
 script_description = "Join lines"
 script_author = "unanimated"
-script_version = "1.2"
+script_version = "1.21"
 
 function join(subs, sel, act)
 	if act==#subs then aegisub.log("Nothing to join with.") aegisub.cancel() end
@@ -14,6 +14,7 @@ function join(subs, sel, act)
 	l2=subs[act+1]		t2=l2.text	ct2=t2:gsub("{[^}]-}","")	ct3=t2:gsub("^{[^}]-}","")
 
 	if ct~=ct2 then 
+	  t=t:gsub("{JOIN}%s*$","")
 	  tt=t:match("^{\\[^}]-}")
 	  tt2=t2:match("^{\\[^}]-}")
 	  if tt~=nil and tt2~=nil then 

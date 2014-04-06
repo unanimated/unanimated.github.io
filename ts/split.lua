@@ -5,7 +5,7 @@
 script_name="Split"
 script_description="splits lines"
 script_author="unanimated"
-script_version="1.33"
+script_version="1.36"
 
 function split(subs, sel)
 	for i=#sel,1,-1 do
@@ -13,7 +13,7 @@ function split(subs, sel)
 	  text=subs[sel[i]].text
 	  c=0
 	    
-	    if not text:match("\\N") then
+	    if not text:match("\\N") and sel[i]<#subs then
 		nextline=subs[sel[i]+1]
 		if text:match(" that$") then text=text:gsub(" that$","") nextline.text="that "..nextline.text c=1 end
 		if text:match(" and$") then text=text:gsub(" and$","") nextline.text="and "..nextline.text c=1 end
@@ -30,9 +30,8 @@ function split(subs, sel)
 	    text=text:gsub("{SPLIT}","{split}")
 	    if not text:match("\\N") and text:match("{split}") then text=text:gsub("{split}","\\N") end
 	    if not text:match("\\N") and text:match("%- ") then text=text:gsub("(.)%- (.-)$","%1\\N%2") end
-	    if not text:match("\\N") and text:match("%. {?\\?%a") then text=text:gsub("^(.-)%. ","%1. \\N") :gsub("([MD][rs]s?%. )\\N","%1") end
-	    if not text:match("\\N") and text:match("%? {?%a") then text=text:gsub("^(.-)%? ","%1? \\N") end
-	    if not text:match("\\N") and text:match("! {?%a") then text=text:gsub("^(.-)! ","%1! \\N") end
+	    if not text:match("\\N") and text:match("%. [{\\\"]?%a") then text=text:gsub("^(.-)%. ","%1. \\N") :gsub("([MD][rs]s?%. )\\N","%1") end
+	    if not text:match("\\N") and text:match("[%?!] {?%a") then text=text:gsub("^(.-)([%?!]) ","%1%2 \\N") end
 	    if not text:match("\\N") and text:match(", {?%a") then text=text:gsub("^(.-), ","%1, \\N") end
 	    end
 	    
@@ -99,7 +98,10 @@ function split(subs, sel)
 	    line.text=text
 	    subs[sel[i]]=line
 	end
+	for s=#sel,1,-1 do sel[s]=sel[s]+s-1 end
+	--for s=#sel,1,-1 do table.insert(sel,sel[s]-1) end
 	aegisub.set_undo_point(script_name)
+	return sel
 end
 
 aegisub.register_macro(script_name, script_description, split)

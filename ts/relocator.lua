@@ -4,7 +4,7 @@
 script_name="Hyperdimensional Relocator"
 script_description="Makes things appear different from before"
 script_author="reanimated"
-script_version="2.15"
+script_version="2.24"
 
 --	SETTINGS	--
 
@@ -30,8 +30,9 @@ tele_pos=true
 tele_move=true
 tele_clip=true
 tele_org=true
+tele_mask=false
 
-delete_orig_line_in_line2fbf=false
+delete_orig_line_in_line2fbf=true
 
 --  --	--  --	--  --	--
 
@@ -129,26 +130,38 @@ function positron(subs,sel)
 	elseif res.posi=="shake" then
 	    s=line.start_time
 	    diam=res.post
-	    if diam==0 then diamx=res.eks diamy=res.wai else diamx=diam diamy=diam end
+	    scax=res.eks*10+100	scax2=10000/scax
+	    scay=res.wai*10+100	scay2=10000/scay
+	    if diam==0 and not res.sca then diamx=res.eks diamy=res.wai else diamx=diam diamy=diam end
 	    shx=math.random(-100,100)/100*diamx	if res.smo and lshx~=nil then shx=(shx+3*lshx)/4 end
 	    shy=math.random(-100,100)/100*diamy	if res.smo and lshy~=nil then shy=(shy+3*lshy)/4 end
 	    shr=math.random(-100,100)/100*diam	if res.smo and lshr~=nil then shr=(shr+3*lshr)/4 end
+	    shsx=math.random(scax2,scax)/100		if res.smo and lshsx~=nil then shsx=(shsx+3*lshsx)/4 end
+	    shsy=math.random(scay2,scay)/100		if res.smo and lshsy~=nil then shsy=(shsy+3*lshsy)/4 end
+	    if scax==scay then shsy=shsx end
 	    if res.layers then
 		ch=0
 		for p=1,#shake do sv=shake[p]
-		  if sv[1]==s then ch=1 shx=sv[2] shy=sv[3] shr=sv[4] end
+		  if sv[1]==s then ch=1 shx=sv[2] shy=sv[3] shr=sv[4] shsx=sv[5] shsy=sv[6] end
 		end
 		if ch==0 then
-		  a={s,shx,shy,shr}
+		  a={s,shx,shy,shr,shsx,shsy}
 		  table.insert(shake,a)
 		end
 	    end
-	    	lshx=shx	lshy=shy	lshz=shz
+	    	lshx=shx	lshy=shy	lshr=shr	lshsx=shsx	lshsy=shsy
 	    text=text:gsub("\\pos%(([%d%.%-]+),([%d%.%-]+)%)",function(x,y) return "\\pos("..x+shx..","..y+shy..")" end)
 	    if res.rota then
 		text=text:gsub("\\frz([%d%.%-]+)",function(z) return "\\frz"..z+shr end)
 		if not text:match("^{[^}]-\\frz") then text=addtag("\\frz"..shr,text) end
 	    end
+	    if res.sca then
+		text=text:gsub("(\\fscx)([%d%.%-]+)",function(x,y) return x..y*shsx end)
+		text=text:gsub("(\\fscy)([%d%.%-]+)",function(x,y) return x..y*shsy end)
+		if not text:match("^{[^}]-\\fscx") then text=addtag("\\fscx".. 100*shsx,text) end
+		if not text:match("^{[^}]-\\fscy") then text=addtag("\\fscy".. 100*shsy,text) end
+	    end
+	    text=text:gsub("([%d%.%-]+)([\\}%),])",function(a,b) return round1(a*100)/100 ..b end)
 	
 	-- shake rotation
 	elseif res.posi=="shake rotation" then
@@ -362,6 +375,7 @@ function round1(a)
 end
 
 function modifier(subs, sel)
+    xx=res.eks yy=res.wai
     for x, i in ipairs(sel) do
         aegisub.progress.title(string.format("Morphing... %d/%d",x,#sel))
 	local line=subs[i]
@@ -570,6 +584,34 @@ function modifier(subs, sel)
 		aegisub.dialog.display({{class="label",label="Requires rectangular clip"}},{"OK"},{close='OK'})  aegisub.cancel() end
 	    end
 	    
+	    if res.mod=="extend mask" then
+		if xx==0 and yy==0 then aegisub.dialog.display({{class="label",label="Error. Both given values are 0.\nUse the Teleporter X and Y fields."}},{"OK"},{close='OK'}) aegisub.cancel() end
+		draw=text:match("}m ([^{]+)")
+		draw2=draw:gsub("([%d%.%-]+) ([%d%.%-]+)",function(a,b) 
+		if tonumber(a)>0 then ax=xx elseif tonumber(a)<0 then ax=0-xx else ax=0 end
+		if tonumber(b)>0 then by=yy elseif tonumber(b)<0 then by=0-yy else by=0 end
+		return a+ax.." "..b+by end)
+		draw=esc(draw)
+		text=text:gsub("(}m )"..draw,"%1"..draw2)
+	    end
+	    
+	    if res.mod=="expand mask" then
+		if xx==0 and yy==0 then aegisub.dialog.display({{class="label",label="Error. Both given values are 0.\nUse the Teleporter X and Y fields."}},{"OK"},{close='OK'}) aegisub.cancel() end
+		if xx==0 then xx=1 end
+		if yy==0 then yy=1 end
+		draw=text:match("}m ([^{]+)")
+		draw2=draw:gsub("([%d%.%-]+) ([%d%.%-]+)",function(a,b) return round1(a*xx).." "..round1(b*yy) end)
+		draw=esc(draw)
+		text=text:gsub("(}m )"..draw,"%1"..draw2)
+	    end
+	    
+	    if res.mod=="flip mask" then
+		draw=text:match("}m ([^{]+)")
+		draw2=draw:gsub("([%d%.%-]+) ([%d%.%-]+)",function(a,b) return 0-a.." "..b end)
+		draw=esc(draw)
+		text=text:gsub("(}m )"..draw,"%1"..draw2)
+	    end
+	    
 	    if res.mod=="randomask" then
 		draw=text:match("}m ([^{]+)")
 		draw2=draw:gsub("([%d%.%-]+)",function(a) return a+math.random(0-res.post,res.post) end)
@@ -623,6 +665,7 @@ function flip(rot,text)
 end
 
 function movetofbf(subs, sel)
+    fra={}
     for i=#sel,1,-1 do
         line=subs[sel[i]]
         text=subs[sel[i]].text
@@ -634,6 +677,7 @@ function movetofbf(subs, sel)
 	    endf=ms2fr(endt)
 	    frames=endf-1-startf
 	    frnum=frames
+	    table.insert(fra,frnum)
 	    l2=line
 	    
 		for frm=endf-1,startf,-1 do
@@ -690,16 +734,33 @@ function movetofbf(subs, sel)
 		    
 		    l2.start_time=fr2ms(frm)
 		    l2.end_time=fr2ms(frm+1)
-		    subs.insert(sel[i]+1,l2) table.insert(sel,sel[i]+frnum+1)
+		    subs.insert(sel[i]+1,l2) --table.insert(sel,sel[i]+frnum+1)
 		    frnum=frnum-1
 		end
 		line.end_time=endt
 		line.comment=true
 	line.text=text
 	subs[sel[i]]=line
-	table.sort(sel)
-	if res.delfbf then subs.delete(sel[i]) table.remove(sel,#sel) end
+	--table.sort(sel)
+	if res.delfbf then subs.delete(sel[i]) end
     end
+    -- selection
+    sel2={}
+    if res.delfbf then fakt=0 else fakt=1 end
+    for s=#sel,1,-1 do
+	sfr=fra[#sel-s+1]
+	-- shift new sel
+	for s2=#sel2,1,-1 do
+	    sel2[s2]=sel2[s2]+sfr+fakt
+	end
+	-- add to new sel
+	for f=1,sfr+fakt do
+	    table.insert(sel2,sel[s]+f)
+	end
+	-- add orig line
+	if res.delfbf then table.insert(sel2,sel[s]) end
+    end
+    sel=sel2
     return sel
 end
 
@@ -1056,6 +1117,13 @@ function teleport(subs, sel)
 	    text=text:gsub(",m "..ctext,",m "..ctext2)
 	    end
 	end
+	
+	if res.tpmask then
+		draw=text:match("}m ([^{]+)")
+		draw2=draw:gsub("([%d%.%-]+) ([%d%.%-]+)",function(a,b) return round1(a+xx).." "..round1(b+yy) end)
+		draw=esc(draw)
+		text=text:gsub("(}m )"..draw,"%1"..draw2)
+	end
 
 	line.text=text
 	subs[i]=line
@@ -1106,17 +1174,19 @@ function addtag(tag,text) text=text:gsub("^({\\[^}]-)}","%1"..tag.."}") return t
 function guide()
 intro="Introduction\n\nHyperdimensional Relocator offers a plethora of functions, \nfocusing primarily on \pos, \move, \org, \clip, and rotations.\nAnything related to positioning, movement, changing shape, etc., \nRelocator aims to make it happen."
 
-cannon="'Align X' means all selected \\pos tags will have the same given X coordinate. Same with 'Align Y' for Y.\n   Useful for multiple signs on screen that need to be aligned horizontally/vertically\n   or mocha signs that should move horizontally/vertically.\n\n'align with first' uses X or Y from the first line.\n\nHorizontal Mirror: Duplicates the line and places it horizontally across the screen, mirrored around the middle.\n   If you input a number, it will mirror around that coordinate instead,\n   so if you have \\pos(300,200) and input is 400, the mirrored result will be \\pos(500,200).\nVertical Mirror is the logical vertical counetrpart.\n\nOrg to Fax: calculates \\fax from the line between \\pos and \\org coordinates.\nClip to Fax: calculates \\fax from the line between the first 2 points of a vectorial clip.\n   Both of these work with \\frz but not with \\frx and \\fry. Also, \\fscx must be the same as \\fscy.\n   See blog post from 2014-03-03 for more info - http://unanimated.xtreemhost.com/itw/tsblok.htm \n\nShake: Apply to fbf lines with \\pos tags to create a shaking effect.\n   Input radius for how many pixels the sign may deflect from the original position.\n\nShake rotation: Adds shaking effect to rotations. Degrees for frz from Repositioning Field, x and y from Teleporter.\n\n'rotate' will flip the text accordingly for the mirror functions. It also adds \\frz to 'shake'.\n\n'layers' will keep position/rotations the same for all layers with 'shake'. (Same value for same start time.)\n\n'smooth' will make shaking smoother."
+cannon="'Align X' means all selected \\pos tags will have the same given X coordinate. Same with 'Align Y' for Y.\n   Useful for multiple signs on screen that need to be aligned horizontally/vertically\n   or mocha signs that should move horizontally/vertically.\n\n'align with first' uses X or Y from the first line.\n\nHorizontal Mirror: Duplicates the line and places it horizontally across the screen, mirrored around the middle.\n   If you input a number, it will mirror around that coordinate instead,\n   so if you have \\pos(300,200) and input is 400, the mirrored result will be \\pos(500,200).\nVertical Mirror is the logical vertical counetrpart.\n\nOrg to Fax: calculates \\fax from the line between \\pos and \\org coordinates.\nClip to Fax: calculates \\fax from the line between the first 2 points of a vectorial clip.\n   Both of these work with \\frz but not with \\frx and \\fry. Also, \\fscx must be the same as \\fscy.\n   See blog post from 2014-03-03 for more info - http://unanimated.xtreemhost.com/itw/tsblok.htm \n\nShake: Apply to fbf lines with \\pos tags to create a shaking effect.\n   Input radius for how many pixels the sign may deflect from the original position.\n\nShake rotation: Adds shaking effect to rotations. Degrees for frz from Repositioning Field, x and y from Teleporter.\n\n'rotate' will flip the text accordingly for the mirror functions. It also adds \\frz to 'shake'.\n'scaling' randomizes fscx/y with 'shake'. Value of 6 gives 0.625 to 1.6 times current value. (Teleporter input.)\n'layers' will keep position/rotations the same for all layers with 'shake'. (Same value for same start time.)\n'smooth' will make shaking smoother."
 
 travel="'Horizontal' move means y2 will be the same as y1 so that the sign moves in a straight horizontal manner. \nSame principle for 'vertical.'\n\nTransmove: Main function: create \\move from two lines with \\pos.\n   Duplicate your line and position the second one where you want the \\move the end. \n   Script will create \\move from the two positions.\n   Second line will be deleted by default; it's there just so you can comfortably set the final position.\n   Extra function: to make this a lot more awesome, this can create transforms.\n   Not only is the second line used for \\move coordinates, but also for transforms.\n   Any tag on line 2 that's different from line 1 will be used to create a transform on line 1.\n   So for a \\move with transforms you can set the initial sign and then the final sign while everything is static.\n   You can time line 2 to just the last frame. The script only uses timecodes from line 1.\n   Text from line 2 is also ignored (assumed to be same as line 1).\n   You can time line 2 to start after line 1 and check 'keep both.'\n   That way line 1 transforms into line 2 and the sign stays like that for the duration of line 2.\n   'Rotation acceleration' - like with fbf-transform, this ensures that transforms of rotations will go the shortest way,\n   thus going only 4 degrees from 358 to 2 and not 356 degrees around.\n   If the \\pos is the same on both lines, only transforms will be applied.\n   Logically, you must NOT select 2 consecutive lines when you want to run this, \n   though you can select every other line.\n\nMultimove: when first line has \\move and the other lines have \\pos, \\move is calculated from the first line for the others.\n\nShiftmove: like teleporter, but only for the 2nd set of coordinates, ie x2, y2. Uses input from the Teleporter section.\n\nShiftstart: similarly, this only shifts the initial \\move coordinates.\n\nReverse Move: switches the coordinates, reversing the movement direction.\n\nMove Clip: moves regular clip along with \\move using \\t\\clip."
 
-morph="Round Numbers: rounds coordinates for pos, move, org and clip depending on the 'Round' submenu.\n\nJoinfbflines: Select frame-by-frame lines, input numer X when asked, and each X lines will be joined into one.\n   (same way as with \"Join (keep first)\" from the right-click menu)\n      \nKillMoveTimes: nukes the timecodes from a \move tag.\nFullMoveTimes: sets the timecodes for \move to the first and last frame.\nFullTransTimes: sets the timecodes for \\t to the first and last frame.\n\nMove V. Clip: Moves vectorial clip on fbf lines based on \\pos tags.\n   Note: For decimals on v-clip coordinates: xy-vsfilter OK; libass rounds them; regular vsfilter fails completely.\n\nSet Origin: set \\org based off of \\pos using teleporter coordinates.\n\nFReeZe: adds \\frz with the value from the -frz- menu (the only point being that you get exact, round values).\n\nRotate/flip: rotates/flips by 180 dgrees from current value.\n\nNegative rot: keeps the same rotation, but changes to negative number, like 350 -> -10, which helps with transforms.\n\nVector2rect/Rect.2vector: converts between rectangular and vectorial clips.\n\nFind Centre: A useless function that sets \\pos in the centre of a rectangular clip.\n\nRandomask: Moves points in a drawing, each in a random direction, by a factor taken from the positioning field.\n\nLetterbreak: creates vertical text by putting a linebreak after each letter.\nWordbreak: replaces spaces with linebreaks."
+morph="Round Numbers: rounds coordinates for pos, move, org and clip depending on the 'Round' submenu.\n\nJoinfbflines: Select frame-by-frame lines, input numer X when asked, and each X lines will be joined into one.\n   (same way as with \"Join (keep first)\" from the right-click menu)\n      \nKillMoveTimes: nukes the timecodes from a \move tag.\nFullMoveTimes: sets the timecodes for \move to the first and last frame.\nFullTransTimes: sets the timecodes for \\t to the first and last frame.\n\nMove V. Clip: Moves vectorial clip on fbf lines based on \\pos tags.\n   Note: For decimals on v-clip coordinates: xy-vsfilter OK; libass rounds them; regular vsfilter fails completely.\n\nSet Origin: set \\org based off of \\pos using teleporter coordinates.\n\nFReeZe: adds \\frz with the value from the -frz- menu (the only point being that you get exact, round values).\n\nRotate/flip: rotates/flips by 180 dgrees from current value.\n\nNegative rot: keeps the same rotation, but changes to negative number, like 350 -> -10, which helps with transforms.\n\nVector2rect/Rect.2vector: converts between rectangular and vectorial clips.\n\nFind Centre: A useless function that sets \\pos in the centre of a rectangular clip.\n\nLetterbreak: creates vertical text by putting a linebreak after each letter.\nWordbreak: replaces spaces with linebreaks."
 
 morph2fbf="Line2fbf:\n\nSplits a line frame by frame, ie. makes a line for each frame.\nIf there's \\move, it calculates \\pos tags for each line.\nIf there are transforms, it calculates values for each line.\nConditions: Only deals with initial block of tags. Works with only one set of transforms.\n   Move and transforms can have timecodes. \n   Missing timecodes will be counted as the ones you get with FullMoveTimes/FullTransTimes.\n   \\fad is now somewhat supported too, but avoid having any alpha transforms at the same time.\n   Timecodes must be exact (even for \\fad, for precision), or the start of the transform/move may be a frame off."
 
 morphorg="Calculate Origin:\n\nThis calculates \\org from a tetragonal vectorial clip you draw.\nDraw a vectorial clip with 4 points, aligned to a surface you need to put your sign on.\nThe script will calculate the vanishing points for X and Y and give you \\org.\nMake the clip as large as you can, since on a smaller one any inaccuracies will be more obvious.\nIf you draw it well enough, the accuracy of the \\org point should be pretty decent.\n(It won't work when both points on one side are lower than both points on the other side.)\nSee blog post from 2013-11-27 for more details: http://unanimated.xtreemhost.com/itw/tsblok.htm"
 
 morphclip="Transform Clip:\n\nGo from \\clip(x1,y1,x2,y2) to \\clip(x1,y1,x2,y2)\\t(\\clip(x3,y3,x4,y4)).\nCoordinates are read from the line.\nYou can set by how much x and y should change, and new coordinates will be calculated.\n\n'use next line's clip' allows you to use clip from the next line.\n   Create a line after your current one (or just duplicate), set the clip you want to transform to on it,\n   and check \"use next line's clip\".\n   The clip from the next line will be used for the transform, and the line will be deleted."
+
+morphmasks="Extend Mask: Use Teleporter X and Y fields to extend a mask in either or both directions.\n   This is mainly intended to easily convert something like a rounded square to another rounded rectangle.\n   Works optimally with 0,0 coordinate in the centre. May do weird things with curves.\n   When all coordinates are to one side from 0,0, then this works like shifting.\n\nExpand Mask: This works like Recalculator's 'Multiply', except 1 is the basic value (equals to 100%).\n   Not good for extending rounded squares, but good for turning a circle into an ellipsis.\n\nFlip mask: Flips a mask so that when used with its non-flipped counterpart, they create hollow space.\n   For example you have a rounded square. Duplicate it, extend one by 10 pixels in each direction, flip it,\n   and then merge them. You'll get a 10 px outline.\n\nRandomask: Moves points in a drawing, each in a random direction, by a factor taken from the positioning field.\n\n"
 
 cloan="This copies specified tags from first line to the others.\nOptions are position, move, origin point, clip, and rotations.\n\nreplicate missing tags: creates tags if they're not present\n\nstack clips: allows stacking of 1 normal and 1 vector clip in one line\n\nmatch type: if current clip/iclip doesn't match the first line, it will be switched to match\n\ncv (combine vectors): if the first line has a vector clip, then for all other lines with vector clips \n   the vectors will be combined into 1 clip\n\ncopyrot: copies all rotations"
 
@@ -1133,18 +1203,19 @@ stg_topseq={x=1,y=0,width=1,height=1,class="label",label="   Cloning Laboratory"
 stg_toport={x=1,y=0,width=1,height=1,class="label",label="           Teleportation"}
 
 stg_intro={x=0,y=1,width=2,height=8,class="textbox",name="gd",value=intro}
-stg_cannon={x=0,y=1,width=2,height=16,class="textbox",name="gd",value=cannon}
+stg_cannon={x=0,y=1,width=2,height=15,class="textbox",name="gd",value=cannon}
 stg_travel={x=0,y=1,width=2,height=19,class="textbox",name="gd",value=travel}
-stg_morph={x=0,y=1,width=2,height=17,class="textbox",name="gd",value=morph}
+stg_morph={x=0,y=1,width=2,height=16,class="textbox",name="gd",value=morph}
 stg_morph2fbf={x=0,y=1,width=2,height=8,class="textbox",name="gd",value=morph2fbf}
 stg_morphorg={x=0,y=1,width=2,height=8,class="textbox",name="gd",value=morphorg}
 stg_morphclip={x=0,y=1,width=2,height=8,class="textbox",name="gd",value=morphclip}
+stg_morpmsk={x=0,y=1,width=2,height=9,class="textbox",name="gd",value=morphmasks}
 stg_cloan={x=0,y=1,width=2,height=9,class="textbox",name="gd",value=cloan}
 stg_port={x=0,y=1,width=2,height=8,class="textbox",name="gd",value=port}
 
 cp_main={"Positron Cannon","Hyperspace Travel","Metamorphosis","Cloning Sequence","Teleportation","Disintegrate"}
 cp_back={"Warp Back"}
-cp_morph={"Warp Back","Metamorphosis","Line2fbf","Calculate Origin","Transform Clip"}
+cp_morph={"Warp Back","Metamorphosis","Line2fbf","Calculate Origin","Transform Clip","Masks"}
 esk1={close='Disintegrate'}
 esk2={cancel='Warp Back'}
 stg={stg_top,stg_toptop,stg_intro} control_panel=cp_main esk=esk1
@@ -1158,6 +1229,7 @@ repeat
 	if press=="Line2fbf" then 		stg={stg_top,stg_toporph,stg_morph2fbf} control_panel=cp_morph esk=esk2 end
 	if press=="Calculate Origin" then 	stg={stg_top,stg_toporph,stg_morphorg} control_panel=cp_morph esk=esk2 end
 	if press=="Transform Clip" then 	stg={stg_top,stg_toporph,stg_morphclip} control_panel=cp_morph esk=esk2 end
+	if press=="Masks" then 		stg={stg_top,stg_toporph,stg_morpmsk} control_panel=cp_morph esk=esk2 end
 	if press=="Warp Back" then 		stg={stg_top,stg_toptop,stg_intro} control_panel=cp_main esk=esk1 end
 press,rez=aegisub.dialog.display(stg,control_panel,esk)
 until press=="Disintegrate"
@@ -1170,7 +1242,7 @@ if tk:match"\\move" then
 m1,m2,m3,m4=tk:match("\\move%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)") M1=m3-m1 M2=m4-m2 mlbl="mov: "..M1..","..M2
 else mlbl="" end
 hyperconfig={
-    {x=11,y=0,width=3,height=1,class="label",label="Teleportation"},
+    {x=11,y=0,width=2,height=1,class="label",label="Teleportation"},
     {x=11,y=1,width=3,height=1,class="floatedit",name="eks",hint="X"},
     {x=11,y=2,width=3,height=1,class="floatedit",name="wai",hint="Y"},
 
@@ -1181,6 +1253,7 @@ hyperconfig={
     {x=1,y=3,width=1,height=1,class="checkbox",name="rota",label="rotate",value=posi_rotate,},
     {x=0,y=4,width=1,height=1,class="checkbox",name="layers",label="layers",value=shake_layers,hint="synchronize shaking for all layers"},
     {x=1,y=4,width=1,height=1,class="checkbox",name="smo",label="smooth",value=shake_smooth,hint="smoothen shaking"},
+    {x=3,y=4,width=1,height=1,class="checkbox",name="sca",label="scaling",value=false,hint="add scaling to shake"},
     {x=0,y=5,width=2,height=1,class="checkbox",name="space",label="space travel guide",value=false,},
     
     {x=3,y=0,width=2,height=1,class="label",label="Soul Bilocator"},
@@ -1192,7 +1265,7 @@ hyperconfig={
     
     {x=5,y=0,width=2,height=1,class="label",label="Morphing Grounds",},
     {x=5,y=1,width=2,height=1,class="dropdown",name="mod",
-	items={"round numbers","line2fbf","join fbf lines","killmovetimes","fullmovetimes","fulltranstimes","move v. clip","set origin","calculate origin","transform clip","FReeZe","rotate 180","flip hor.","flip vert.","negative rot","vector2rect.","rect.2vector","find centre","randomask","letterbreak","wordbreak"},value="round numbers"},
+	items={"round numbers","line2fbf","join fbf lines","killmovetimes","fullmovetimes","fulltranstimes","move v. clip","set origin","calculate origin","transform clip","FReeZe","rotate 180","flip hor.","flip vert.","negative rot","vector2rect.","rect.2vector","find centre","extend mask","expand mask","flip mask","randomask","letterbreak","wordbreak"},value="round numbers"},
     {x=5,y=2,width=1,height=1,class="label",label="Round:",},
     {x=6,y=2,width=1,height=1,class="dropdown",name="rnd",items={"all","pos","move","org","clip","mask"},value="all"},
     {x=6,y=3,width=1,height=1,class="dropdown",name="freeze",
@@ -1214,6 +1287,7 @@ hyperconfig={
     {x=12,y=4,width=1,height=1,class="checkbox",name="tpmov",label="move",value=tele_move },
     {x=13,y=3,width=1,height=1,class="checkbox",name="tporg",label="org",value=tele_org },
     {x=13,y=4,width=1,height=1,class="checkbox",name="tpclip",label="clip",value=tele_clip },
+    {x=13,y=0,width=1,height=1,class="checkbox",name="tpmask",label="mask",value=tele_mask },
     {x=12,y=5,width=2,height=1,class="label",label="HR version: "..script_version,},
 } 
 
@@ -1231,7 +1305,7 @@ hyperconfig={
 	end
 	if pressed=="Metamorphosis" then
 	    aegisub.progress.title(string.format("Morphing..."))
-	    if res.mod=="line2fbf" then movetofbf(subs, sel) 
+	    if res.mod=="line2fbf" then sel=movetofbf(subs, sel) 
 	    elseif res.mod=="transform clip" then transclip(subs, sel, act)
 	    elseif res.mod=="join fbf lines" then joinfbflines(subs, sel)
 	    elseif res.mod=="negative rot" then negativerot(subs, sel)

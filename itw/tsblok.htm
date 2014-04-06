@@ -22,6 +22,58 @@ IRC: <a href="irc://irc.rizon.net/irrational-typesetting-wizardry">#irrational-t
 <br><br>
 
 
+<h2>Messing with Masks</h2>
+<h4>2014-03-24</h4><br>
+There are several functions added to <a href="../ts/relocator.lua">Relocator</a>'s Morphing Grounds. These allow for some simple operations with masks without needing ASSDraw or anything else.<br><br>
+
+<b>Extend Mask:</b> This is mainly intended to easily convert something like a rounded square to another rounded rectangle.<br><br>
+
+<b>Expand Mask:</b> This works like Recalculator's 'Multiply', except 1 is the basic value (equals to 100%).<br>
+Not good for extending rounded squares, but good for turning a circle into an ellipsis.<br><br>
+
+<b>Flip mask:</b> Flips a mask so that when used with its non-flipped counterpart, they create hollow space.<br><br>
+
+<b>Randomask:</b> Moves points in a drawing, each in a random direction, by a factor taken from the positioning field.<br><br>
+
+<br><br><br>
+<img src="expand.png"><br><br>
+Here are the examples. Blue ones on the left are the originals. Green ones are using 'extend', purple ones 'expand'.<br>
+Everything is applied only in the X direction. Expand is the same as scaling, but you change the actual drawing coordinates, which allows you to combine the shape with others in various ways.<br>
+You see that for the circle, 'extend' isn't very useful, but for the rounded square, you probably don't want the 'expand' version.<br><br>
+
+Nowm, here's how you can quickly make a ring.<br>
+1. Duplicate the circle.<br>
+2. Use expand with 0.8 / 0.8. This will make a smaller circle - 80% size.<br>
+3. Use the flip function on it.<br>
+4. Copy the coordinates (you can get rid of this line now) and paste them at the end of the coordinates of the other line.
+
+<br>
+<img src="ring.png"><br>
+This is what you get.
+
+<br><br><br>
+<img src="flipmask.png"><br><br>
+And here's another example of how you can combine two shapes when you flip one.<br>
+Teleporter can now shift masks, so that can be helpful too, since changing \pos is not exactly useful when combining two drawings.<br><br>
+
+Now, the 'extend' thing only works as intended when the 0,0 coordinate is in the centre. Positive values get more positive, negative ones get more negative. If everything is to one side of 0,0, then it works like shifting. So if that happens, you can use the teleporter first, etc.<br><br>
+
+Extend 100 / 0 will add 100px to each side. Extend 0 / -50 will subtract 50 from top and bottom.<br>
+Expand 1 / 1 does nothing. Expand -1 / 1 (or 1 / -1) will do the same as 'flip'.<br>
+Expand 2 / 2 doubles the size, 0.5 / 0.5 is half the size, etc.<br>
+If the expand value is 0, it assumes you forgot to set it and changes it to 1 because 0 is kinda useless.<br><br>
+
+<img src="redmask1.png"><br><br>
+
+Of course, for anything more complicated, it's better to use ASSDraw or something else, but for simple modifications of basic shapes like these, you don't have to leave Aegisub.
+
+<br><br>
+<img src="redmask2.png"><br><br>
+
+<br><br><br><br>
+
+
+
 
 <h2>The Hydraulics of Typesetting</h2>
 <h4>2014-03-04</h4><br>
