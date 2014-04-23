@@ -1,7 +1,7 @@
 ﻿script_name="Colorize"
 script_description="Does things with colours"
 script_author="unanimated"
-script_version="3.32"
+script_version="3.4"
 
 --[[
 
@@ -69,6 +69,7 @@ function colors(subs,sel)
 
 	    tags=""
 	    if text:match("^{\\[^}]*}") then tags=text:match("^({\\[^}]*})") end
+	    orig=text:gsub("^({\\[^}]*})","")
 	    text=text:gsub("{[^}]*}","")
 	    text=text:gsub("%s*$","")
 
@@ -126,9 +127,53 @@ function colors(subs,sel)
 	text=text:gsub("\\N\\N","\\N")
 	text=tags..text
 	if res.join==false then text=text:gsub("}{","") end
+	if orig:match("{\\") then text=textmod(orig) end
 	line.text=text
         subs[i]=line
     end
+end
+
+function textmod(orig)
+    tk={}
+    tg={}
+	text=text:gsub("{\\\\k0}","")
+	repeat text=text:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
+	    until not text:match("{(\\[^}]-)}{(\\[^}]-)}")
+	vis=text:gsub("{[^}]-}","")
+	  for c in vis:gmatch(".") do
+	    table.insert(tk,c)
+	  end
+	stags=text:match("^{(\\[^}]-)}")
+	if stags==nil then stags="" end
+	text=text:gsub("^{\\[^}]-}","") :gsub("{[^\\}]-}","")
+	count=0
+	for seq in text:gmatch("[^{]-{%*?\\[^}]-}") do
+	    chars,as,tak=seq:match("([^{]-){(%*?)(\\[^}]-)}")
+	    pos=chars:len()+count
+	    tgl={p=pos,t=tak,a=as}
+	    table.insert(tg,tgl)
+	    count=pos
+	end
+	count=0
+	for seq in orig:gmatch("[^{]-{%*?\\[^}]-}") do
+	    chars,as,tak=seq:match("([^{]-){(%*?)(\\[^}]-)}")
+	    pos=chars:len()+count
+	    tgl={p=pos,t=tak,a=as}
+	    table.insert(tg,tgl)
+	    count=pos
+	end
+    newline=""
+    for i=1,#tk do
+	newline=newline..tk[i]
+	newt=""
+	for n, t in ipairs(tg) do
+	    if t.p==i then newt=newt..t.t as=t.a end
+	end
+	if newt~="" then newline=newline.."{"..as..newt.."}" end
+    end
+    newtext="{"..stags.."}"..newline
+    text=newtext
+    return text
 end
 
 function gcolors(subs,sel)
@@ -467,9 +512,7 @@ end
 	    end
 	end
 
-	text=text:gsub("\\\\","\\")
-	text=text:gsub("\\}","}")
-	text=text:gsub("{}","")
+	text=text:gsub("\\\\","\\") :gsub("\\}","}") :gsub("{}","")
 	line.text=text
         subs[i]=line
     end
@@ -614,7 +657,9 @@ function colorize(subs,sel)
 	{x=8,y=6,width=1,height=1,class="checkbox",name="k4",label="\\4c      ",value=false },
 	{x=9,y=6,width=1,height=1,class="checkbox",name="k2",label="\\2c",value=false },
 	{x=6,y=7,width=5,height=1,class="checkbox",name="mktag",label="apply even to colours without tags in line", value=false },
-	-- Set colours across whole line. Colours:
+	
+	{x=9,y=0,width=1,height=1,class="label",label="[v "..script_version.."]"},
+	
 	} 	
 	pressed, res=aegisub.dialog.display(dialog_config,{"Colorize","Shift","Match Colours","RGB","Brightness","Cancel"},{ok='Colorize',close='Cancel'})
 	if pressed=="Cancel" then aegisub.cancel() end

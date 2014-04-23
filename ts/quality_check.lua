@@ -1,7 +1,7 @@
 ﻿script_name="Quality Check"
 script_description="Quality Check"
 script_author="unanimated"
-script_version="2.3"
+script_version="2.62"
 
 require "clipboard"
 
@@ -11,7 +11,15 @@ sorted=0	mblur=0		layer=0		malf=0		inside=0	comment=0	dialog=0	bloped=0	contr=0
 dis=0		over=0		gap=0		dspace=0	dword=0		outside=0	op=0		ed=0		sign=0
 italics=0	lbreak=0	hororifix=0	zeroes=0	badita=0	dotdot=0	comfail=0	oneframe=0	trf=0
 zerot=0		halfsek=0	readableh=0	unreadable=0	saurosis=0	dupli=0		negadur=0	empty=0		orgline=0
-tdura=0		tlength=0	tcps=0		trilin=0	report=""	styles=""	misstyles=""	fontlist=""	fontable={}
+tdura=0		tlength=0	tcps=0		trilin=0	par=0		apo=0
+report=""	styles=", "	misstyles=", "	fontlist=""	fontable={}
+longtext=nil	longline=nil	highcps=nil
+
+tugs1={"blur","be","bord","shad","xbord","xshad","ybord","yshad","fsp","fscx","fscy","frz","frx","fry","fax","fay"}
+tugs2c={"1c","2c","3c","4c"}
+tugs2a={"1a","2a","3a","4a","alpha"}
+tugs3={"pos","move","org","fad"}
+cont={"im","youre","hes","shes","theyre","isnt","arent","wasnt","werent","didnt","thats","heres","theres","wheres","cant","dont","wouldnt","couldnt","shouldnt","hasnt","havent","ive"}
 
   if pressed=="Clear QC" then
     for i=1, #subs do
@@ -25,12 +33,14 @@ tdura=0		tlength=0	tcps=0		trilin=0	report=""	styles=""	misstyles=""	fontlist=""
 		:gsub("%s?%[zero time%]","")
 		:gsub("%s?%[0 time%]","")
 		line.effect=line.effect
-		:gsub("%s?%[malformed tags%]","")
+		:gsub("%s?%[malformed tags%d?%]","")
 		:gsub("%s?%[disjointed tags%]","")
 		:gsub("%s?%[redundant tags%]","")
+		:gsub("%s?%[parentheses fail%]","")
 		:gsub("%s?%.%.%.sort by time pls","")
 		:gsub("%s?%[doublespace%]","")
 		:gsub("%s?%[double word%]","")
+		:gsub("%s?%[missing apostrophe%]","")
 		:gsub("%s?%[italics fail%]","")
 		:gsub(" {\\Stupid","")
 		:gsub("%s?%[stupid contractions%]","")
@@ -42,6 +52,7 @@ tdura=0		tlength=0	tcps=0		trilin=0	report=""	styles=""	misstyles=""	fontlist=""
 		:gsub("%s?%[under 0%.5s%]","")
 		:gsub("%s?%[3%-liner%]","")
 		:gsub("%s?%[\"%]","")
+		:gsub("%s?%[%d+ cps%]","")
             subs[i]=line
         end
     end
@@ -51,14 +62,17 @@ tdura=0		tlength=0	tcps=0		trilin=0	report=""	styles=""	misstyles=""	fontlist=""
 
     -- make list of styles and fonts
     stitle,video,colorspace,resx,resy=nil
-    for i=1, #subs do
+      styletab={}
+    for i=1,#subs do
+      aegisub.progress.title(string.format("Checking styles/info: %d/%d",i,#subs))
       if subs[i].class=="style" then
+	table.insert(styletab,subs[i])
+	if subs[i].name=="Default" then dstyleref=subs[i] end
 	fname=subs[i].fontname
 	fnam=esc(fname)
  	if not fontlist:match(fnam) then fontlist=fontlist..fname.."\n" table.insert(fontable,fname) end
 	styles=styles..subs[i].name..", "
 	redstyles=styles
-	if subs[i].name=="Default" then dstyleref=subs[i] end
       end
       if subs[i].class=="info" then
 	    local k=subs[i].key
@@ -69,16 +83,22 @@ tdura=0		tlength=0	tcps=0		trilin=0	report=""	styles=""	misstyles=""	fontlist=""
 	    if k=="PlayResX" then resx=v end
 	    if k=="PlayResY" then resy=v end
       end
+      if subs[i].class=="dialogue" then break end
     end
     
     if res.distill=="" then distill="xxxxxxxx" else distill=res.distill end
 
     for x, i in ipairs(sel) do
-        local line=subs[i]
-        local text=subs[i].text
-	local style=line.style
-	local effect=line.effect
-	local actor=line.actor
+	cancelled=aegisub.progress.is_cancelled()
+	if cancelled then aegisub.cancel() end
+	aegisub.progress.title(string.format("Checking line: %d/%d",x,#sel))
+	prog=math.floor(x/#sel*100)
+ 	aegisub.progress.set(prog)
+        line=subs[i]
+        text=subs[i].text
+	style=line.style
+	effect=line.effect
+	actor=line.actor
 	if style:match("Defa") or style:match("Alt") or style:match("[Oo]verlap") or style:match(distill) then def=1 else def=0 end
 	if style:match("^OP") or style:match("^ED") then oped=1 else oped=0 end
 	
@@ -98,61 +118,86 @@ tdura=0		tlength=0	tcps=0		trilin=0	report=""	styles=""	misstyles=""	fontlist=""
 	prevend=prevline.end_time
 	dura=endt-start
 	dur=dura/1000
-	char=visible:gsub(" ","")	:gsub("[%.,\"]","")
+	char=visible:gsub(" ","")	:gsub("[%.,%?!'\"—]","")
 	linelen=char:len()
 	rawcps=(linelen/dur)
 	cps=math.ceil(linelen/dur)
+	if res.cps then eff("["..cps.." cps]") end
 	
-	-- check if sorted by time
+	-- check if sorted by time		[All lines]
 	if res["sorted"] then
 	if prevline.class=="dialogue" and start<prevstart then
-	    effect=effect.." ...sort by time pls" sorted=1
+	    eff(" ...sort by time pls") sorted=1
 	end	end
 
       if not line.comment and line.effect~="qcd" then
-	-- check for blur
+	-- check for blur			[non-default]
 	if res["blur"] and def==0 and visible~="" and not text:match("\\blur") and not text:match("\\be") and endt>0 then
 		if res.bloped then  
-		  effect=effect.." -MISSING BLUR-" mblur=mblur+1
+		  eff(" -MISSING BLUR-") mblur=mblur+1
 		  if oped==1 then bloped=bloped+1 end
 		else
-		  if oped==0 then effect=effect.." -MISSING BLUR-" mblur=mblur+1 end
+		  if oped==0 then eff(" -MISSING BLUR-") mblur=mblur+1 end
 		end
 	end
 
-	-- check for malformed tags
-	if res["malformed"] then
-	if text:match("{[^}]-\\\\[^}]-}")
-	or text:match("\\}")  
-	or text:match("\\blur%.") 
-	or text:match("\\bord%.") 
-	or text:match("\\shad%.")
-	or text:match("\\alpha[^&\\}]")
-	or text:match("\\alpha&[^H]")
-	or text:match("\\alpha&H%x[^%x]")
-	or text:match("\\alpha&H%x%x[^&]")
-	or text:match("\\[1234]a[^&\\}]")
-	or text:match("\\[1234]a&[^H]")
-	or text:match("\\[1234]c[^&\\}]")
-	or text:match("\\[1234]?c&[^H]")
-	or text:match("\\[1234]?c&%x%x%x%x%x%x[^&]")
-	or text:match("{\\[^}]*&&[^}]*}")
-	or parenth~=""
-	then effect=effect.." [malformed tags]" malf=malf+1 end
-	clrfail=0
-	for clr in text:gmatch("c&H(%x+)&") do
-	if clr:len()~=6 then clrfail=1 end	end
-	if clrfail==1 then effect=effect.." [malformed tags]" malf=malf+1 end
+	-- check for malformed tags		[All lines]
+	if res["malformed"] then mlf=""
+	  if text:match("{[^}]-\\\\[^}]-}") or text:match("\\}") or text:match("{\\[^}]-&&[^}]-}")
+	    then eff(" [malformed tags]") malf=malf+1 end
+	
+	  for i=1,#tugs1 do tag=tugs1[i]
+	    if text:match("\\"..tag) then
+		for tak in text:gmatch("\\"..tag.."([^\\}%)]-)[\\}%)]") do
+		if not tak:match("^%-?%d[%d%.]-$") and tak~="" then
+		eff(" [malformed tags1]") malf=malf+1 mlf=mlf.." \\"..tag..tak end
+		end
+	    end
+	  end
+	  for i=1,#tugs2c do tag=tugs2c[i]
+	    if text:match("\\"..tag) then
+		for tak in text:gmatch("\\"..tag.."([^\\}%)]-)[\\}%)]") do
+		if not tak:match("^&H%x%x%x%x%x%x&$") and tak~="" then
+		eff(" [malformed tags2]") malf=malf+1 mlf=mlf.." \\"..tag..tak end
+		end
+	    end
+	  end
+	    if text:match("\\c&") then
+		for tak in text:gmatch("\\c([^\\}%)]-)[\\}%)]") do
+		if not tak:match("^&H%x%x%x%x%x%x&$") and not tak:match("lip") and tak~="" then
+		eff(" [malformed tags2]") malf=malf+1 mlf=mlf.." \\"..tag..tak end
+		end
+	    end
+	  for i=1,#tugs2a do tag=tugs2a[i]
+	    if text:match("\\"..tag) then
+		for tak in text:gmatch("\\"..tag.."([^\\}%)]-)[\\}%)]") do
+		if not tak:match("^&H%x%x&$") and tak~="" then
+		eff(" [malformed tags2]") malf=malf+1 mlf=mlf.." \\"..tag..tak end
+		end
+	    end
+	  end
+	  for i=1,#tugs3 do tag=tugs3[i]
+	    if text:match("\\"..tag) then
+		for tak in text:gmatch("\\"..tag.."([^\\}]-)[\\}]") do
+		if not tak:match("^%([%d%.,%-]-%)$") or not tak:match(",") then 
+		 eff(" [malformed tags3]") malf=malf+1 mlf=mlf.." \\"..tag..tak end
+		end
+	    end
+	  end
+	if parenth~="" then eff(" [parentheses fail]") par=par+1 end
+
+	-- check for fucked up comments			[All lines]
+	if visible:match("[{}]") or text:match("}[^{]-}") or text:match("{[^}]-{") then comfail=comfail+1 eff(" {\\Stupid") end
 	end
 
-	-- check for disjointed tags
+	-- check for disjointed tags		[All lines]
 	if res["disjointed"] then
-	if text:match("{\\[^}]*}{\\[^}]*}")
-	then effect=effect.." [disjointed tags]" dis=dis+1 end
+	if text:match("{\\[^}]*}{\\[^}]*}") and not text:match("}{\\k")
+	then eff(" [disjointed tags]") dis=dis+1 end
 	end
 
-	-- check for overlaps and gaps
-	if res["overlap"] then
+	-- check for overlaps and gaps		[Default]
+	if res["overlap"] and actor~="qcd" then
 	if prevline.class=="dialogue" and style:match("Defa") and prevline.style:match("Defa") 
 	and text:match("\\an8")==nil and prevline.text:match("\\an8")==nil and prevline.comment==false then
 		if start<prevend and prevend-start<500 and endt-prevend~=0 then 
@@ -167,30 +212,33 @@ tdura=0		tlength=0	tcps=0		trilin=0	report=""	styles=""	misstyles=""	fontlist=""
 		if endt<start then actor=actor.." [negative duration]" negadur=negadur+1 end
 	end	end
 
-	-- check dialogue layer
+	-- check dialogue layer			[Dialogue]
 	if res["dlayer"] then
 	if def==1 and line.layer==0 then layer=layer+1 
 	end	end
 	
-	-- check for 3-liners
-	if res.tril and def==1 then
-	if style=="Default" then styleref=dstyleref else styleref=stylechk(subs,line.style) end
+	-- check for 3-liners			[Dialogue]
+	if res.tril and def==1 and not text:match("\\q2") and not text:match("\\p1") then
+	if style=="Default" then styleref=dstyleref else styleref=stylechk(line.style) end
+	if styleref==nil then aegisub.log("\n    !! STYLE \""..style.."\" IS MISSING !!") end
 	xres,yres=aegisub.video_size()
 	if xres==nil then xres=resx yres=resy end
 	realx=xres/yres*resy
 	wf=realx/resx
 	vidth=realx-(styleref.margin_l*wf)-(styleref.margin_r*wf)
-	  if not cleantxt:match("\\N") then 
+	width=aegisub.text_extents(styleref,cleantxt)
+	  if width>vidth and not cleantxt:match("\\N") then 
+	  if text:match("^{[^}]*\\i1") and not text:match("\\i0") then styleref.italic=true end
 	  tekst="\\N"..cleantxt
 	  diff=3000	stop=0
 	    while stop==0 do
 	      last=btxt
-	      repeat tekst=tekst:gsub("\\N({[^}]-})","%1\\N") tekst=tekst:gsub("\\N([^%s{}]+)","%1\\N")
-	      until not tekst:match("\\N{[^}]-}") and not tekst:match("\\N([^%s{}]+)")
-	      tekst=tekst:gsub("\\N%s"," \\N")
-	      btxt=tekst:gsub("{[^}]-}","")	:gsub(" \\N","\\N")
-	      bspace=btxt:match("^(.-)\\N")	beforelength=bspace:len()
-	      aspace=btxt:match("\\N(.-)$")	afterlength=aspace:len()
+	      lastwb=wb
+	      lastwa=wa
+	      tekst=tekst:gsub("\\N([^%s{}]+%s)","%1\\N")
+	      btxt=tekst:gsub(" \\N","\\N")
+	      bspace=btxt:match("^(.-)\\N")
+	      aspace=btxt:match("\\N(.-)$")
 	      wb=aegisub.text_extents(styleref,bspace)
 	      wa=aegisub.text_extents(styleref,aspace)
 	      tdiff=math.abs(wb-wa)
@@ -198,87 +246,83 @@ tdura=0		tlength=0	tcps=0		trilin=0	report=""	styles=""	misstyles=""	fontlist=""
 	        stop=1 btxt=last 
 	      end
 	    end
+	    if lastwb>=vidth or lastwa>=vidth then trilin=trilin+1 eff(" [3-liner]") end
 	  end
-	  if cleantxt:match("\\N") then btxt=cleantxt end
-	  bspace=btxt:match("^(.-)\\N")  aspace=btxt:match("\\N(.-)$")
-	  wb=aegisub.text_extents(styleref,bspace)
-	  wa=aegisub.text_extents(styleref,aspace)
-	  if wb>=vidth or wa>=vidth then trilin=trilin+1 effect=effect.." [3-liner]" end
+	  if cleantxt:match("\\N") then btxt=cleantxt 
+	    if text:match("^{[^}]*\\i1") and not text:match("\\i0") then styleref.italic=true end
+	    bspace=btxt:match("^(.-)\\N")  aspace=btxt:match("\\N(.-)$")
+	    wb=aegisub.text_extents(styleref,bspace)
+	    wa=aegisub.text_extents(styleref,aspace)
+	    if wb>=vidth or wa>=vidth then trilin=trilin+1 eff(" [3-liner]") end
+	  end
 	end
 
-	-- check for double spaces in dialogue
+	-- check for double spaces/periods in dialogue		[Dialogue]
 	if res["doublespace"] and def==1 then
-		if visible:match("%s%s") then effect=effect.." [doublespace]" dspace=dspace+1 end
+		if visible:match("%s%s") then eff(" [doublespace]") dspace=dspace+1 end
+		if visible:match("[^%.]%.%.[^%.]") or visible:match("[^%.]%.%.$") then eff(" [..]") dotdot=dotdot+1 end
 	end
 
-	-- check for double words
+	-- check for double words			[Dialogue]
 	if res["doubleword"] and def==1 then
 	visible2w=visible.."."
 	    for derp in visible2w:gmatch("%s?([%w%s\']+)[%p]") do
 	    derp2=derp:gsub("^[%a\']+","")
 		for a,b in derp:gmatch("([%a\']+)%s([%a\']+)") do
-		if a==b and not a:match("^%u") then effect=effect.." [double word]" dword=dword+1 end
+		if a==b and not a:match("^%u") then eff(" [double word]") dword=dword+1 end
 		end
 		for a,b in derp2:gmatch("([%a\']+)%s([%a\']+)") do
-		if a==b and not a:match("^%u") then effect=effect.." [double word]" dword=dword+1 end
+		if a==b and not a:match("^%u") then eff(" [double word]") dword=dword+1 end
 		end
 	    end
 	end
-
-	-- check for fucked up comments
-	if visible:match("[{}]") or text:match("}[^{]-}") or text:match("{[^}]-{") then comfail=comfail+1 effect=effect.." {\\Stupid" end
 
 	-- check for bad italics - {\i1}   {\i1}
 	if res.failita and not text:match("\\r") then
 	  itafail=0
 	  itl=""
 	  for it in text:gmatch("\\i([01]?)[\\}]") do 
-	    if it=="" then styleref=stylechk(subs,line.style)
+	    if it=="" then styleref=stylechk(line.style)
 	      if styleref.italics then it="1" else it="0" end
 	    end
 	  itl=itl..it end
 	  if itl:match("11") or itl:match("00") then itafail=1 end
-	  if itafail==1 then effect=effect.." [italics fail]" badita=badita+1 end
+	  if itafail==1 then eff(" [italics fail]") badita=badita+1 end
 	end
 
 	-- check readability	(some sentences are much harder to read than others, so don't take this too seriously, but over 25 is probably bad.)
 	ll=linelen ra=0
 	if res.read and def==1 and dura>50 and alfatime==0 and prevcleantxt~=cleantxt then		-- these could use rephrasing if possible
-	  if cps==23 and ll>60 then effect=effect.." [hard to read?]" ra=1 end
+	  if cps==23 and ll>60 then eff(" [hard to read?]") ra=1 end
 	  if cps>23 and cps<=26 then 
-	    if ll>25 and ll<100 then effect=effect.." [hard to read?]" ra=1 end
-	    if ll>=100 then effect=effect.." [hard to read]" ra=1 end
+	    if ll>25 and ll<100 then eff(" [hard to read?]") ra=1 end
+	    if ll>=100 then eff(" [hard to read]") ra=1 end
 	  end
-	  if cps>26 and cps<30 and ll<=30 then effect=effect.." [hard to read?]" ra=1 end
+	  if cps>26 and cps<30 and ll<=30 then eff(" [hard to read?]") ra=1 end
 	end
 	
 	if res.noread and def==1 and dura>50 and alfatime==0 and prevcleantxt~=cleantxt then	-- from here on, it's bad. rephrase/retime
 	  if cps>26 and cps<30 then
-	    if ll>30 and ll<=60 then effect=effect.." [unreadable]" ra=2 end
-	    if ll>60 then effect=effect.." [unreadable!]" ra=2 end
+	    if ll>30 and ll<=60 then eff(" [unreadable]") ra=2 end
+	    if ll>60 then eff(" [unreadable!]") ra=2 end
 	  end
 	  if cps>=30 and cps<=35 then 
-	    if ll<=30 then effect=effect.." [unreadable]" ra=2 end
-	    if ll>30 and ll<=60 then effect=effect.." [unreadable!]" ra=2 end
-	    if ll>60 then effect=effect.." [unreadable!!]" ra=2 end
+	    if ll<=30 then eff(" [unreadable]") ra=2 end
+	    if ll>30 and ll<=60 then eff(" [unreadable!]") ra=2 end
+	    if ll>60 then eff(" [unreadable!!]") ra=2 end
 	  end
-	  if cps>35 then effect=effect.." [UNREADABLE!!]" ra=2 end			-- timer and editor need to be punched
+	  if cps>35 then eff(" [UNREADABLE!!]") ra=2 end			-- timer and editor need to be punched
 	end
 	if ra==1 then readableh=readableh+1 end
 	if ra==2 then unreadable=unreadable+1 end
 
-	-- check for double periods
-	if def==1 then
-	if visible:match("[^%.]%.%.[^%.]") or visible:match("[^%.]%.%.$") then effect=effect.." [..]" dotdot=dotdot+1 end
-	end
-
-	-- check for periods/commas inside/outside quotation marks
+	-- check for periods/commas inside/outside quotation marks	[All lines]
 	if not visible:match("^\"[^\"]+\"$") and not visible:match("^[^\"]+[%.%?!]%s\"%u[^\"]+\"$") then
-	if visible:match("[%.,]\"") then inside=inside+1 if res.quot then effect=effect.." [\"]" end end
-	if visible:match("\"[%.,][^%.]") or visible:match("\"[%.,]$") then outside=outside+1 if res.quot then effect=effect.." [\"]" end end
+	if visible:match("[^%.][%.,]\"") then inside=inside+1 if res.quot then eff(" [\"]") end end
+	if visible:match("\"[%.,][^%.]") or visible:match("\"[%.,]$") then outside=outside+1 if res.quot then eff(" [\"]") end end
 	end
 
-	-- check for redundant tags
+	-- check for redundant tags		[All lines]
 	if res.redundant then dup=0
 	tags1={"blur","be","bord","shad","fs","fsp","fscx","fscy","frz","frx","fry","fax","fay","c","2c","3c","4c","1a","2a","3a","4a","alpha"}
 	  for tax in text:gmatch("({\\[^}]-})") do
@@ -288,28 +332,36 @@ tdura=0		tlength=0	tcps=0		trilin=0	report=""	styles=""	misstyles=""	fontlist=""
 	    end
 	  end
 	if text:match("{\\[^}]-}$") then dup=1 end
-	if dup==1 then dupli=dupli+1 effect=effect.." [redundant tags]" end
+	if dup==1 then dupli=dupli+1 eff(" [redundant tags]") end
 	end
 
-	-- lines under 0.5s
+	-- lines under 0.5s			[Dialogue]
 	if res.halfsec and def==1 and visible~="" and ll>8 and prevcleantxt~=cleantxt then
-	if dura<500 and dura>50 then halfsek=halfsek+1 effect=effect.." [under 0.5s]" end
+	if dura<500 and dura>50 then halfsek=halfsek+1 eff(" [under 0.5s]") end
 	end
 
-	-- Hdr request against jdpsetting
+	-- Hdr request against jdpsetting	[All lines]
 	if text:match("{\\an8\\bord[%d%.]+\\pos%([%d%.%,]*%)}") then actor=" What are you doing..." end
 	
-	if text:match("embarass") then effect=effect.." how embarrassing" end
-	
-	if text:match(" a women ") then effect=effect.." a what?" end
-	
-	if text:match("'ve have") then effect=effect.." Now you've have done it!" end
-	
+	if visible:match("embarass") then eff(" how embarrassing") end
+	if visible:match(" a women ") then eff(" a what?") end
+	if visible:match("'ve have") then eff(" Now you've have done it!") end
+	if visible:match(" the my ") or visible:match(" the h[ei][rs] ") then eff(" the what?") end
+
 	-- retarded / pointless contractions that sound the same as not contracted / are unpronounceable
 	if visible:match("[wt]here're") or visible:match("this'[sd]")  or visible:match("when'[drv]")
 	or visible:match("guys'[rv]e") or visible:match("ll've")
-	then contr=contr+1 effect=effect.." [stupid contractions]" end
-	
+	then contr=contr+1 eff(" [stupid contractions]") end
+
+	-- missing apostrophes
+	if res.apo then
+	  context=" "..visible:lower().." "
+	  context=context:gsub("[%.,%?!\"]","")
+	  for c=1,#cont do local word=cont[c]
+	    if context:match(" "..word.." ") then eff(" [missing apostrophe]") apo=apo+1 end
+	  end
+	end
+
 	-- count OP lines
 	if style:match("^OP") then op=op+1 end
 	
@@ -325,29 +377,29 @@ tdura=0		tlength=0	tcps=0		trilin=0	report=""	styles=""	misstyles=""	fontlist=""
 	-- count lines with italics
 	if res["italix"] and def==1 and text:match("\\i1") then italics=italics+1 end
 	
-	-- count honorifics
+	-- count honorifics			[Dialogue]
 	if res["honorifix"] and def==1 then
 		if visible:match("%a%-san[^%a]") or visible:match("%a%-kun[^%a]") or visible:match("%a%-chan[^%a]")
 		or visible:match("%a%-sama[^%a]") or visible:match("%a%-se[mn]pai") or visible:match("%a%-dono")
 		or visible:match("%a%-sensei") then hororifix=hororifix+1 end
 	end
 	
-	-- count lines with 0 time
+	-- count lines with 0 time		[All lines]
 	if res["zero"] then
-	if endt==start then zeroes=zeroes+1 actor=actor.." [0 time]" end
+	  if endt==start then zeroes=zeroes+1 actor=actor.." [0 time]" end
 	end
 	
-	-- check for missing styles
+	-- check for missing styles		[All lines]
 	sty=esc(style)
-	if res.mistyle and not styles:match(sty) and not misstyles:match(sty) then misstyles=misstyles..style..", " end
+	if res.mistyle and not styles:match(", "..sty..",") and not misstyles:match(", "..sty..",") then misstyles=misstyles..style..", " end
 	
-	-- list unused styles
+	-- list unused styles			[All lines]
 	if res.uselesstyle then --aegisub.log("\nsty "..sty)
 	    if redstyles:match("^"..sty..",") or redstyles:match(", "..sty..",") then 
 	    redstyles=redstyles:gsub("^"..sty..", ","") redstyles=redstyles:gsub(", "..sty..", ",", ") end
 	end
 	
-	-- collect font names
+	-- collect font names			[All lines]
 	if res.fontcheck and text:match("\\fn") then 
 	    for fontname in text:gmatch("\\fn([^}\\]+)") do
 	    fname=esc(fontname)
@@ -389,15 +441,16 @@ tdura=0		tlength=0	tcps=0		trilin=0	report=""	styles=""	misstyles=""	fontlist=""
 	
 	-- faggosaurosis count
 	if res.sauro then
-	  if line.effect~=effect and effect~=" [\"]" or line.actor~=actor then saurosis=saurosis+1 end
+	  saureff=effect:gsub(" %[\"%]","") :gsub("%s?%[%d+ cps%]","")  lsaureff=line.effect:gsub(" %[\"%]","") :gsub("%s?%[%d+ cps%]","")
+	  if lsaureff~=saureff or line.actor~=actor then saurosis=saurosis+1 end
 	end
 	
 	line.actor=actor
 	line.effect=effect
 	line.text=text
         subs[i]=line
-	aegisub.progress.title(string.format("Checking line: %d/%d",x,#sel))
     end
+    aegisub.progress.title(string.format("Processing data..."))
     if stitle~=nil then report=report.."Script Title:	"..stitle.."\n" end
     if video~=nil then report=report.."Video File:	"..video.."\n" end
     if colorspace~=nil then report=report.."Colorspace:	"..colorspace.."\n" end
@@ -410,7 +463,7 @@ tdura=0		tlength=0	tcps=0		trilin=0	report=""	styles=""	misstyles=""	fontlist=""
 	redstyles=redstyles:gsub(", $","")
     
     if #sel==1 then  report=report.."Selection: "..#sel.." line,   "
-    else report=report.."Selection: "..#sel.." lines,   " end
+    else report=report.."Selection: "..#sel.." lines,   " mlf="" end
     report=report.."Commented: "..comment.."\n"
     report=report.."Dialogue: "..dialog..",   OP: "..op..",   ED: "..ed..",   TS: "..sign.."\n\n"
     if res["lbreax"] then report=report.."Dialogue lines with linebreaks... "..lbreak.."\n" end
@@ -430,12 +483,13 @@ tdura=0		tlength=0	tcps=0		trilin=0	report=""	styles=""	misstyles=""	fontlist=""
     report=report.."\n\n----------------  PROBLEMS FOUND ----------------\n\n"
     if sorted==1 then report=report.."NOT SORTED BY TIME.\n" end
     if colorspace=="TV.601" then report=report.."COLORSPACE IS TV.601. Use TV.709 or Daiz will haunt you!\n" end
-    if misstyles~="" then misstyles=misstyles:gsub(", $","") report=report.."MISSING STYLES: "..misstyles.."\n" end
+    if misstyles~=", " then misstyles=misstyles:gsub(", $","") report=report.."MISSING STYLES: "..misstyles.."\n" end
     if mblur~=0 then report=report.."Non-dialogue lines with missing blur... "..mblur.."\n" end
     if bloped~=0 then report=report.."Out of those OP/ED... "..bloped.."\n" end
-    if malf~=0 then report=report.."Lines with malformed tags... "..malf.."\n" end
+    if malf~=0 then report=report.."Malformed tags found... "..malf.."    "..mlf.."\n" end
     if dis~=0 then report=report.."Lines with disjointed tags... "..dis.."\n" end
     if dupli~=0 then report=report.."Lines with redundant tags... "..dupli.."\n" end
+    if par~=0 then report=report.."Parentheses fail... "..par.."\n" end
     if trilin~=0 then report=report.."THREE-LINERS... "..trilin.."\n" end
     if over~=0 then report=report.."Suspicious timing overlaps... "..over.."\n" end
     if gap>9 then gapu="  --  Timer a shit" else gapu="" end
@@ -445,6 +499,7 @@ tdura=0		tlength=0	tcps=0		trilin=0	report=""	styles=""	misstyles=""	fontlist=""
     if dspace~=0 then report=report.."Dialogue lines with double spaces... "..dspace.."\n" end
     if dword~=0 then report=report.."Dialogue lines with a double word... "..dword.."\n" end
     if dotdot~=0 then report=report.."Dialogue lines with double periods... "..dotdot.."\n" end
+    if apo~=0 then report=report.."Missing apostrophes... "..apo.."\n" end
     if halfsek~=0 then report=report.."Dialogue lines under 0.5s... "..halfsek.."\n" end
     if readableh~=0 then report=report.."Lines that may be hard to read... "..readableh.."\n" end
     if unreadable>9 then unrdbl="  --  Editor a shit" else unrdbl="" end
@@ -459,14 +514,14 @@ tdura=0		tlength=0	tcps=0		trilin=0	report=""	styles=""	misstyles=""	fontlist=""
     if saurosis>99 and saurosis<500 then report=report.."Total lines with faggosaurosis... "..saurosis.." -- You're doing it wrong!\n" end
     if saurosis>499 then report=report.."Total lines with faggosaurosis... "..saurosis.." -- WARNING: YOUR FAGGOSAUROSIS LEVELS ARE TOO HIGH!\n" end
     if layer~=0 and sign ~=0 and #sel>dialog then report=report.."Dialogue may overlap with TS. Set to higher layer to avoid.\n" end
-    if sorted==0 and mblur==0 and malf==0 and dis==0 and over==0 and gap==0 and dspace==0 and dotdot==0 and badita==0 and comfail==0 and unreadable==0 and misstyles=="" and colorspace~="TV.601" then
+    if sorted==0 and mblur==0 and malf==0 and dis==0 and par==0 and over==0 and gap==0 and dspace==0 and apo==0 and dotdot==0 and badita==0 and comfail==0 and unreadable==0 and misstyles==", " and colorspace~="TV.601" then
     report=report.."\nCongratulations. No serious problems found." else
     if saurosis<500 then report=report.."\nPlease fix the problems and try again." end
     if saurosis>499 then report=report.."\nWHAT ARE YOU DOING?! FIX THAT SHIT, AND DON'T FUCK IT UP AGAIN NEXT TIME!" end
     end
     brcount=0
     for brk in report:gmatch("\n") do brcount=brcount+1 end
-    
+    aegisub.progress.title(string.format("Done"))
         reportdialog=
 	{{x=0,y=0,width=50,height=1,class="label",label="Text to export:"},
 	{x=0,y=1,width=50,height=brcount/2+6,class="textbox",name="copytext",value=report},}
@@ -487,17 +542,17 @@ function dial5(subs)
     end
 end
 
-function stylechk(subs,stylename)
-    for i=1, #subs do
-        if subs[i].class=="style" then
-	    local style=subs[i]
-	    if stylename==style.name then
-		styleref=style
-	    end
+function stylechk(stylename)
+    for i=1,#styletab do
+	if stylename==styletab[i].name then
+	    styleref=styletab[i]
+	    if styletab[i].name=="Default" then defaref=styletab[i] end
 	end
     end
     return styleref
 end
+
+function eff(x) effect=effect..x end
 
 function esc(str)
 str=str
@@ -514,11 +569,14 @@ str=str
 return str
 end
 
+qderp={"Fuck this","Yeah, no","pls no","Get out","QC my ass","Derp","Shut up","nope.avi",". . .","???","No, wait...","button"}
+
 function konfig(subs, sel)
-	dialog_config=
-	{
+qr=math.random(1,#qderp)
+qcgui={
 	{x=1,y=0,width=1,height=1,class="label",label="Note: Dialogue styles must match 'Defa' or 'Alt' or: "},
 	{x=2,y=0,width=1,height=1,class="edit",name="distill",},
+	{x=3,y=0,width=1,height=1,class="label",label=" QC Version:"..script_version},
 	{x=1,y=1,width=1,height=1,class="label",label="Analysis [applies to SELECTED lines]:"   },
         {x=1,y=2,width=1,height=1,class="checkbox",name="sorted",label="Check if sorted by time",value=true},
 	{x=1,y=3,width=1,height=1,class="checkbox",name="blur",label="Check for missing blur in signs",value=true},
@@ -527,16 +585,17 @@ function konfig(subs, sel)
 	{x=1,y=5,width=1,height=1,class="checkbox",name="overlap",label="Check for overlaps / gaps / zero-time lines",value=true},
 	{x=1,y=6,width=1,height=1,class="checkbox",name="malformed",label="Check for malformed tags - \\blur.5, \\alphaFF, \\\\",value=true},
 	{x=1,y=7,width=1,height=1,class="checkbox",name="disjointed",label="Check for disjointed tags - {\\tags...}{\\tags...}",value=true},
-	{x=1,y=8,width=1,height=1,class="checkbox",name="doublespace",label="Check for double spaces in dialogue",value=true},
+	{x=1,y=8,width=1,height=1,class="checkbox",name="doublespace",label="Check for double spaces/periods in dialogue",value=true},
 	{x=1,y=9,width=1,height=1,class="checkbox",name="doubleword",label="Check for double words in dialogue",value=true},
-	{x=1,y=10,width=1,height=1,class="checkbox",name="tril",label="Check for three-liners (slowish)",value=true},
-	{x=1,y=11,width=1,height=1,class="checkbox",name="read",label="Check for hard-to-read lines",value=true},
-	{x=1,y=12,width=1,height=1,class="checkbox",name="noread",label="Check for unreadable lines",value=true},
-	{x=1,y=13,width=1,height=1,class="checkbox",name="redundant",label="Check for redundant tags",value=true},
-	{x=1,y=14,width=1,height=1,class="checkbox",name="failita",label="Check for bad italics",value=true},
-	{x=1,y=15,width=1,height=1,class="checkbox",name="mistyle",label="Check for missing styles",value=true},
-	{x=1,y=16,width=1,height=1,class="checkbox",name="dlayer",label="Check dialogue layer",value=true},
-	{x=1,y=17,width=1,height=1,class="checkbox",name="halfsec",label="Check for dialogue lines under 0.5s",value=true,hint="bur over 1 frame and over 8 characters"},
+	{x=1,y=10,width=1,height=1,class="checkbox",name="apo",label="Check for missing apostrophes",value=true},
+	{x=1,y=11,width=1,height=1,class="checkbox",name="tril",label="Check for three-liners (slowish, needs video res)",value=true},
+	{x=1,y=12,width=1,height=1,class="checkbox",name="read",label="Check for hard-to-read lines",value=true},
+	{x=1,y=13,width=1,height=1,class="checkbox",name="noread",label="Check for unreadable lines",value=true},
+	{x=1,y=14,width=1,height=1,class="checkbox",name="redundant",label="Check for redundant tags",value=true},
+	{x=1,y=15,width=1,height=1,class="checkbox",name="failita",label="Check for bad italics",value=true},
+	{x=1,y=16,width=1,height=1,class="checkbox",name="mistyle",label="Check for missing styles",value=true},
+	{x=1,y=17,width=1,height=1,class="checkbox",name="dlayer",label="Check dialogue layer",value=true},
+	{x=1,y=18,width=1,height=1,class="checkbox",name="halfsec",label="Check for dialogue lines under 0.5s",value=true,hint="bur over 1 frame and over 8 characters"},
 	
 	{x=2,y=1,width=2,height=1,class="label",label="More useless statistics..."},
 	{x=2,y=2,width=2,height=1,class="checkbox",name="italix",label="Count dialogue lines with italics tag",value=false},
@@ -550,35 +609,36 @@ function konfig(subs, sel)
 	{x=2,y=10,width=2,height=1,class="checkbox",name="longtext",label="Line with longest text",value=true},
 	{x=2,y=11,width=2,height=1,class="checkbox",name="longline",label="Line with longest duration",value=true},
 	{x=2,y=12,width=2,height=1,class="checkbox",name="highcps",label="Line with highest CPS",value=true},
-	{x=2,y=13,width=2,height=1,class="checkbox",name="quot",label="Mark lines with in/out quotation marks",value=false},
-	{x=2,y=14,width=2,height=1,class="checkbox",name="fontcheck",label="List used fonts",value=false},
-	{x=2,y=15,width=2,height=1,class="checkbox",name="uselesstyle",label="List unused styles",value=false},
-	{x=2,y=16,width=2,height=1,class="checkbox",name="sauro",label="Count lines with faggosaurosis",value=true},
+	{x=2,y=13,width=2,height=1,class="checkbox",name="cps",label="Write CPS",value=false},
+	{x=2,y=14,width=2,height=1,class="checkbox",name="quot",label="Mark lines with in/out quotation marks",value=false},
+	{x=2,y=15,width=2,height=1,class="checkbox",name="fontcheck",label="List used fonts",value=false},
+	{x=2,y=16,width=2,height=1,class="checkbox",name="uselesstyle",label="List unused styles",value=false},
+	{x=2,y=17,width=2,height=1,class="checkbox",name="sauro",label="Count lines with faggosaurosis",value=true},
 	
-	{x=1,y=18,width=2,height=1,class="label",label=""},
-	{x=1,y=19,width=3,height=1,class="label",label="This is to help you spot mistakes. If you're using this INSTEAD of QC, you're dumb."},
-	
-	}
-	buttons={">QC","Clear QC","Dial 5","Check all","Fuck this fansubbing business"}
+	{x=1,y=19,width=2,height=1,class="label",label=""},
+	{x=1,y=20,width=3,height=1,class="label",label="This is to help you spot mistakes. If you're using this INSTEAD of QC, you're dumb."},
+}
+	buttons={">QC","Clear QC","Dial 5","Check all","Uncheck",qderp[qr]}
 	
 	repeat
-	    if pressed=="Check all" then
-		for key,val in ipairs(dialog_config) do
+	    if pressed=="Check all" or pressed=="Uncheck" then
+		for key,val in ipairs(qcgui) do
 		    if val.class=="checkbox" then
 			if pressed=="Check all" then val.value=true end
+			if pressed=="Uncheck" then val.value=false end
 		    end
 		end
 	    end
-	pressed,res=aegisub.dialog.display(dialog_config,buttons,{ok='>QC',cancel='Fuck this fansubbing business'})
-	until pressed~="Check all"
+	pressed,res=aegisub.dialog.display(qcgui,buttons,{ok='>QC',cancel=qderp[qr]})
+	until pressed~="Check all" and pressed~="Uncheck"
 	
 	if pressed==">QC" or pressed=="Clear QC" then qc(subs, sel) end
 	if pressed=="Dial 5" then dial5(subs) end
-	if pressed=="Fuck this fansubbing business" then aegisub.cancel() end
+	if pressed==qderp[qr] then aegisub.cancel() end
 end
 
 function kyuusii(subs, sel)
-    konfig(subs, sel) 
+    konfig(subs, sel)
     aegisub.set_undo_point(script_name)
     return sel
 end

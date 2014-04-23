@@ -1,7 +1,7 @@
 ﻿script_name="MultiCopy"
 script_description="Copy tags or text from multiple lines and paste to others"
 script_author="unanimated"
-script_version="1.61"
+script_version="1.81"
 
 require "clipboard"
 
@@ -268,8 +268,8 @@ raw=res.dat	raw=raw:gsub("\n","")
     failc=0    	pasteover=0    podetails=""
   if res.oneline==true then
 	for x, i in ipairs(sel) do
-        local line=subs[i]
-	local text=subs[i].text
+        line=subs[i]
+	text=line.text
 	if not text:match("^{\\") then text="{\\mc}"..text end
 	if PM=="clip" and text:match("^{[^}]-\\clip") then text=text:gsub("^({[^}]-\\i?clip%()[^%)]+(%))","%1"..raw.."%2") end
 	if PM=="clip" and not text:match("^{[^}]-\\clip") then text=text:gsub("^({\\[^}]*)}","%1\\clip%("..raw.."%)}") end
@@ -288,6 +288,13 @@ raw=res.dat	raw=raw:gsub("\n","")
 	if PM=="actor" then line.actor=raw end
 	if PM=="effect" then line.effect=raw end
 	if PM=="duration" then line.end_time=line.start_time+raw end
+	if PM=="text mod." then text=textmod(raw) end
+	if PM=="gbc text" then
+	    stags=text:match("^({\\[^}]-})")
+	    if stags==nil then stags="" end
+	    lastag=text:match("({\\[^}]-}).$")
+	    text=stags..raw:gsub("(.)$",lastag.."%1")
+	end
 	text=text:gsub("({\\[^}]-})",function(tg) return duplikill(tg) end)
 	text=text:gsub("\\mc","")
 	text=text:gsub("{}","")
@@ -299,14 +306,17 @@ raw=res.dat	raw=raw:gsub("\n","")
     for dataline in raw:gmatch("(.-)\n") do table.insert(data,dataline) end
     
     -- paste over with check
-    if PM=="all" then pasteover=1 pasterep="" pnum=""	m100=0 m0=0 mtotal=0 om=0 omtotal=0
-    for i=1,#subs do if subs[i].class=="dialogue" then z=i-1 break end end
+    if PM=="all" then pasteover=1 pasterep="" pnum=""	m100=0 m0=0 mtotal=0 om=0 omtotal=0 alter="Default"
+    for i=1,#subs do 
+        if subs[i].class=="style" and subs[i].name:match("Alt") then alter=subs[i].name end
+	if subs[i].class=="dialogue" then z=i-1 break end 
+    end
     susp=""	suspL=0	suspT=0	sustab={}
       for x, i in ipairs(sel) do
 	line=subs[i]
-	T1l=subs[i].text		T2l=data[x]	if T2l==nil then T2l="" end
-	T1=T1l:gsub("{[^}]-}","")	T2=T2l:gsub("{[^}]-}","")
-	L1=T1:len()			L2=T2:len()
+	T1l=subs[i].text				T2l=data[x]	if T2l==nil then T2l="" end T2l=T2l:gsub("^%w+:([^%s])","%1")
+	T1=T1l:gsub("{[^}]-}","") :gsub("\\N"," ")	T2=T2l:gsub("{[^}]-}","") :gsub("\\N"," ")
+	L1=T1:len()					L2=T2:len()
 	ln=i-z	if ln<10 then ln="00"..ln elseif ln<100 then ln="0"..ln end
 	
 	-- comparing words between current and pasted
@@ -347,8 +357,10 @@ raw=res.dat	raw=raw:gsub("\n","")
 	if match==0 then m0=m0+1 end
 	mtotal=mtotal+match
 	omtotal=omtotal+othermatch
-	--line.effect=othermatch
+	line.effect=othermatch
 	line.text=T2l
+	if T2l:match("{%*ALT%*}") then line.style=alter end
+	if T2l:match("^%#") then line.comment=true end
 	subs[i]=line
       end
 	
@@ -365,31 +377,45 @@ raw=res.dat	raw=raw:gsub("\n","")
 		otherm=math.floor(om*100/#sel+0.5)	totalom=math.floor(omtotal*10/#sel+0.5)/10
 		podetails="Line count of the selection matched pasted data. ("..#sel.." lines)\nFull match: "..m100.."/"..#sel.." ("..fullm.."%)   Both ways: "..om.."/"..#sel.." ("..otherm.."%, ie. "..#sel-om.." lines changed - ".. 100-otherm.."%)\nZero match: "..m0.."/"..#sel.." ("..zerom.."%)\nOverall match: "..totalm.."% (".. 100-totalm.."% change / ".. 100-totalom.."% both ways)"
 	end
+	
     end
       
     if #sel~=#data and pasteover==0 then failc=1
     else
 	for x, i in ipairs(sel) do
-        local line=subs[i]
-	local text=subs[i].text
+        line=subs[i]
+	text=line.text
+	text2=data[x]
 	if not text:match("^{\\") then text="{\\mc}"..text end
-	if PM=="clip" and text:match("^{[^}]-\\clip") then text=text:gsub("^({[^}]-\\i?clip%()[^%)]+(%))","%1"..data[x].."%2") end
-	if PM=="clip" and not text:match("^{[^}]-\\clip") then text=text:gsub("^({\\[^}]*)}","%1\\clip%("..data[x].."%)}") end
-	if PM=="position" and text:match("\\pos") then text=text:gsub("(\\pos%()[^%)]+(%))","%1"..data[x].."%2") end
-	if PM=="position" and not text:match("\\pos") then text=text:gsub("^({\\[^}]*)}","%1\\pos%("..data[x].."%)}") end
-	if PM=="blur" then text=addtag("\\blur"..data[x],text) end
-	if PM=="border" then text=addtag("\\bord"..data[x],text) end
-	if PM=="\\1c" then text=addtag("\\c"..data[x],text) end
-	if PM=="\\3c" then text=addtag("\\3c"..data[x],text) end
-	if PM=="\\4c" then text=addtag("\\4c"..data[x],text) end
-	if PM=="alpha" then text=addtag("\\alpha"..data[x],text) end
-	if PM=="\\fscx" or PM=="\\fscx\\fscy" then text=addtag("\\fscx"..data[x],text) end
-	if PM=="\\fscy" or PM=="\\fscx\\fscy" then text=addtag("\\fscy"..data[x],text) end
-	if PM=="any tag" then text=text:gsub("^({\\[^}]*)}","%1"..data[x].."}") end
-	if PM=="layer" then line.layer=data[x] end
-	if PM=="actor" then line.actor=data[x] end
-	if PM=="effect" then line.effect=data[x] end
-	if PM=="duration" then line.end_time=line.start_time+data[x] end
+	if PM=="clip" and text:match("^{[^}]-\\clip") then text=text:gsub("^({[^}]-\\i?clip%()[^%)]+(%))","%1"..text2.."%2") end
+	if PM=="clip" and not text:match("^{[^}]-\\clip") then text=text:gsub("^({\\[^}]*)}","%1\\clip%("..text2.."%)}") end
+	if PM=="position" and text:match("\\pos") then text=text:gsub("(\\pos%()[^%)]+(%))","%1"..text2.."%2") end
+	if PM=="position" and not text:match("\\pos") then text=text:gsub("^({\\[^}]*)}","%1\\pos%("..text2.."%)}") end
+	if PM=="blur" then text=addtag("\\blur"..text2,text) end
+	if PM=="border" then text=addtag("\\bord"..text2,text) end
+	if PM=="\\1c" then text=addtag("\\c"..text2,text) end
+	if PM=="\\3c" then text=addtag("\\3c"..text2,text) end
+	if PM=="\\4c" then text=addtag("\\4c"..text2,text) end
+	if PM=="alpha" then text=addtag("\\alpha"..text2,text) end
+	if PM=="\\fscx" or PM=="\\fscx\\fscy" then text=addtag("\\fscx"..text2,text) end
+	if PM=="\\fscy" or PM=="\\fscx\\fscy" then text=addtag("\\fscy"..text2,text) end
+	if PM=="any tag" then text=text:gsub("^({\\[^}]*)}","%1"..text2.."}") end
+	if PM=="layer" then line.layer=text2 end
+	if PM=="actor" then line.actor=text2 end
+	if PM=="effect" then line.effect=text2 end
+	if PM=="duration" then line.end_time=line.start_time+text2 end
+	if PM=="text mod." then text=textmod(text2) end
+	if PM=="gbc text" then
+	    stags=text:match("^({\\[^}]-})")
+	    if stags==nil then stags="" end
+	    lastag=text:match("({\\[^}]-}).$")
+	    text=stags..text2:gsub("(.)$",lastag.."%1")
+	end
+	if PM=="de-irc" then
+	    line=string2line(text2)
+	    text=line.text
+	end
+	
 	text=text:gsub("({\\[^}]-})",function(tg) return duplikill(tg) end)
 	text=text:gsub("\\mc","")
 	text=text:gsub("{}","")
@@ -402,12 +428,76 @@ raw=res.dat	raw=raw:gsub("\n","")
     label="Line count of the selection \ndoesn't match pasted data.\nSelection: "..#sel.."\nPasted data: "..#data,x=0,y=0,width=1,height=2}},
     {"OK"},{close='OK'})
     end
-
-    if pasteover==1 then aegisub.dialog.display({
+	
+    if pasteover==1 then pr,rs=aegisub.dialog.display({
     {x=0,y=0,width=40,height=1,class="label",name="ch1",label="line       % matched    matched words"},
     {x=0,y=1,width=40,height=18,class="textbox",name="ch2",value=pasterep},
     {x=0,y=19,width=40,height=4,class="textbox",name="ch3",value=podetails},
-    },{"OK"},{close='OK'})  end
+    {x=0,y=23,width=40,height=1,class="checkbox",name="ef",label="% in effect",value=false},
+    },{"OK"},{close='OK'})
+    	if not rs.ef then
+	  for x, i in ipairs(sel) do l=subs[i] l.effect="" subs[i]=l end
+	end
+    end
+end
+
+-- paste text over while keeping tags
+function textmod(text2)
+    tk={}
+    tg={}
+	text=text:gsub("{\\\\k0}","")
+	repeat text=text:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
+	    until not text:match("{(\\[^}]-)}{(\\[^}]-)}")
+	vis=text:gsub("{[^}]-}","")
+	  for c in text2:gmatch(".") do
+	    table.insert(tk,c)
+	  end
+	stags=text:match("^{(\\[^}]-)}")
+	if stags==nil then stags="" end
+	text=text:gsub("^{\\[^}]-}","") :gsub("{[^\\}]-}","")
+	count=0
+	for seq in text:gmatch("[^{]-{%*?\\[^}]-}") do
+	    chars,as,tak=seq:match("([^{]-){(%*?)(\\[^}]-)}")
+	    pos=chars:len()+count
+	    tgl={p=pos,t=tak,a=as}
+	    table.insert(tg,tgl)
+	    count=pos
+	end
+    newline=""
+    for i=1,#tk do
+	newline=newline..tk[i]
+	newt=""
+	for n, t in ipairs(tg) do
+	    if t.p==i then newt=newt..t.t as=t.a end
+	end
+	if newt~="" then newline=newline.."{"..as..newt.."}" end
+    end
+    newtext="{"..stags.."}"..newline
+    text=newtext
+    return text
+end
+
+function string2line(str)
+	local ltype,layer,s_time,e_time,style,actor,margl,margr,margv,eff,txt=str:match("(%a+): (%d+),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),(.*)")
+	l2={}
+	l2.class="dialogue"
+	if ltype=="Comment" then l2.comment=true else l2.comment=false end
+	l2.layer=layer
+	l2.start_time=string2time(s_time)
+	l2.end_time=string2time(e_time)
+	l2.style=style
+	l2.actor=actor
+	l2.margin_l=margl
+	l2.margin_r=margr
+	l2.margin_t=margv
+	l2.effect=eff
+	l2.text=txt
+	return l2
+end
+
+function string2time(timecode)
+	timecode=timecode:gsub("(%d):(%d%d):(%d%d)%.(%d%d)",function(a,b,c,d) return d*10+c*1000+b*60000+a*3600000 end)
+	return timecode
 end
 
 function addtag(tag,text) text=text:gsub("^({\\[^}]-)}","%1"..tag.."}") return text end
@@ -447,7 +537,7 @@ function multicopy(subs, sel)
 	{x=0,y=18,width=1,height=1,class="label",label="Copy:"},
 	{x=4,y=18,width=1,height=1,class="label",label="Paste specific:"},
 	{x=5,y=18,width=1,height=1,class="dropdown",name="pastemode",value="all",
-	items={"all","clip","position","blur","border","\\1c","\\3c","\\4c","alpha","\\fscx","\\fscy","\\fscx\\fscy","any tag","------","layer","duration","actor","effect"}},
+	items={"all","text mod.","gbc text","de-irc","clip","position","blur","border","\\1c","\\3c","\\4c","alpha","\\fscx","\\fscy","\\fscx\\fscy","any tag","------","layer","duration","actor","effect"}},
 	{x=6,y=18,width=5,height=1,class="checkbox",name="oneline",label="Paste one line to all selected lines",value=false},
 	}
 	buttons={"Copy","Paste tags","Paste text","Paste spec.","Paste from clipboard","Help","Cancel"}
@@ -460,7 +550,7 @@ function multicopy(subs, sel)
 		end
 	end
 	if pressed=="Help" then
-	herp="There are 4 modes for copying/pasting: tags, text, all, and clip.\n\nTags: Select lines with tags, click 'Copy tags.' Copy to clipboard.\nSelect lines to which you want to paste the data [same number of lines].\nRun script again. Paste from clipboard. Click on 'Paste tags.'\nThe tags will be pasted to the new lines without changing the text.\n\nText: Works the same, except for using text, not tags.\nTo be more precise, it skips the first block of tags but keeps inline tags like italics etc.\n\nAll: Copies the whole line, tags and text. \nThis is like 'exporting' text, but you get to keep the tags.\nThis is especially useful when you want to paste the script on a pad.\nNote: There is no 'Paste All' button since you can just use Aegisub's 'Paste Over.'\n\nSpecific tags: Copies/pastes values of a specific selected tag.\nYou could also paste values that you type manually.\nAnother thing that's possible is for example copying \\fscx data \nand pasting it as \\fscy data.\n\n'Paste one line to all selected lines'\nApplies the same line, whether tags or text or clip, to all selected lines.\nMake sure you paste only one line to the textbox."
+	herp="COPY part copies specified things line by line. PASTE part pastes these things line by line.\nThe idea is to copy something from for example 6 lines and paste it to another 6 lines.\nFor text you can just get the text from outside Aegisub and paste it to the appropriate number of lines.\n\ntags = initial tags\ntext = text AFTER initial tags (will include inline tags)\nall = tags+text, ie. everything in the Text field\n\nexport CR for pad: signs go to top with {TS} timecodes, nukes linebreaks and other CR garbage, fixes styles, etc.\n\nClip and the other tags should be obvious.\n\nPaste part:\nall: this is like regular paste over from a pad, but with checks to help identify where stuff breaks if the line count is different or shifted somewhere. if you're pasting over a script that has different line splitting than it should, this will show you pretty reliably where the discrepancies are.\n\ntext mod.: this pastes over text while keeping inline tags. If your line is {\\t1}a{\\t2}b{\\t3}c and you paste \"def\", you will get {\\t1}d{\\t2}e{\\t3}f. This simply counts characters, so if you paste \"defgh\", you get {\\t1}d{\\t2}e{\\t3}fgh, and if you paste \"d\", you get {\\t1}d. Comments get nuked.\n\ngbc text: this is pretty much only useful for updating lyrics when your song styling has rainbows, or any gradient by character. You get this:\n[initial tags][pasted text without last character][tag that was before last character][last character of pasted text]\n\nde-irc: paste straight from irc with timecodes and nicknames, and stuff gets parsed correctly.\n\n'Paste one line to all selected lines'\nApplies the same line, in any mode, to all selected lines. Make sure you paste only one line to the textbox."
 		for key,val in ipairs(gui) do
 		    if val.name=="dat" then val.value=herp
 		    else val.value=res[val.name] end

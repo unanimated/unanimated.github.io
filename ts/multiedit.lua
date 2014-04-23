@@ -1,7 +1,7 @@
-script_name = "Multi-line Editor"
-script_description = "Multi-line Editor"
-script_author = "unanimated"
-script_version = "1.3"
+script_name="Multi-line Editor"
+script_description="Multi-line Editor"
+script_author="unanimated"
+script_version="1.32"
 
 require "clipboard"
 
@@ -9,20 +9,21 @@ function editlines(subs, sel)
 	editext=""
 	dura=""
     for x, i in ipairs(sel) do
-        local line = subs[i]
+        local line=subs[i]
 	local text=subs[i].text
 	dur=line.end_time-line.start_time
 	dur=dur/1000
-	char=text:gsub("{[^}]-}","")	:gsub(" ","")	:gsub("[%.,\"]","")
+	char=text:gsub("{[^}]-}","")	:gsub("\\[Nn]","*")	:gsub("%s?%*+%s?"," ")	:gsub(" ","")	:gsub("[%.,%?!'\"—]","")
 	linelen=char:len()
 	cps=math.ceil(linelen/dur)
 	if tostring(dur):match("%.%d$") then dur=dur.."0" end
 	if not tostring(dur):match("%.") then dur=dur..".00" end
 	if cps<10 then cps="  "..cps end
+	if dur=="0.00" then cps="n/a" end
 	
 	      if x~=#sel then editext=editext..text.."\n" dura=dura..dur.." .. "..cps.." .. "..linelen.."\n" end
 	      if x==#sel then editext=editext..text dura=dura..dur.." .. "..cps.." .. "..linelen end
-	subs[i] = line
+	subs[i]=line
     end
     editbox(subs, sel)
     if failt==1 then editext=res.dat editbox(subs, sel) end
@@ -30,17 +31,18 @@ function editlines(subs, sel)
 end
 
 function esc(str)
-	str=str:gsub("%%","%%%%")
-	str=str:gsub("%(","%%%(")
-	str=str:gsub("%)","%%%)")
-	str=str:gsub("%[","%%%[")
-	str=str:gsub("%]","%%%]")
-	str=str:gsub("%.","%%%.")
-	str=str:gsub("%*","%%%*")
-	str=str:gsub("%-","%%%-")
-	str=str:gsub("%+","%%%+")
-	str=str:gsub("%?","%%%?")
-	return str
+str=str
+:gsub("%%","%%%%")
+:gsub("%(","%%%(")
+:gsub("%)","%%%)")
+:gsub("%[","%%%[")
+:gsub("%]","%%%]")
+:gsub("%.","%%%.")
+:gsub("%*","%%%*")
+:gsub("%-","%%%-")
+:gsub("%+","%%%+")
+:gsub("%?","%%%?")
+return str
 end
 
 function editbox(subs, sel)
@@ -71,8 +73,8 @@ function editbox(subs, sel)
 	    {x=52,y=1,width=5,height=boxheight,class="textbox",name="durr",value=dura,hint="This is informative only. \nCPS=Characters Per Second"},
 	    
 	    {x=32,y=boxheight+1,width=20,height=1,class="edit",name="info",value="Lines loaded: "..#sel..", Characters: "..editext:len()..", Words: "..words },
-
-	} 	
+	    {x=52,y=boxheight+1,width=5,height=1,class="label",label="Multi-Line Editor v"..script_version},
+	}
 	buttons={"Save","Replace","Remove tags","Rm. comments","Remove \"- \"","Remove \\N","Add italics","Add \\an8","Reload text","Cancel"}
 	repeat
 	if pressed=="Replace" or pressed=="Add italics" or pressed=="Add \\an8" or pressed=="Remove \\N" or pressed=="Reload text"
@@ -103,7 +105,7 @@ function editbox(subs, sel)
 		  end
 		end
 	end
-	pressed, res = aegisub.dialog.display(dialog,buttons,{save='Save',close='Cancel'})
+	pressed, res=aegisub.dialog.display(dialog,buttons,{save='Save',close='Cancel'})
 	until pressed~="Add italics" and pressed~="Add \\an8" and pressed~="Remove \\N" and pressed~="Reload text" 
 		and pressed~="Remove tags"and pressed~="Rm. comments" and pressed~="Remove \"- \"" and pressed~="Replace"
 
@@ -121,11 +123,11 @@ function savelines(subs, sel)
     failt=0    
     if #sel~=#data and #sel>1 then failt=1 else
 	for x, i in ipairs(sel) do
-        local line = subs[i]
+        local line=subs[i]
 	local text=subs[i].text
 	text=data[x]
 	line.text=text
-	subs[i] = line
+	subs[i]=line
 	end
     end
     if failt==1 then aegisub.dialog.display({{class="label",

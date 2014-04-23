@@ -11,7 +11,7 @@
 script_name="Apply fade"
 script_description="Applies fade to selected lines"
 script_author="unanimated"
-script_version="3.1"
+script_version="3.2"
 
 --	SETTINGS	--
 
@@ -31,8 +31,8 @@ re=require'aegisub.re'
 
 function fade(subs, sel)
     for z, i in ipairs(sel) do
-	local line=subs[i]
-	local text=subs[i].text
+	line=subs[i]
+	text=line.text
 	fadein=res.fadein 
 	fadeout=res.fadeout 
 	dur=line.end_time-line.start_time
@@ -76,6 +76,7 @@ function fade(subs, sel)
 		-- save initial tags; remove other tags/comments
 		tags=""
 		if text:match("^{\\[^}]*}") then tags=text:match("^({\\[^}]*})") end
+		orig=text:gsub("^({\\[^}]*})","")
 		text=text:gsub("{[^}]*}","")
 		text=text:gsub("%s*$","")
 		text=text:gsub("\\N","*")
@@ -115,6 +116,7 @@ function fade(subs, sel)
 		text=tags..text3
 		text=text:gsub("}{","")
 		text=text:gsub("%*","\\N")
+		if orig:match("{\\") then text=textmod(orig) end
 		end
 
 	    end -- not del
@@ -122,6 +124,49 @@ function fade(subs, sel)
 	line.text=text
 	subs[i]=line
     end
+end
+
+function textmod(orig)
+    tk={}
+    tg={}
+	text=text:gsub("{\\\\k0}","")
+	repeat text=text:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
+	    until not text:match("{(\\[^}]-)}{(\\[^}]-)}")
+	vis=text:gsub("{[^}]-}","")
+	  for c in vis:gmatch(".") do
+	    table.insert(tk,c)
+	  end
+	stags=text:match("^{(\\[^}]-)}")
+	if stags==nil then stags="" end
+	text=text:gsub("^{\\[^}]-}","") :gsub("{[^\\}]-}","")
+	count=0
+	for seq in text:gmatch("[^{]-{%*?\\[^}]-}") do
+	    chars,as,tak=seq:match("([^{]-){(%*?)(\\[^}]-)}")
+	    pos=chars:len()+count
+	    tgl={p=pos,t=tak,a=as}
+	    table.insert(tg,tgl)
+	    count=pos
+	end
+	count=0
+	for seq in orig:gmatch("[^{]-{%*?\\[^}]-}") do
+	    chars,as,tak=seq:match("([^{]-){(%*?)(\\[^}]-)}")
+	    pos=chars:len()+count
+	    tgl={p=pos,t=tak,a=as}
+	    table.insert(tg,tgl)
+	    count=pos
+	end
+    newline=""
+    for i=1,#tk do
+	newline=newline..tk[i]
+	newt=""
+	for n, t in ipairs(tg) do
+	    if t.p==i then newt=newt..t.t as=t.a end
+	end
+	if newt~="" then newline=newline.."{"..as..newt.."}" end
+    end
+    newtext="{"..stags.."}"..newline
+    text=newtext
+    return text
 end
 
 function fadalpha(subs, sel)

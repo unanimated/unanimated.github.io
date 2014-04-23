@@ -3,11 +3,13 @@
 script_name="Script Cleanup"
 script_description="Removes unwanted stuff from script"
 script_author="unanimated"
-script_version="2.5"
+script_version="2.55"
 
 dont_delete_empty_tags=false	-- option to not delete {}
 
 function cleanlines(subs, sel)
+    if res.all then res.nocom=true res.clear_a=true res.clear_e=true res.layers=true 
+	    res.cleantag=true res.overlap=true res.clear_a=true res.spaces=true end
     for x, i in ipairs(sel) do
 	cancelled=aegisub.progress.is_cancelled()
 	if cancelled then aegisub.cancel() end
@@ -16,9 +18,6 @@ function cleanlines(subs, sel)
  	aegisub.progress.set(prog)
             local line=subs[i]
             local text=subs[i].text
-	    
-	    if res.all then res.nocom=true res.clear_a=true res.clear_e=true res.layers=true 
-	    res.cleantag=true res.overlap=true res.clear_a=true res.spaces=true end
 	    
 	    if res["nots"] and not res["nocom"] then text=text:gsub("{TS[^}]*}%s*","") end
 	    
@@ -36,7 +35,7 @@ function cleanlines(subs, sel)
 	    end
 	    
 	    if res["cleantag"] and text:match("{\\") then
-	    text=text:gsub("{\\[^}]-}$","")
+	    text=text:gsub("{(\\[^}]-)}{(\\r[^}]-)}","{%2}") :gsub("^{\\r([\\}])","{%1")
 	    repeat text=text:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
 	    until not text:match("{(\\[^}]-)}{(\\[^}]-)}")
 	    text=text:gsub("({\\[^}]-){(\\[^}]-})","%1%2")
@@ -44,11 +43,12 @@ function cleanlines(subs, sel)
 	    repeat text=text:gsub("(\\fad%([%d,]+%))(.-)\\fad%([%d,]+%)","%1%2")
 	    until not text:match("\\fad%([%d,]+%).-\\fad%([%d,]+%)")
 	    text=text:gsub("\\fad%(0,0%)","")
+	    text=text:gsub("{\\[^}]-}$","")
 	    for tgs in text:gmatch("{\\[^}]-}") do
   	      tgs2=tgs
   	      tgs2=tgs2
 	      :gsub("\\\\","\\")
-	      :gsub("\\}","}")	      
+	      :gsub("\\}","}")
 	      :gsub("(\\%a+)([%d%-]+%.%d+)",function(a,b) if not a:match("\\fn") then b=rnd2dec(b) end return a..b end)
 	      :gsub("(\\%a+)%(([%d%-]+%.%d+),([%d%-]+%.%d+)%)",function(a,b,c) b=rnd2dec(b) c=rnd2dec(c) return a.."("..b..","..c..")" end)
 	      :gsub("(\\%a+)%(([%d%-]+%.%d+),([%d%-]+%.%d+),([%d%-]+%.%d+),([%d%-]+%.%d+)",function(a,b,c,d,e) 
@@ -115,6 +115,7 @@ function cleanlines(subs, sel)
 		end
 		if nstart~=nil then line.start_time=nstart end
 		if nendt~=nil then line.end_time=nendt end
+		nstart=nil nendt=nil
 	    end
 	    
 	    if res.spaces then text=text:gsub("%s%s+"," ") :gsub("%s*$","") end
@@ -129,9 +130,13 @@ function cleanlines(subs, sel)
 	    :gsub("_ast_","*")
 	    end
 	    
+	    if res.nobreak2 then
+	    text=text:gsub("\\[Nn]","")
+	    end
+	    
 	    if res.notag then text=text:gsub("{\\[^}]*}","") end
 	    
-	    if res.allcol then text=text:gsub("\\[1234]?c&H%x%x%x%x%x%x&","") :gsub("{%*}","") end
+	    if res.allcol then text=text:gsub("\\[1234]?c&H%x%x%x%x%x%x&","") :gsub("\\alpha&H%x%x&","") :gsub("{%*}","") end
 	    
 	    if res.allphas then text=text:gsub("\\[1234]a&H%x%x&","") :gsub("\\alpha&H%x%x&","") end
 	    
@@ -157,7 +162,7 @@ function cleanlines(subs, sel)
 	    :gsub("(fad%([%d,]+)([\\}])","%1)%2")
 	end
 	
-	text=text:gsub("^%s*","")
+	text=text:gsub("^%s*","") :gsub("\\t%([^\\%)]-%)","")
 	if not dont_delete_empty_tags then text=text:gsub("{}","") end
 	line.text=text
 	subs[i]=line
@@ -334,14 +339,14 @@ cleanup_cfg=
 --{x=2,y=5,width=1,height=1,class="label",label="",    },
 --{x=2,y=6,width=1,height=1,class="label",label="",    },
 --{x=2,y=7,width=1,height=1,class="label",label="",    },
---{x=2,y=8,width=1,height=1,class="label",label="",    },
+{x=2,y=8,width=1,height=1,class="checkbox",name="nobreak2",label="Remove linebreaks  - \\N (nospace)",value=false},  
 {x=2,y=9,width=1,height=1,class="checkbox",name="nobreak",label="Remove linebreaks  - \\N",value=false},  
 {x=2,y=10,width=1,height=1,class="checkbox",name="alphacol",label="Try to fix alpha / colour tags",value=false},
 {x=2,y=11,width=1,height=1,class="checkbox",name="notag",label="Remove all {\\tags} from selected lines",value=false},
 
 {x=3,y=0,width=1,height=12,class="label",label="| \n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|",},
 
-{x=4,y=0,width=1,height=1,class="label",label="Kill tags:",},
+{x=4,y=0,width=1,height=1,class="label",label="Kill tags:   ",},
 
 {x=4,y=1,width=1,height=1,class="checkbox",name="border",label="bord",hint="includes xbord and ybord",value=false },
 {x=4,y=2,width=1,height=1,class="checkbox",name="shadow",label="shad",hint="includes xshad and yshad",value=false },
@@ -366,7 +371,7 @@ cleanup_cfg=
 {x=5,y=8,width=1,height=1,class="checkbox",name="alfa3",label="3a",value=false },
 {x=5,y=9,width=1,height=1,class="checkbox",name="alfa4",label="4a",value=false },
 {x=5,y=10,width=1,height=1,class="checkbox",name="align",label="a",value=false },
-{x=5,y=11,width=1,height=1,class="checkbox",name="clip",label="(i)clip",value=false },
+{x=5,y=11,width=1,height=1,class="checkbox",name="clip",label="(i)clip  ",value=false },
 
 {x=6,y=0,width=1,height=1,class="checkbox",name="fade",label="fad",value=false },
 {x=6,y=1,width=1,height=1,class="checkbox",name="posi",label="pos",value=false },
@@ -382,19 +387,19 @@ cleanup_cfg=
 {x=6,y=11,width=1,height=1,class="checkbox",name="trans",label="t",value=false },
 } 
 	pressed, res=aegisub.dialog.display(cleanup_cfg,
-	{"Run selected","Comments","Tags","Dial 5","Cancer","^ Kill checked tags"},{ok='Run selected',cancel='Cancer'})
+	{"Run selected","Comments","Tags","Dial 5","Clean Tags","^ Kill checked tags","Cancer"},{ok='Run selected',cancel='Cancer'})
 	if pressed=="Cancer" then aegisub.cancel() end
 	if pressed=="^ Kill checked tags" then killemall(subs, sel) end
 	if pressed=="Comments" then res.nocom=true cleanlines(subs, sel) end
 	if pressed=="Tags" then res.notag=true cleanlines(subs, sel) end
 	if pressed=="Dial 5" then res.layers=true cleanlines(subs, sel) end
+	if pressed=="Clean Tags" then res.cleantag=true cleanlines(subs, sel) end
 	if pressed=="Run selected" then 
 	    if res["all"] then 
 		for key,v in ipairs(cleanup_cfg) do  if v.x==2 then res[v.name]=false end  end
 		cleanlines(subs, sel)
 		sel=noemptycom(subs, sel)
-	    else
-		if not res.nocomline and not res.noempty then cleanlines(subs, sel) end
+	    else cleanlines(subs, sel)
 		if res.nocomline and res.noempty then sel=noemptycom(subs, sel)
 		else
 		    if res.nocomline then sel=nocom_line(subs, sel) end

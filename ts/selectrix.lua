@@ -1,4 +1,4 @@
---[[	alternative to aegisub's select tool. unlike that one, this can also select by layer.
+﻿--[[	alternative to aegisub's select tool. unlike that one, this can also select by layer.
 	version 2.0 includes sorting of selected/all lines, by the same markers as the selecting uses.
 
 	'Select by' 	This is what the search string is compared against. There are 4 'numbers' items and 4 'text' items. 
@@ -13,7 +13,7 @@
 script_name="Selectricks"
 script_description="Selectricks and Sortricks"
 script_author="unanimated"
-script_version="2.32"
+script_version="2.41"
 
 -- SETTINGS --				you can choose from the options below to change the default settings
 
@@ -32,6 +32,7 @@ your_retarded=false			-- set to true if your skiddiks
 -- end of settings --
 
 require "clipboard"
+re=require'aegisub.re'
 
 function analyze(l)
     text=l.text
@@ -42,16 +43,26 @@ function analyze(l)
     visible=text:gsub("{\\alpha&HFF&}[^{}]-{[^{}]-}","")	:gsub("{\\alpha&HFF&}[^{}]*$","")	:gsub("{[^{}]-}","")
 			:gsub("\\[Nn]","*")	:gsub("%s?%*+%s?"," ")	:gsub("^%s+","")	:gsub("%s+$","")
     wrd=0	for word in txt:gmatch("([%a\']+)") do wrd=wrd+1 end
-    chars=visible:gsub(" ","")	:gsub("[%.,\"]","")
+    chars=visible:gsub(" ","")	:gsub("[%.,%?!'\"—]","")
     char=chars:len()
     cps=math.ceil(char/dura)
     if dur==0 then cps=0 end
     blur=text:match("\\blur([%d%.]+)")	blur=tonumber(blur)	if blur==nil then blur=0 end
 end
 
+function stylechk(subs,stylename)
+  for i=1, #subs do
+    if subs[i].class=="style" then
+      local st=subs[i]
+      if stylename==st.name then styleref=st end
+      if subs[i].name=="Default" then dstyleref=subs[i] end
+    end
+  end
+  return styleref
+end
+
 function slct(subs, sel)
     sel2={}
-    if res.regexp then res.match=res.match:gsub("%\\","%%") :gsub("%%%%","\\") end
     eq=res.equal
     for i=#sel,1,-1 do
 	local line=subs[sel[i]]
@@ -93,7 +104,8 @@ function slct(subs, sel)
 	  if res.exact then if search_area~=res.match then table.remove(sel,i) end
 	  else
 	    if res.regexp then
-		if not search_area:match(res.match) then  table.remove(sel,i) end
+		matches=re.find(search_area,res.match)
+		if matches==nil then  table.remove(sel,i) end
 	    else 
 		if not search_area:match(nonregexp) then  table.remove(sel,i) end
 	    end
@@ -104,7 +116,8 @@ function slct(subs, sel)
 	  if res.exact then if s_area_lower~=res.match:lower() then table.remove(sel,i) end
 	  else
 	    if res.regexp then
-		if not s_area_lower:match(regexplower) then  table.remove(sel,i) end
+		matches=re.find(search_area,res.match,re.ICASE)
+		if matches==nil then  table.remove(sel,i) end
 	    else
 		if not s_area_lower:match(nonregexplower) then  table.remove(sel,i) end
 	    end
@@ -158,6 +171,18 @@ for i=#sel,1,-1 do	table.remove(sel,i) end
 		end
 	      end
 	    end
+	    if res.pres=="its/id/ill/were/wont" then
+	      if st:match("Defa") or st:match("Alt") then
+		nc=" "..nc:lower()
+		if nc:match(" its ")
+		or nc:match(" id ")
+		or nc:match(" ill ")
+		or nc:match(" were ")
+		or nc:match(" wont ")
+		then table.insert(sel,i)
+		end
+	      end
+	    end
 	end
     end
     return sel
@@ -190,6 +215,33 @@ function presel(subs, sel)
       sel={}
       for sl=#subs,#subs-#sorttab+1,-1 do table.insert(sel,sl) end
     end
+    if res.pres=="sel: last to top" then
+      sell={}
+      for i=1,#sel do
+	l=subs[sel[i]]
+	table.insert(sell,l)
+      end
+      for i=1,#sel do
+	l=subs[sel[i]]
+	if i==1 then subs[sel[i]]=sell[#sel] 
+	else subs[sel[i]]=sell[i-1]
+	end
+      end
+    end
+    if res.pres=="sel: first to bottom" then
+      sell={}
+      for i=1,#sel do
+	l=subs[sel[i]]
+	table.insert(sell,l)
+      end
+      for i=1,#sel do
+	l=subs[sel[i]]
+	if i==#sel then subs[sel[i]]=sell[1] 
+	else subs[sel[i]]=sell[i+1]
+	end
+      end
+    end
+    
     return sel
 end
 
@@ -201,7 +253,7 @@ function konfig(subs, sel)
 	    {x=0,y=1,width=1,height=1,class="label",label="Select from:"},
 	    {x=0,y=2,width=1,height=1,class="label",label="Numbers:"},
 	    {x=1,y=0,width=1,height=1,class="dropdown",name="mode",value=search_in,
-		items={"--------text--------","style","actor","effect","text","visible text (no tags)","------numbers------","layer","duration","word count","character count","char. per second","blur","left margin","right margin","vertical margin","------sorting only------","sort by time","reverse","dialogue first","dialogue last","ts/dialogue/oped","{TS} to the top","masks to the bottom","by comments"}},
+		items={"--------text--------","style","actor","effect","text","visible text (no tags)","------numbers------","layer","duration","word count","character count","char. per second","blur","left margin","right margin","vertical margin","------sorting only------","sort by time","reverse","width of text","dialogue first","dialogue last","ts/dialogue/oped","{TS} to the top","masks to the bottom","by comments"}},
 	    {x=1,y=1,width=1,height=1,class="dropdown",name="selection",value=select_from,items={"current selection","all lines"}},
 	    {x=1,y=2,width=1,height=1,class="dropdown",name="equal",value=numbers_option,items={"==",">=","<="},
 							hint="options for layer/duration"},
@@ -212,7 +264,7 @@ function konfig(subs, sel)
 	    
 	    {x=0,y=5,width=1,height=1,class="label",label="Sel. preset:"},
 	    {x=1,y=5,width=1,height=1,class="dropdown",name="pres",value="Default style - All",
-	    items={"Default style - All","nonDefault - All","OP in style","ED in style","layer 0","skiddiks, your their?","----from selection----","no-blur signs","commented lines","------sorting------","move sel. to the top","move sel. to bottom"}},
+	    items={"Default style - All","nonDefault - All","OP in style","ED in style","layer 0","skiddiks, your their?","its/id/ill/were/wont","----from selection----","no-blur signs","commented lines","------sorting------","move sel. to the top","move sel. to bottom","sel: first to bottom","sel: last to top"}},
 	    
 	    {x=2,y=0,width=1,height=1,class="label",label="Text:  "},
 	    {x=3,y=0,width=1,height=1,class="checkbox",name="case",label="case sensitive",value=case_sensitive},
@@ -230,7 +282,7 @@ function konfig(subs, sel)
 	pressed, res=aegisub.dialog.display(dialog_config,buttons,{ok='Set Selection',close='Cancel'})
 	if pressed=="Cancel" then aegisub.cancel() end
 	if pressed=="Preset" then 
-		if res.pres=="no-blur signs" or res.pres=="commented lines" or res.pres=="move sel. to the top" or res.pres=="move sel. to bottom"
+		if res.pres=="no-blur signs" or res.pres=="commented lines" or res.pres=="move sel. to the top" or res.pres=="move sel. to bottom" or res.pres=="sel: last to top" or res.pres=="sel: first to bottom"
 		then sel=presel(subs, sel)
 		else preset(subs, sel) end
 	end
@@ -256,6 +308,7 @@ function sorting(subs,sel)
 	l.ml=l.margin_l
 	l.mr=l.margin_r
 	l.mv=l.margin_t
+	nocomment=l.text:gsub("{[^}]-}","") :gsub("%s?\\N%s?"," ")
 	if style:match("Defa") or style:match("Alt") then l.st=1 else l.st=2 end
 	l.sdo=1
 	if style:match("Defa") or style:match("Alt") then l.sdo=2 end
@@ -264,6 +317,11 @@ function sorting(subs,sel)
 	if l.text:match("{[^\\}]-}") then l.com=l.text:match("{[^\\}]-}") else l.com="" end
 	blur=text:match("\\blur([%d%.]+)")	blur=tonumber(blur)	if blur==nil then blur=0 end	l.bl=blur
 	if text:match("\\p1") then l.mask=1 else l.mask=0 end
+	if res.mode=="width of text" then
+	  if l.style=="Default" and dstyleref~=nil then styleref=dstyleref
+	  else styleref=stylechk(subs,l.style) end
+	  l.width=aegisub.text_extents(styleref,nocomment)
+	end
 	table.insert(subtable,l)
     end
     
@@ -284,10 +342,11 @@ function sorting(subs,sel)
     if res.mode=="char. per second" then table.sort(subtable,function(a,b) return a.cps<b.cps or (a.cps==b.cps and a.i<b.i) end) end
     if res.mode=="blur" then table.sort(subtable,function(a,b) return a.bl<b.bl or (a.bl==b.bl and a.i<b.i) end) end
     if res.mode=="left margin" then table.sort(subtable,function(a,b) return a.ml<b.ml or (a.ml==b.ml and a.i<b.i) end) end
-    if res.mode=="left right" then table.sort(subtable,function(a,b) return a.mr<b.mr or (a.mr==b.mr and a.i<b.i) end) end
+    if res.mode=="right margin" then table.sort(subtable,function(a,b) return a.mr<b.mr or (a.mr==b.mr and a.i<b.i) end) end
     if res.mode=="vertical margin" then table.sort(subtable,function(a,b) return a.mv<b.mv or (a.mv==b.mv and a.i<b.i) end) end
     if res.mode=="sort by time" then table.sort(subtable,function(a,b) return a.start_time<b.start_time or (a.start_time==b.start_time and a.end_time<b.end_time) end) end
     if res.mode=="reverse" then table.sort(subtable,function(a,b) return a.i>b.i end) end
+    if res.mode=="width of text" then table.sort(subtable,function(a,b) return a.width<b.width or (a.width==b.width and a.i<b.i) end) end
     if res.mode=="dialogue first" then table.sort(subtable,function(a,b) return a.st<b.st or (a.st==b.st and a.i<b.i) end) end
     if res.mode=="dialogue last" then table.sort(subtable,function(a,b) return a.st>b.st or (a.st==b.st and a.i<b.i) end) end
     if res.mode=="ts/dialogue/oped" then table.sort(subtable,function(a,b) return a.sdo<b.sdo or (a.sdo==b.sdo and a.i<b.i) end) end
@@ -443,11 +502,11 @@ function savelines(subs, sel)
 	return sel
 end
 
-function selector(subs, sel)
-    sel=konfig(subs, sel)
-    if pressed=="Set Selection" and res.editor then editlines(subs, sel) end
+function selector(subs,sel,act)
+    sel=konfig(subs,sel,act)
+    if pressed=="Set Selection" and res.editor then editlines(subs,sel,act) end
     aegisub.set_undo_point(script_name)
-    if res.nomatch=="doesn't match" and pressed=="Set Selection" then return sel2 else return sel end
+    if res.nomatch=="doesn't match" and pressed=="Set Selection" then return sel2, act else return sel, act end
 end
 
 aegisub.register_macro(script_name, script_description, selector)
