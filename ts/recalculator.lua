@@ -3,7 +3,7 @@
 script_name="Recalculator"
 script_description="recalculates sizes of things"
 script_author="unanimated"
-script_version="1.5"
+script_version="1.7"
 
 function calc(num)
     if pressed=="Multiply" then num=math.floor((num*c*100)+0.5)/100 end
@@ -48,10 +48,12 @@ function multiply(subs, sel)
 	    if res.fry then text=text:gsub("\\fry([%d%.%-]+)",function(a) return "\\fry"..calc(tonumber(a)) end) end
 	    if res.frz then text=text:gsub("\\frz([%d%.%-]+)",function(a) return "\\frz"..calc(tonumber(a)) end) end
 	    if res.fax then text=text:gsub("\\fax([%d%.%-]+)",function(a) return "\\fax"..calc(tonumber(a)) end) end
-	    if res.pos then text=text:gsub("\\pos%(([%d%.%-]+),([%d%.%-]+)%)",function(a,b) 
-	    return "\\pos("..calc(tonumber(a))..","..calc(tonumber(b))..")" end) end
+	    if res.posx then text=text:gsub("\\pos%(([%d%.%-]+),([%d%.%-]+)%)",function(a,b) 
+	    return "\\pos("..calc(tonumber(a))..","..b..")" end) end
+	    if res.posy then text=text:gsub("\\pos%(([%d%.%-]+),([%d%.%-]+)%)",function(a,b) 
+	    return "\\pos("..a..","..calc(tonumber(b))..")" end) end
 	    if res.move then text=text:gsub("\\move%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)",function(a,b,c,d) 
-	    return "\\move("..calc(tonumber(a))..","..calc(tonumber(b))..","..calc(tonumber(c))..","..calc(tonumber(d))..")" end) end
+	    return "\\move("..calc(tonumber(a))..","..calc(tonumber(b))..","..calc(tonumber(c))..","..calc(tonumber(d)) end) end
 	    if res.org then text=text:gsub("\\org%(([%d%.%-]+),([%d%.%-]+)%)",function(a,b) 
 	    return "\\org("..calc(tonumber(a))..","..calc(tonumber(b))..")" end) end
 	    
@@ -68,8 +70,8 @@ function multiply(subs, sel)
 		    text=text:gsub("clip%(m "..ctext,"clip(m "..ctext2)
 	          end
 		end
-	    text=text:gsub("\\clip%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)%)",function(a,b,c,d) 
-	    return "\\clip("..calc(tonumber(a))..","..calc(tonumber(b))..","..calc(tonumber(c))..","..calc(tonumber(d))..")" end) 
+	    text=text:gsub("clip%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)%)",function(a,b,c,d) 
+	    return "clip("..calc(tonumber(a))..","..calc(tonumber(b))..","..calc(tonumber(c))..","..calc(tonumber(d))..")" end) 
 	      if text:match("clip%(m [%d%a%s%-%.]+%)") then
 	      ctext=text:match("clip%(m ([%d%a%s%-%.]+)%)")
 	      ctext2=ctext:gsub("([%d%-%.]+)%s([%d%-%.]+)",function(a,b) return calc(tonumber(a)).." "..calc(tonumber(b)) end)
@@ -77,6 +79,21 @@ function multiply(subs, sel)
 	      text=text:gsub(ctext,ctext2)
 	      end
 	    end
+	    
+	    if res.drawx or res.drawy then
+	      if text:match("\\p[1-9]") and text:match("}m [%d%a%s%-%.]+") then
+	      dtext=text:match("}m ([%d%a%s%-%.]+)")
+	      dtext2=dtext:gsub("([%d%-%.]+)%s([%d%-%.]+)",function(a,b) 
+		if res.drawx then xx=math.floor(calc(tonumber(a))+0.5) else xx=a end
+		if res.drawy then yy=math.floor(calc(tonumber(b))+0.5) else yy=b end
+		return xx.." "..yy end)
+	      dtext=dtext:gsub("%-","%%-")
+	      text=text:gsub(dtext,dtext2)
+	      end
+	    end
+	    
+	    if res.ttim then text=text:gsub("\\t%(([%d%.%-]+),([%d%.%-]+),",function(a,b) 
+	    return "\\t("..calc(tonumber(a))..","..calc(tonumber(b)).."," end) end
 	    
 	text=text:gsub("\\\\","\\")
 	text=text:gsub("\\}","}")
@@ -137,12 +154,17 @@ function recalculator(subs, sel)
 	    {x=2,y=5,width=1,height=1,class="checkbox",name="frz",label="frz",value=false,},
 	    {x=3,y=5,width=1,height=1,class="checkbox",name="fax",label="fax",value=false,},
 	    
-	    {x=0,y=6,width=1,height=1,class="checkbox",name="pos",label="pos",value=false,},
-	    {x=1,y=6,width=1,height=1,class="checkbox",name="move",label="move",value=false,},
-	    {x=2,y=6,width=1,height=1,class="checkbox",name="org",label="org",value=false,},
-	    {x=3,y=6,width=1,height=1,class="checkbox",name="clip",label="clip",value=false,},
+	    {x=0,y=6,width=1,height=1,class="checkbox",name="posx",label="pos x",value=false,},
+	    {x=1,y=6,width=1,height=1,class="checkbox",name="posy",label="pos y",value=false,},
+	    {x=2,y=6,width=1,height=1,class="checkbox",name="move",label="move",value=false,},
+	    {x=3,y=6,width=1,height=1,class="checkbox",name="org",label="org",value=false,},
 	    
-	    {x=0,y=7,width=4,height=1,class="checkbox",name="anchor",label="keep clip roughly in place with Multiply",value=false,},
+	    {x=0,y=7,width=1,height=1,class="checkbox",name="clip",label="clip",value=false,},
+	    {x=1,y=7,width=4,height=1,class="checkbox",name="anchor",label="anchor clip with Multiply",value=false,},
+	    
+	    {x=0,y=8,width=1,height=1,class="checkbox",name="drawx",label="draw x",value=false,},
+	    {x=1,y=8,width=1,height=1,class="checkbox",name="drawy",label="draw y",value=false,},
+	    {x=2,y=8,width=2,height=1,class="checkbox",name="ttim",label="\\t times",value=false,},
 	} 	
 	pressed, res=aegisub.dialog.display(dialog_config,
 		{"Multiply","Add","Cancel"},{ok='Multiply',cancel='Cancel'})

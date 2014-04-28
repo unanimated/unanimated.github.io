@@ -1,7 +1,7 @@
 script_name="Masquerade"
 script_description="Masquerade"
 script_author="unanimated"
-script_version="1.84"
+script_version="1.9"
 
 --[[
 
@@ -93,6 +93,12 @@ function addmask(subs, sel)
 		if res["mask"]=="rounded square" then
 		  l.text="{\\an7\\bord0\\blur1"..l.text..mcol.."\\p1}m -100 -25 b -100 -92 -92 -100 -25 -100 l 25 -100 b 92 -100 100 -92 100 -25 l 100 25 b 100 92 92 100 25 100 l -25 100 b -92 100 -100 92 -100 25 l -100 -25"
 		end
+		if res["mask"]=="rounded square 2" then
+		  l.text="{\\an7\\bord0\\blur1"..l.text..mcol.."\\p1}m -100 -60 b -100 -92 -92 -100 -60 -100 l 60 -100 b 92 -100 100 -92 100 -60 l 100 60 b 100 92 92 100 60 100 l -60 100 b -92 100 -100 92 -100 60 l -100 -60"
+		end
+		if res["mask"]=="rounded square 3" then
+		  l.text="{\\an7\\bord0\\blur1"..l.text..mcol.."\\p1}m -100 -85 b -100 -96 -96 -100 -85 -100 l 85 -100 b 96 -100 100 -96 100 -85 l 100 85 b 100 96 96 100 85 100 l -85 100 b -96 100 -100 96 -100 85 l -100 -85"
+		end
 		if res["mask"]=="circle" then
 		  l.text="{\\an7\\bord0\\blur1"..l.text..mcol.."\\p1}m -100 -100 b -45 -155 45 -155 100 -100 b 155 -45 155 45 100 100 b 46 155 -45 155 -100 100 b -155 45 -155 -45 -100 -100"
 		end
@@ -131,12 +137,12 @@ function add_an8(subs, sel, act)
 		    text="{\\q2}" .. text	text=text:gsub("{\\q2}{\\","{\\q2\\")
 		    end
 		end
-		line.text=text
-		subs[i]=line
-		end
+	line.text=text
+	subs[i]=line
+	end
 end
 
-function koko_da(subs, sel)
+function koko_da(subs, sel,act)
     for x, i in ipairs(sel) do
         local line=subs[i]
         local text=subs[i].text
@@ -414,7 +420,14 @@ function alfatime(subs,sel)
     end
 	-- sort data into a table
 	altab={}	data=data.."\n"
-	for a in data:gmatch("(.-)\n") do if a~="" then table.insert(altab,a) end end
+	ac=1
+	data2=""
+	for al in data:gmatch("(.-\n)") do 
+	    al2=al:gsub("\n","{"..ac.."}") ac=ac+1 data2=data2..al2
+	    if al~="" then 
+	        table.insert(altab,al2) 
+	    end
+	end
 	
     -- apply alpha text
     if pressed=="Alpha Text" then
@@ -425,11 +438,13 @@ function alfatime(subs,sel)
 	text=line.text
 	if altab[x]~=nil then
 	  tags=text:match("^{\\[^}]-}")
-	  text=text
-	  :gsub("^{\\[^}]-}","")
+	  text=data2
+	  :gsub("\n","")
 	  :gsub(altxt,altxt.."{\\alpha&HFF&}")
 	  :gsub("({\\alpha&HFF&}.-){\\alpha&HFF&}","%1")
 	  :gsub("{\\alpha&HFF&}$","")
+	  :gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
+	  :gsub("{%d+}","")
 	  :gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
 	  if tags~=nil then text=tags..text end
 	end
@@ -438,7 +453,7 @@ function alfatime(subs,sel)
       end
     end
     
-    -- apply alpha etxt + split line
+    -- apply alpha text + split line
     if pressed=="Alpha Time" then
 	line=subs[sel[1]]
 	start=line.start_time
@@ -451,12 +466,13 @@ function alfatime(subs,sel)
 	  line.text=line.text:gsub("@","")
 	  line2=line
 	  tags=line2.text:match("^{\\[^}]-}")
-	  line2.text=line2.text
-	  :gsub("^{\\[^}]-}","")
+	  line2.text=data2
+	  :gsub("\n","")
 	  :gsub(altxt,altxt.."{\\alpha&HFF&}")
 	  :gsub("({\\alpha&HFF&}.-){\\alpha&HFF&}","%1")
 	  :gsub("{\\alpha&HFF&}$","")
 	  :gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
+	  :gsub("{%d+}","")
 	  if tags~=nil then line2.text=tags..line2.text end
 	  line2.start_time=start+f*(a-1)
 	  line2.end_time=start+f+f*(a-1)
@@ -520,7 +536,7 @@ function masquerade(subs,sel,act)
 	{
 	    {x=0,y=0,width=1,height=1,class="label",label="Mask:",},
 	    {x=1,y=0,width=1,height=1,class="dropdown",name="mask",
-		items={"from clip","square","rounded square","circle","equilateral triangle","right-angled triangle","alignment grid","alignment grid 2"},value="square"},
+		items={"from clip","square","rounded square","rounded square 2","rounded square 3","circle","equilateral triangle","right-angled triangle","alignment grid","alignment grid 2"},value="square"},
 	    {x=0,y=1,width=2,height=1,class="checkbox",name="masknew",label="create mask on a new line",value=true},
 
 	    {x=3,y=0,width=1,height=1,class="dropdown",name="an8",
@@ -546,13 +562,13 @@ function masquerade(subs,sel,act)
 	if pressed=="cancel" then aegisub.cancel() end
 	if pressed=="create mask" then addmask(subs, sel) end
 	if pressed=="strikealpha" then strikealpha(subs, sel) end
-	if pressed=="an8 / q2" then add_an8(subs, sel) end
+	if pressed=="an8 / q2" then add_an8(subs, sel,act) end
 	if pressed=="\\ko" then koko_da(subs, sel) end
 	if pressed=="alpha time" then alfatime(subs, sel) end	
 	if pressed=="mocha scale" then scale(subs, sel) end
 	if pressed=="shift tags" then shiftag(subs,sel,act) end
     aegisub.set_undo_point(script_name)
-    return sel
+    return sel, act
 end
 
 aegisub.register_macro(script_name, script_description, masquerade)

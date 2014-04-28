@@ -4,7 +4,7 @@
 script_name="Hyperdimensional Relocator"
 script_description="Makes things appear different from before"
 script_author="reanimated"
-script_version="2.24"
+script_version="2.4"
 
 --	SETTINGS	--
 
@@ -31,6 +31,7 @@ tele_move=true
 tele_clip=true
 tele_org=true
 tele_mask=false
+auto_teleport_pos=true
 
 delete_orig_line_in_line2fbf=true
 
@@ -1076,35 +1077,51 @@ function clone(subs, sel)
 end
 
 function teleport(subs, sel)
+    tpfx=0    tpfy=0
+    if res.tpmod then
+	telemod={
+	{x=2,y=0,width=2,height=1,class="label",label=" Warped Teleportation"},
+	{x=2,y=1,width=3,height=1,class="floatedit",name="eggs",hint="X"},
+	{x=2,y=2,width=3,height=1,class="floatedit",name="why",hint="Y"},
+	}
+	press,rez=aegisub.dialog.display(telemod,
+	{"Warped Teleport","Disintegrate"},{close='Disintegrate'})
+	if press=="Disintegrate" then aegisub.cancel() end
+	tpfx=rez.eggs	tpfy=rez.why
+    end
     for x, i in ipairs(sel) do
         aegisub.progress.title(string.format("Teleporting... %d/%d",x,#sel))
-	local line=subs[i]
-        local text=subs[i].text
+	line=subs[i]
+        text=line.text
+	style=line.style
 	xx=res.eks
 	yy=res.wai
+	fx=tpfx*(x-1)
+	fy=tpfy*(x-1)
 
 	if res.tppos then
+	    if res.autopos and not text:match("\\pos") then text=getpos(subs,text) end
 	    text=text:gsub("\\pos%(([%d%.%-]+),([%d%.%-]+)%)",
-	    function(a,b) return "\\pos("..a+xx..","..b+yy..")" end)
+	    function(a,b) return "\\pos("..a+xx+fx..","..b+yy+fy..")" end)
 	end
 
 	if res.tporg then
 	    text=text:gsub("\\org%(([%d%.%-]+),([%d%.%-]+)%)",
-	    function(a,b) return "\\org("..a+xx..","..b+yy..")" end)
+	    function(a,b) return "\\org("..a+xx+fx..","..b+yy+fy..")" end)
 	end
 
 	if res.tpmov then
 	    text=text:gsub("\\move%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)",
-	    function(a,b,c,d) return "\\move("..a+xx.. "," ..b+yy.. "," ..c+xx.. "," ..d+yy end)
+	    function(a,b,c,d) return "\\move("..a+xx+fx.. "," ..b+yy+fy.. "," ..c+xx+fx.. "," ..d+yy+fy end)
 	end
 
 	if res.tpclip then
 	    text=text:gsub("clip%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)",
-	    function(a,b,c,d) return "clip("..a+xx..","..b+yy..","..c+xx..","..d+yy end)
+	    function(a,b,c,d) return "clip("..a+xx+fx..","..b+yy+fy..","..c+xx+fx..","..d+yy+fy end)
 	    
 	    if text:match("clip%(m [%d%a%s%-%.]+%)") then
 	    ctext=text:match("clip%(m ([%d%a%s%-%.]+)%)")
-	    ctext2=ctext:gsub("([%d%-%.]+)%s([%d%-%.]+)",function(a,b) return a+xx.." "..b+yy end)
+	    ctext2=ctext:gsub("([%d%-%.]+)%s([%d%-%.]+)",function(a,b) return a+xx+fx.." "..b+yy+fy end)
 	    ctext=ctext:gsub("%-","%%-")
 	    text=text:gsub("clip%(m "..ctext,"clip(m "..ctext2)
 	    end
@@ -1112,7 +1129,7 @@ function teleport(subs, sel)
 	    if text:match("clip%(%d+,m [%d%a%s%-%.]+%)") then
 	    fac,ctext=text:match("clip%((%d+),m ([%d%a%s%-%.]+)%)")
 	    factor=2^(fac-1)
-	    ctext2=ctext:gsub("([%d%-%.]+)%s([%d%-%.]+)",function(a,b) return a+factor*xx.." "..b+factor*yy end)
+	    ctext2=ctext:gsub("([%d%-%.]+)%s([%d%-%.]+)",function(a,b) return a+factor*xx+fx.." "..b+factor*yy+fy end)
 	    ctext=ctext:gsub("%-","%%-")
 	    text=text:gsub(",m "..ctext,",m "..ctext2)
 	    end
@@ -1120,7 +1137,7 @@ function teleport(subs, sel)
 	
 	if res.tpmask then
 		draw=text:match("}m ([^{]+)")
-		draw2=draw:gsub("([%d%.%-]+) ([%d%.%-]+)",function(a,b) return round1(a+xx).." "..round1(b+yy) end)
+		draw2=draw:gsub("([%d%.%-]+) ([%d%.%-]+)",function(a,b) return round1(a+xx+fx).." "..round1(b+yy+fy) end)
 		draw=esc(draw)
 		text=text:gsub("(}m )"..draw,"%1"..draw2)
 	end
@@ -1128,6 +1145,42 @@ function teleport(subs, sel)
 	line.text=text
 	subs[i]=line
     end
+end
+
+function getpos(subs, text)
+    for i=1, #subs do
+        if subs[i].class=="info" then
+	    local k=subs[i].key
+	    local v=subs[i].value
+	    if k=="PlayResX" then resx=v end
+	    if k=="PlayResY" then resy=v end
+        end
+	if resx==nil then resx=0 end
+	if resy==nil then resy=0 end
+        if subs[i].class=="style" then
+            local st=subs[i]
+	    if st.name==style then
+		acleft=st.margin_l
+		acright=st.margin_r
+		acvert=st.margin_t
+		acalign=st.align
+		aligntop="789" alignbot="123" aligncent="456"
+		alignleft="147" alignright="369" alignmid="258"
+		if alignleft:match(acalign) then horz=acleft
+		elseif alignright:match(acalign) then horz=resx-acright
+		elseif alignmid:match(acalign) then horz=resx/2 end
+		if aligntop:match(acalign) then vert=acvert
+		elseif alignbot:match(acalign) then vert=resy-acvert
+		elseif aligncent:match(acalign) then vert=resy/2 end
+	    break
+	    end
+        end
+    end
+    if horz>0 and vert>0 then 
+	if not text:match("^{\\") then text="{\\rel}"..text end
+	text=text:gsub("^({\\[^}]-)}","%1\\pos("..horz..","..vert..")}") :gsub("\\rel","")
+    end
+    return text
 end
 
 function esc(str)
@@ -1190,7 +1243,7 @@ morphmasks="Extend Mask: Use Teleporter X and Y fields to extend a mask in eithe
 
 cloan="This copies specified tags from first line to the others.\nOptions are position, move, origin point, clip, and rotations.\n\nreplicate missing tags: creates tags if they're not present\n\nstack clips: allows stacking of 1 normal and 1 vector clip in one line\n\nmatch type: if current clip/iclip doesn't match the first line, it will be switched to match\n\ncv (combine vectors): if the first line has a vector clip, then for all other lines with vector clips \n   the vectors will be combined into 1 clip\n\ncopyrot: copies all rotations"
 
-port="Teleport shifts coordinates for selected tags (\\pos\\move\\org\\clip) by given X and Y values.\nIt's a simple but powerful tool that allows you to move whole gradients, mocha-tracked signs, etc.\n\nNote that the Teleporter fields are also used for some other functions, like Shiftstart and Shiftmove.\nThese functions don't use the 'Teleportation' button but the one for whatever part of HR they belong to."
+port="Teleport shifts coordinates for selected tags (\\pos\\move\\org\\clip) by given X and Y values.\nIt's a simple but powerful tool that allows you to move whole gradients, mocha-tracked signs, etc.\n\nNote that the Teleporter fields are also used for some other functions, like Shiftstart and Shiftmove.\nThese functions don't use the 'Teleportation' button but the one for whatever part of HR they belong to.\n\n'mod' allows you to add an extra factor applied line by line.\nFor example if you set '5' for 'X', things will shift by extra 5 pixels for each new line."
 
 stg_top={x=0,y=0,width=1,height=1,class="label",
 label="The Typesetter's Guide to the Hyperdimensional Relocator.                                                           "}
@@ -1287,8 +1340,10 @@ hyperconfig={
     {x=12,y=4,width=1,height=1,class="checkbox",name="tpmov",label="move",value=tele_move },
     {x=13,y=3,width=1,height=1,class="checkbox",name="tporg",label="org",value=tele_org },
     {x=13,y=4,width=1,height=1,class="checkbox",name="tpclip",label="clip",value=tele_clip },
-    {x=13,y=0,width=1,height=1,class="checkbox",name="tpmask",label="mask",value=tele_mask },
-    {x=12,y=5,width=2,height=1,class="label",label="HR version: "..script_version,},
+    {x=12,y=5,width=1,height=1,class="checkbox",name="tpmask",label="mask",value=tele_mask },
+    {x=13,y=0,width=1,height=1,class="checkbox",name="tpmod",label="mod",value=false },
+    {x=11,y=5,width=1,height=1,class="checkbox",name="autopos",label="p",value=auto_teleport_pos,hint="Teleport position when \\pos tags missing" },
+    {x=13,y=5,width=1,height=1,class="label",label="  [v"..script_version.."]",},
 } 
 
 	pressed,res=aegisub.dialog.display(hyperconfig,
