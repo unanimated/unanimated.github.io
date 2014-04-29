@@ -1,7 +1,7 @@
 ﻿script_name="MultiCopy"
 script_description="Copy tags or text from multiple lines and paste to others"
 script_author="unanimated"
-script_version="1.81"
+script_version="1.83"
 
 require "clipboard"
 
@@ -39,6 +39,7 @@ end
 function copyc(subs, sel)	-- clip etc
 	copyclip=""
     for x, i in ipairs(sel) do
+	line=subs[i]
 	text=subs[i].text
 	
 	if CM=="clip" and text:match("^{[^}]-\\i?clip") then
@@ -141,7 +142,7 @@ function crmod(subs)
 
 	-- nuke tags from signs, set actor to "Sign", add timecode
 	if not style:match("Defa") then
-	text=text:gsub("{[^\}]*}","")
+	text=text:gsub("{[^\\}]*}","")
 	actor="Sign"
 	timecode=math.floor(line.start_time/1000)
 	tc1=math.floor(timecode/60)
