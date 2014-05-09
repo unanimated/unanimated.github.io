@@ -1,22 +1,32 @@
--- Capitalize text or make it lowercase / uppercase. Select lines, run the script, choose from the 5 options.
+﻿-- Capitalize text or make it lowercase / uppercase. Select lines, run the script, choose from the 5 options.
 
-script_name = "Change capitalization"
-script_description = "Capitalizes text or makes it lowercase or uppercase"
-script_author = "unanimated"
-script_version = "1.71"
+script_name="Change capitalization"
+script_description="Capitalizes text or makes it lowercase or uppercase"
+script_author="unanimated"
+script_version="1.8"
+
+-- Unicode support: this is used for capitalisation of non-standard characters. Add more if your language requires it.
+unilow={"ä","ö","ü","ë","å","ø","æ","á","é","í","ó","ú","ý","à","è","ì","ò","ù","ç","ï","â","ê","î","ô","û","č","ď","ě","ň","ř","š","ť","ž","ů","ñ","ａ","ｂ","ｃ","ｄ","ｅ","ｆ","ｇ","ｈ","ｉ","ｊ","ｋ","ｌ","ｍ","ｎ","ｏ","ｐ","ｑ","ｒ","ｓ","ｔ","ｕ","ｖ","ｗ","ｘ","ｙ","ｚ"}
+unihigh={"Ä","Ö","Ü","Ë","Å","Ø","Æ","Á","É","Í","Ó","Ú","Ý","À","È","Ì","Ò","Ù","Ç","Ï","Â","Ê","Î","Ô","Û","Č","Ď","Ě","Ň","Ř","Š","Ť","Ž","Ů","Ñ","Ａ","Ｂ","Ｃ","Ｄ","Ｅ","Ｆ","Ｇ","Ｈ","Ｉ","Ｊ","Ｋ","Ｌ","Ｍ","Ｎ","Ｏ","Ｐ","Ｑ","Ｒ","Ｓ","Ｔ","Ｕ","Ｖ","Ｗ","Ｘ","Ｙ","Ｚ"}
 
 function lowercase(subs, sel)
     for x, i in ipairs(sel) do
-            local line=subs[i]
-	    local text=subs[i].text
-	    text=text:gsub("\\n","small_break")
-	    text=text:gsub("\\N","large_break")
-	    text=text:gsub("\\h","hard_space")
-	    text=text:gsub("^([^{]*)", function (l) return l:lower() end)
-	    text=text:gsub("}([^{]*)", function (l) return "}"..l:lower() end)
-	    text=text:gsub("small_break","\\n")
-	    text=text:gsub("large_break","\\N")
-	    text=text:gsub("hard_space","\\h")
+            line=subs[i]
+	    text=line.text
+	    text=text
+	    :gsub("^","}")
+	    :gsub("\\n","small_break")
+	    :gsub("\\N","large_break")
+	    :gsub("\\h","hard_space")
+	    :gsub("}([^{]*)",function(l) return "}"..l:lower() end)
+	    for u=1,#unilow do
+		text=text:gsub(unihigh[u],unilow[u])
+	    end
+	    text=text
+	    :gsub("small_break","\\n")
+	    :gsub("large_break","\\N")
+	    :gsub("hard_space","\\h")
+	    :gsub("^}","")
 	    line.text=text
 	    subs[i]=line
     end
@@ -24,16 +34,22 @@ end
 
 function uppercase(subs, sel)
     for x, i in ipairs(sel) do
-            local line=subs[i]
-	    local text=subs[i].text
-	    text=text:gsub("\\n","SMALL_BREAK")
-	    text=text:gsub("\\N","LARGE_BREAK")
-	    text=text:gsub("\\h","HARD_SPACE")
-	    text=text:gsub("^([^{]*)", function (u) return u:upper() end)
-	    text=text:gsub("}([^{]*)", function (u) return "}"..u:upper() end)
-	    text=text:gsub("SMALL_BREAK","\\n")
-	    text=text:gsub("LARGE_BREAK","\\N")
-	    text=text:gsub("HARD_SPACE","\\h")
+            line=subs[i]
+	    text=line.text
+	    text=text
+	    :gsub("^","}")
+	    :gsub("\\n","SMALL_BREAK")
+	    :gsub("\\N","LARGE_BREAK")
+	    :gsub("\\h","HARD_SPACE")
+	    :gsub("}([^{]*)", function (u) return "}"..u:upper() end)
+	    for u=1,#unilow do
+		text=text:gsub(unilow[u],unihigh[u])
+	    end
+	    text=text
+	    :gsub("SMALL_BREAK","\\n")
+	    :gsub("LARGE_BREAK","\\N")
+	    :gsub("HARD_SPACE","\\h")
+	    :gsub("^}","")
 	    line.text=text
 	    subs[i]=line
     end
@@ -41,14 +57,18 @@ end
 
 function capitalines(subs, sel)
     for x, i in ipairs(sel) do
-            local line=subs[i]
-	    local text=subs[i].text
-	    text=text:gsub("^(%l)([^{]-)", function (c,d) return c:upper()..d end)
-	    text=text:gsub("^({[^}]-})(%l)([^{]-)", function (e,f,g) return e..f:upper()..g end)
-	    text=text:gsub(" i "," I ")
-	    text=text:gsub(" i\'"," I'")
-	    text=text:gsub("\\Ni ","\\NI ")
-	    text=text:gsub("\\Ni\'","\\NI'")
+            line=subs[i]
+	    text=line.text
+	    text=text
+	    :gsub("^([^{])","{}%1")
+	    :gsub("^({[^}]-}['\"]?)(%l)([^{]-)", function (e,f,g) return e..f:upper()..g end)
+	    :gsub(" i([ '])"," I%1")
+	    :gsub("\\Ni([ '])","\\NI%1")
+	    for u=1,#unilow do
+		text=text:gsub("^({[^}]-}['\"]?)"..unilow[u],"%1"..unihigh[u])
+	    end
+	    text=text
+	    :gsub("^{}","")
 	    line.text=text
 	    subs[i]=line
     end
@@ -56,15 +76,23 @@ end
 
 function sentences(subs, sel)
     for x, i in ipairs(sel) do
-            local line=subs[i]
-	    local text=subs[i].text
-	    text=text:gsub("^(%l)([^{]-)", function (c,d) return c:upper()..d end)
-	    text=text:gsub("^({[^}]-})(%l)([^{]-)", function (e,f,g) return e..f:upper()..g end)
-	    text=text:gsub("([%.?!]%s)(%l)", function (k,l) return k..l:upper() end)
-	    text=text:gsub(" i "," I ")
-	    text=text:gsub(" i\'"," I'")
-	    text=text:gsub("\\Ni ","\\NI ")
-	    text=text:gsub("\\Ni\'","\\NI'")
+            line=subs[i]
+	    text=line.text
+	    text=text
+	    :gsub("^([^{])","{}%1")
+	    :gsub("^({[^}]-}['\"]?)(%l)([^{]-)", function (e,f,g) return e..f:upper()..g end)
+	    :gsub("([%.?!]%s)(%l)", function (k,l) return k..l:upper() end)
+	    :gsub("([%.?!]%s\\N)(%l)", function (k,l) return k..l:upper() end)
+	    :gsub(" i([ '])"," I%1")
+	    :gsub("\\Ni([ '])","\\NI%1")
+	    for u=1,#unilow do
+		text=text
+		:gsub("^({[^}]-}['\"]?)"..unilow[u],"%1"..unihigh[u])
+		:gsub("([%.?!]%s)"..unilow[u],"%1"..unihigh[u])
+		:gsub("([%.?!]%s?\\N)"..unilow[u],"%1"..unihigh[u])
+	    end
+	    text=text
+	    :gsub("^{}","")
 	    line.text=text
 	    subs[i]=line
     end
@@ -76,16 +104,19 @@ vord={"the","a","an","at","as","on","of","or","for","nor","with","without","with
 
 function capitalize(subs, sel)
     for x, i in ipairs(sel) do
-            local line=subs[i]
-	    local text=subs[i].text
-	    text=text:gsub("\\n","*small_break*")
-	    text=text:gsub("\\N","*large_break*")
-	    text=text:gsub("\\h","*hard_space*")
-	    text=text:gsub("^(%l)(%l-)", function (c,d) return c:upper()..d end)				-- start of line
-	    text=text:gsub("([%s\"}%(%-=])(%l)(%l-)", function (e,f,g) return e..f:upper()..g end)	-- after: space " } ( - =
-	    text=text:gsub("(break%*)(%l)(%l-)", function (h,j,k) return h..j:upper()..k end)			-- after \N
-	    text=text:gsub("%s([\'])(%l)(%l-)", function (l,m,n) return " "..l..m:upper()..n end)	-- after space+'
-	    text=text:gsub("^(\')(%l)(%l-)", function (l,m,n) return l..m:upper()..n end)			-- start of line+'
+            line=subs[i]
+	    text=line.text
+	    text=text
+	    :gsub("^","}")
+	    :gsub("\\n","*small_break*")
+	    :gsub("\\N","*large_break*")
+	    :gsub("\\h","*hard_space*")
+	    :gsub("([%s\"}%(%-%=]['\"]?)(%l)(%l-)",function(e,f,g) return e..f:upper()..g end)	-- after: space " } ( - =
+	    :gsub("(break%*)(%l)(%l-)",function(h,j,k) return h..j:upper()..k end)			-- after \N
+	    for u=1,#unilow do
+		text=text:gsub("([%s\"}%(%-%=]['\"]?)"..unilow[u].."(%l-)","%1"..unihigh[u].."%2")
+	    end
+	    text=text:gsub("^}","")
 
 	    for r=1,#word do
 	    w=word[r]	    v=vord[r]
@@ -94,20 +125,21 @@ function capitalize(subs, sel)
 	    end
 
 	    -- other stuff
-	    text=text:gsub("$","#")
-	    text=text:gsub("(%s?)([IVXLCDM])([ivxlcdm]+)([%s%p#])",function (s,r,m,e) return s..r..m:upper()..e end)	-- Roman numbers
-	    text=text:gsub("LID","Lid")
-	    text=text:gsub("DIM","Dim")
-	    text=text:gsub("Ok([%s%p#])","OK%1")
-	    text=text:gsub("%-San([%s%p#])","-san%1")
-	    text=text:gsub("%-Kun([%s%p#])","-kun%1")
-	    text=text:gsub("%-Chan([%s%p#])","-chan%1")
-	    text=text:gsub("%-Sama([%s%p#])","-sama%1")
-	    text=text:gsub("%-Dono([%s%p#])","-dono%1")
-	    text=text:gsub("#$","")
-	    text=text:gsub("%*small_break%*","\\n")
-	    text=text:gsub("%*large_break%*","\\N")
-	    text=text:gsub("%*hard_space%*","\\h")
+	    text=text
+	    :gsub("$","#")
+	    :gsub("(%s?)([IVXLCDM])([ivxlcdm]+)([%s%p#])",function (s,r,m,e) return s..r..m:upper()..e end)	-- Roman numbers
+	    :gsub("LID","Lid")
+	    :gsub("DIM","Dim")
+	    :gsub("Ok([%s%p#])","OK%1")
+	    :gsub("%-San([%s%p#])","-san%1")
+	    :gsub("%-Kun([%s%p#])","-kun%1")
+	    :gsub("%-Chan([%s%p#])","-chan%1")
+	    :gsub("%-Sama([%s%p#])","-sama%1")
+	    :gsub("%-Dono([%s%p#])","-dono%1")
+	    :gsub("#$","")
+	    :gsub("%*small_break%*","\\n")
+	    :gsub("%*large_break%*","\\N")
+	    :gsub("%*hard_space%*","\\h")
 
 	    line.text=text
 	    subs[i]=line
@@ -133,7 +165,7 @@ function capital(subs, sel)
 		label="                                Uppercase - MAKE TEXT IN SELECTED LINES UPPERCASE",
 	    },
 	} 	
-	pressed, results = aegisub.dialog.display(dialog_config,
+	pressed,results=aegisub.dialog.display(dialog_config,
 	{"Words","Lines","Sentences","lowercase","UPPERCASE","Cancel"},{cancel='Cancel'})
 	if pressed=="Cancel" then aegisub.cancel() end
 	

@@ -5,7 +5,7 @@
 script_name="ShiftCut"
 script_description="Time Machine."
 script_author="unanimated"
-script_version="2.5"
+script_version="2.51"
 
 -- SETTINGS	these are default settings with which the GUI loads. change them as you want, but check the comments for correct values.
 
@@ -30,7 +30,7 @@ use_preset=true			-- use preset for keyframes [true/false]
 kf_snap_preset="6,10,8,12"	-- options: "1,1,1,1","2,2,2,2","6,6,8,12","6,6,10,12","6,10,8,12","8,8,8,12","0,0,0,10","7,12,10,13"
 prevent_cut_overlaps=true	-- prevent overlaps from adding lead in/out [true/false]
 prevent_kf_overlaps=true	-- prevent overlaps from snapping [true/false] - useful for example when ends_before is higher than starts_before.
-dont_add_leads_on_kf=false	-- don't add lead in/out to times that match keyframes
+dont_add_leads_on_kf=false	-- don't add lead in/out to times that match keyframes. works with linking too.
 
 -- this is a table with all presets for kf snapping. you can add your own, as long as you don't fuck up the pattern.
 kf_snap_presets={"1,1,1,1","2,2,2,2","6,6,6,10","6,6,8,12","6,6,10,12","6,10,8,12","8,8,8,12","0,0,0,10","7,12,10,13"}
@@ -70,8 +70,6 @@ function cutout(subs, sel)
 		
 	    kfr=1
 	    if res.holdkf then
-		keyframes=aegisub.keyframes()
-		ms2fr=aegisub.frame_from_ms
 		endf=ms2fr(endt)
 		for k,kf in ipairs(keyframes) do
 		    if kf==endf then kfr=0 break end
@@ -104,8 +102,6 @@ function cutin(subs, sel)
 		
 	    kfr=1
 	    if res.holdkf then
-		keyframes=aegisub.keyframes()
-		ms2fr=aegisub.frame_from_ms
 		startf=ms2fr(start)
 		for k,kf in ipairs(keyframes) do
 		    if kf==startf then kfr=0 break end
@@ -157,12 +153,18 @@ function linklines(subs, sel)
 		endt=line.end_time
 		s1=start e1=endt
 		if i<#subs then nextline=subs[i+1]
-		nextart=nextline.start_time end
+		nextart=nextline.start_time nextf=ms2fr(nextart) end
 		if marker==1 then start=start-diff2 end	-- link line 2
 		if markover==1 then start=start+diffo end	-- overlap line 2
 		marker=0
 		markover=0
 		run=runcheck()
+	    if res.holdkf then
+		endf=ms2fr(endt)
+		for k,kf in ipairs(keyframes) do
+		    if kf==endf or kf==nextf then run=0 break end
+		end
+	    end
 		
 	    if run==1 then
 		-- linking
@@ -193,15 +195,15 @@ end
 
 function keyframesnap(subs, sel)
 snapd=0
-	for z, i in ipairs(sel) do
+    if res.pres then kfsb,kfeb,kfsa,kfea=res.preset:match("(%d+),(%d+),(%d+),(%d+)") 
+	kfsb=tonumber(kfsb)
+	kfeb=tonumber(kfeb)
+	kfsa=tonumber(kfsa)
+	kfea=tonumber(kfea)
+    end
+    if not res.pres then kfsb=res.sb kfeb=res.eb kfsa=res.sa kfea=res.ea end
+	for z, i in ipairs(sel) do aegisub.progress.title(string.format("Snapping Line %d/%d",z,#sel))
 	    line=subs[i]
-	    if res.pres then kfsb,kfeb,kfsa,kfea=res.preset:match("(%d+),(%d+),(%d+),(%d+)") 
-		kfsb=tonumber(kfsb)
-		kfeb=tonumber(kfeb)
-		kfsa=tonumber(kfsa)
-		kfea=tonumber(kfea)
-	    end
-	    if not res.pres then kfsb=res.sb kfeb=res.eb kfsa=res.sa kfea=res.ea end
 		run=runcheck()
 		
 	    if run==1 then
@@ -216,10 +218,7 @@ snapd=0
 		nextart=nextline.start_time end
 		if z~=1 then prevline=subs[i-1]
 		prevend=prevline.end_time end
-		ms2fr=aegisub.frame_from_ms
-		fr2ms=aegisub.ms_from_frame
 		
-		keyframes=aegisub.keyframes()	-- keyframes table
 		startf=ms2fr(start)		-- startframe
 		endf=ms2fr(endt)		-- endframe
 		
@@ -231,7 +230,7 @@ snapd=0
 		-- check for nearby keyframes
 		for k,kf in ipairs(keyframes) do
 		
-			-- startframe snap up to 24 frames back [scroll down to change default] and 5 frames forward
+			-- startframe
 			if kf>=startf-kfsa and kf<=startf+kfsb then 
 			tdiff=math.abs(startf-kf)
 			if tdiff<=diff then diff=tdiff startkf=kf end
@@ -242,7 +241,7 @@ snapd=0
 			if stopstart==0 then start=startemp end
 			end
 			
-			-- endframe snap up to 24 frames forward [scroll down to change default] and 10 frames back
+			-- endframe
 			if kf>=endf-kfea and kf<=endf+kfeb then
 			tdiff=math.abs(endf-kf)
 			if tdiff<diffe then diffe=tdiff endkf=kf end
@@ -276,7 +275,7 @@ function konfig(subs, sel)
 	style(subs)
 	dialog_config=
 	{
-	    {x=0,y=0,width=2,height=1,class="label",label="ShiftCut v2.3" },
+	    {x=0,y=0,width=2,height=1,class="label",label="ShiftCut v"..script_version },
 	    {x=2,y=0,width=2,height=1,class="dropdown",name="slct",items={"Apply to selected","Apply to all lines"},value=apply_to},
 	    {x=4,y=0,width=3,height=1,class="checkbox",name="mark",label="Mark changed",value=false },
 	    
@@ -338,6 +337,9 @@ function konfig(subs, sel)
 	pressed, res=aegisub.dialog.display(dialog_config,
 		{"[ cut or add lead in ]","[ cut or add lead out ]","shift times","line linking","kf snapping","cancel"},{cancel='cancel'})
 	if res.slct=="Apply to all lines" then sel=selectall(subs, sel) end
+	keyframes=aegisub.keyframes()
+	ms2fr=aegisub.frame_from_ms
+	fr2ms=aegisub.ms_from_frame
 	
 	if pressed=="[ cut or add lead in ]" then cutin(subs, sel) end
 	if pressed=="[ cut or add lead out ]" then cutout(subs, sel) end

@@ -12,7 +12,7 @@
 script_name = "Line Breaker"
 script_description = "insert/shift linebreaks"
 script_author = "unanimated"
-script_version = "2.0"
+script_version = "2.1"
 
 --	SETTINGS	--	-- options are either numbers or true/false							[default value]
 
@@ -108,7 +108,7 @@ function nnn(subs, sel)
 	    :gsub("([,!%?:;])({\\[^}]-})%s","%1%2 \\N")
 	    :gsub(",\"%s",",\" \\N")
 	    :gsub("%.%.%.%s","... \\N")
-	    :gsub("([DM]r%.) \\N","%1 ")
+	    :gsub("([DM]rs?%.) \\N","%1 ")
 
 	    -- remove comma breaks if . or ? or !
 	    if tekst:match("[%.%?!] \\N") and tekst:match(", \\N") then tekst=tekst:gsub(", \\N",", ") end
@@ -130,8 +130,8 @@ function nnn(subs, sel)
 	    if wrd>5 then testxt=tekst:gsub("^[%w%p]+ [%w%p]+(.-)[%w%p]+ [%w%p]+$","%1") else testxt=tekst end
 
 	    -- if no linebreak in line, put breaks before selected words, in 3 rounds
-	    words1={" but "," and "," if "," when "," because "," 'cause "," yet "," unless "," with "," without "}
-	    words2={" or "," nor "," for "," from "," before "," at "," that "," since "," until "," while "}
+	    words1={" but "," and "," if "," when "," because "," 'cause "," yet "," unless "," with "," without "," whether "}
+	    words2={" or "," nor "," for "," from "," before "," at "," that "," since "," until "," while "," behind "," than "}
 	    words3={" about "," into "," to "," is "," isn't "," was "," wasn't "," are "," aren't "," were "," weren't "}
 	    tekst=words(words1)
 	    tekst=words(words2)
@@ -163,12 +163,13 @@ function nnn(subs, sel)
 	    tekst=re.sub(tekst," \\\\N([oi]n) (because|and|but|when) "," \\1 \\\\N\\2 ")
 	    tekst=tekst
 	    :gsub(" lot(s?) \\Nof "," lot%1 of \\N")
+	    :gsub(" \\Nme "," me \\N")
 	    :gsub("^ ","")
 	    --aegisub.log("\n tekst "..tekst)
 	    tekstb=balance(tekst)
 	    if tekstb~=tekst then tekst=backup2 end
 	    
-	    double={"so that","no one","ought to","now that","it was","he was","she was","will be","there is","there are","there was","there were","get to","sort of","kind of","put it","each other","each other's","have to","has to","had to","having to","want to","wanted to","used to","able to","going to","supposed to","allowed to","tend to","due to","forward to","has been","have been","had been","filled with","full of","out of","into the","onto the","part with","more than","even if","make sure","give up","would be","wipe out","wiped out"}
+	    double={"so that","no one","ought to","now that","it was","he was","she was","will be","there is","there are","there was","there were","get to","sort of","kind of","put it","each other","each other's","have to","has to","had to","having to","want to","wanted to","used to","able to","going to","supposed to","allowed to","tend to","due to","forward to","thanks to","not to","has been","have been","had been","filled with","full of","out of","into the","onto the","part with","more than","less than","even if","make sure","give up","would be","wipe out","wiped out","real life","no matter"}
 	    for d=1,#double do
 		dbl=double[d]
 		d1,d2=dbl:match("([%a']+) ([%a']+)")
@@ -321,6 +322,6 @@ function backshift(subs, sel)
     return sel
 end	
 
-aegisub.register_macro("Insert Linebreak", script_description, nnn)
-aegisub.register_macro("Shift Linebreak", script_description, nshift)
-if enable_shift_backwards then aegisub.register_macro("Shift Linebreak Back", script_description, backshift) end
+aegisub.register_macro("Line Breaker/Insert Linebreak", script_description, nnn)
+aegisub.register_macro("Line Breaker/Shift Linebreak", script_description, nshift)
+if enable_shift_backwards then aegisub.register_macro("Line Breaker/Shift Linebreak Back", script_description, backshift) end
