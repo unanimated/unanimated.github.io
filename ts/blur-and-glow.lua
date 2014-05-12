@@ -26,7 +26,7 @@
 script_name="Blur and Glow"
 script_description="Add blur and/or glow to signs"
 script_author="unanimated"
-script_version="2.1"
+script_version="2.12"
 
 --	SETTINGS	--			OPTIONS
 
@@ -97,6 +97,7 @@ function glow(subs, sel)
 	    if res.botalpha and line.text:match("\\fad%(") then text=botalfa(text) end
 	    line.layer=line.layer-3
 	    line.text=text
+	    sls=3
 
 	  else
 	    -- WITH ONE BORDER
@@ -124,6 +125,7 @@ function glow(subs, sel)
 	    if res.botalpha and line.text:match("\\fad%(") then text=botalfa(text) end
 	    line.layer=line.layer-2
 	    line.text=text
+	    sls=2
 
 	  end
 
@@ -136,11 +138,14 @@ function glow(subs, sel)
 	    text=glowlayer(text,"c","1")
 	    line.layer=line.layer-1
 	    line.text=text
+	    sls=1
 
 	end
 	subs[sel[i]]=line
+	for s=i,#sel do sel[s]=sel[s]+sls end
     end
-    aegisub.progress.title(string.format("Blur & Glow: DONE"))
+    aegisub.progress.title("Blur & Glow: DONE")
+    return sel
 end
 
 function layerblur(subs, sel)
@@ -188,6 +193,7 @@ function layerblur(subs, sel)
 	    text=borderline2(text)
 	    line.layer=line.layer-2
 	    line.text=text
+	    sls=2
 
 		-- ONE BORDER
 	    else
@@ -203,11 +209,13 @@ function layerblur(subs, sel)
 	    text=borderline(text)
 	    line.layer=line.layer-1
 	    line.text=text
+	    sls=1
 	    end
 
 	subs[sel[i]]=line
+	for s=i,#sel do sel[s]=sel[s]+sls end
     end
-    aegisub.progress.title(string.format("Blur: DONE"))
+    aegisub.progress.title("Blur: DONE")
 end
 
 function topline(txt)
@@ -366,7 +374,7 @@ function fixfade(subs, sel)
 	styleref=stylechk(line.style)
 	duration=line.end_time-line.start_time
 		border=tostring(styleref.outline)
-		bord=startags:match("^{[^}]-\\bord([%d%.]+)")
+		bord=text:match("^{[^}]-\\bord([%d%.]+)")
 		if bord~=nil then border=bord end
 	
 		if border~="0" and line.text:match("\\fad%(") then
@@ -416,6 +424,7 @@ function konfig(subs, sel)
 dialog_config=
 {
     --left
+    {x=0,y=0,width=2,height=1,class="label",label="  =   Blur and Glow version "..script_version.."   =" },
     {x=0,y=1,width=1,height=1,class="label",label="Glow blur:" },
     {x=0,y=2,width=1,height=1,class="label",label="Glow alpha:" },
     
@@ -428,7 +437,6 @@ dialog_config=
     
     {x=0,y=4,width=5,height=1,class="checkbox",name="botalpha",label="fix \\1a for layers with border and fade --> transition:",
 			value=fix_for_fades,hint="uses \\1a&HFF& for bottom layer during fade"},
-    --{x=0,y=4,width=1,height=1,class="label",label="    transition:" },
     {x=5,y=4,width=1,height=1,class="dropdown",name="alphade",items={0,45,80,120,160,200,"max"},value=45 },
     {x=6,y=4,width=1,height=1,class="label",label="ms" },
     
@@ -461,7 +469,7 @@ dialog_config=
 	if res.onlyb then res.double=true end
 	
 	if pressed=="Blur / Layers" then repetition() styleget(subs) layerblur(subs, sel) end
-	if pressed=="Blur + Glow" then repetition() styleget(subs) glow(subs, sel) end
+	if pressed=="Blur + Glow" then repetition() styleget(subs) sel=glow(subs, sel) end
 	if pressed=="Fix fades" then repetition() styleget(subs) fixfade(subs, sel) end
 	if pressed=="Change layer" then repetition() layeraise(subs, sel) end
 	
@@ -482,6 +490,7 @@ dialog_config=
 	lastonlyg=res.onlyg
 	lastonlyb=res.onlyb
 	end
+	return sel
 end
 
 function repetition()
@@ -505,9 +514,9 @@ function repetition()
 end
 
 function blurandglow(subs, sel)
-    konfig(subs, sel)
+    sel=konfig(subs, sel)
     aegisub.set_undo_point(script_name)
-    if pressed=="Change layer" then return sel end
+    if pressed~="Change layer" then return sel end
 end
 
 aegisub.register_macro(script_name, script_description, blurandglow)

@@ -1,7 +1,7 @@
-script_name="HYDRA"
+﻿script_name="HYDRA"
 script_description="A multi-headed typesetting tool"
 script_author="unanimated"
-script_version="3.5"
+script_version="3.57"
 
 -- SETTINGS - feel free to change these
 
@@ -37,6 +37,7 @@ function hh9(subs, sel)
     if res.applac=="All Actors" or res.applac==act then actorgo=true else actorgo=false end
     if res.applef=="All Effects" or res.applef==eff then effectgo=true else effectgo=false end
     if layergo and stylego and actorgo and effectgo then GO=true else GO=false end
+    if loaded<3 then GO=true end
 	
 	if not text:match("^{\\") then text="{\\hydra}"..text end		-- add {\} if line has no tags
 	
@@ -60,8 +61,8 @@ function hh9(subs, sel)
 	end
 	
 	if tmode==2 then
-	    text=text:gsub("^({[^}]*\\t%([^%)]+)%)","%1alltagsgohere)")
-	    :gsub("(\\clip%([^\\%)]+)(alltagsgohere)%)([^%)]-)%)","%1)%3%2)")
+	    text=text:gsub("^({[^}]*\\t%([^%)]+)%)","%1\\alltagsgohere)")
+	    :gsub("(\\clip%([^\\%)]+)(\\alltagsgohere)%)([^%)]-)%)","%1)%3%2)")
 	end
 	if tmode==3 then
 	    text=text:gsub("(\\t%([^%)]+)%)","%1alltagsgohere)")
@@ -77,14 +78,14 @@ function hh9(subs, sel)
 	
 	transform=""
 	transform=gettags(transform)
-	text=text:gsub("alltagsgohere",transform)
+	text=text:gsub("\\alltagsgohere",transform)
 	text=text:gsub("\\t%(0,0,1,","\\t(")
-	for tranz in text:gmatch("\\t%([^%(%)]+%)") do
+	for tranz in text:gmatch("\\t(%([^%(%)]+%))") do
 		tranz2=duplikill(tranz)
 		tranz=esc(tranz)
 		text=text:gsub(tranz,tranz2)
 	end
-	for tranz in text:gmatch("\\t%([^%(%)]-%([^%)]-%)[^%)]-%)") do
+	for tranz in text:gmatch("\\t(%([^%(%)]-%([^%)]-%)[^%)]-%))") do
 		tranz2=duplikill(tranz)
 		tranz=esc(tranz)
 		text=text:gsub(tranz,tranz2)
@@ -131,7 +132,7 @@ function hh9(subs, sel)
 	-- REGULAR STARTING TAGS
 	    text=text:gsub("^({\\[^}]-)}","%1"..tags.."}")
 	end
-	text=duplikill(text)
+	text=text:gsub("({\\[^}]-})",function(tg) return duplikill(tg) end)
 	
 	
 	-- bold
@@ -254,7 +255,9 @@ function special(subs, sel)
     transphorm=""
     transphorm=gettags(transphorm)
   end
-
+  if res.spec=="select overlaps" then
+    sel=selover(subs)
+  else
     for i=#sel,1,-1 do
         aegisub.progress.title(string.format(res.spec..": %d/%d",#sel-i,#sel))
 	prog=math.floor((#sel-i+0.5)/#sel*100)
@@ -272,10 +275,17 @@ function special(subs, sel)
 	end
 	
 	if res.spec=="move colour tag to first block" then
-	    text=text:gsub("^({\\[^}]-})([^{]+)({\\[1234]?c&H%x+&[^}]-})","%1%3%2")
-	    text=text:gsub("^([^{]+)({\\[1234]?c&H%x+&[^}]-})","%2%1")
+	    tags=text:match("^{\\[^}]-}") if tags==nil then tags="" end
+	    text=text:gsub("^{\\[^}]-}","")
+	    klrs=""
+	    for klr in text:gmatch("\\[1234]?c&H%x+&") do
+		klrs=klrs..klr
+		klrs=duplikill(klrs)
+	    end
+	    text=text:gsub("(\\[1234]?c&H%x+&)","") :gsub("{}","") 
+	    text=tags.."{"..klrs.."}"..text
 	    text=text:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
-	    if not text:match("\\t") then text=duplikill(text) end
+	    text=text:gsub("({\\[^}]-})",function(tg) return duplikill(tg) end)
 	end
 	
 	if res.spec=="convert clip <-> iclip" then
@@ -294,7 +304,7 @@ function special(subs, sel)
 		text=text:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
 		until text:match("{(\\[^}]-)}{(\\[^}]-)}")==nil
 	    text=text:gsub("^{(\\[^}]-)\\frx0\\fry0([\\}])","{%1%2")
-	    if not text:match("\\t") then text=duplikill(text) end
+	    text=text:gsub("({\\[^}]-})",function(tg) return duplikill(tg) end)
 	end
 	
 	-- SORT TAGS
@@ -354,6 +364,25 @@ function special(subs, sel)
 	  if text:match("\\an") then text=text:gsub("\\an%d","\\an7") else text=text:gsub("^{","{\\an7") end
 	  if text:match("\\fscx") then text=text:gsub("\\fscx[%d%.]+","\\fscx100") else text=text:gsub("\\p1","\\fscx100\\p1") end
 	  if text:match("\\fscy") then text=text:gsub("\\fscy[%d%.]+","\\fscy100") else text=text:gsub("\\p1","\\fscy100\\p1") end
+	end
+	
+	-- DRAWING TO CLIP
+	if res.spec=="convert drawing to clip" then
+	  if not text:match("\\p1") then aegisub.cancel() end
+	  --text=text:gsub("^({\\[^}]-}).*","%1")
+	  text=text:gsub("^({[^}]*)\\p1([^}]-})(m [^{]*)","%1\\clip(%3)%2")
+	  scx=text:match("\\fscx([%d%.]+)")	if scx==nil then scx=100 end
+	  scy=text:match("\\fscy([%d%.]+)")	if scy==nil then scy=100 end
+	  --aegisub.log("\n text "..text)
+	  if text:match("\\pos") then
+	    local xx,yy=text:match("\\pos%(([%d%.%-]+),([%d%.%-]+)%)")
+	    xx=round(xx) yy=round(yy)
+	    ctext=text:match("\\clip%(m ([^%)]+)%)")
+	    ctext2=ctext:gsub("([%d%-]+)%s([%d%-]+)",function(a,b) return round(a*scx/100+xx).." "..round(b*scy/100+yy) end)
+	    ctext=ctext:gsub("%-","%%-")
+	    text=text:gsub(ctext,ctext2)
+	  end
+	  if not text:match("\\pos") then text=text:gsub("^{","{\\pos(0,0)") end
 	end
 	
 	-- 3D SHADOW
@@ -475,6 +504,32 @@ function special(subs, sel)
 	if res.spec=="split line in 3 parts" and line.start_time==line.end_time then subs.delete(sel[i]) end
 	end
     end
+  end
+  return sel
+end
+
+function selover(subs,sel)
+  local dialogue={ }
+  for i, line in ipairs(subs) do
+    if line.class=="dialogue" then line.i=i
+      table.insert(dialogue, line)
+    end
+  end
+  table.sort(dialogue, function(a, b)
+    return a.start_time < b.start_time or (a.start_time == b.start_time and a.i < b.i)
+  end)
+  local end_time=0
+  local overlaps={ }
+  for i=1, #dialogue do
+    local line=dialogue[i]
+    if line.start_time >= end_time then
+      end_time=line.end_time
+    else
+      table.insert(overlaps, line.i)
+    end
+  end
+  sel=overlaps
+  return sel
 end
 
 function round(num)
@@ -509,19 +564,27 @@ function cleantr(tags)
 	return tags
 end
 
-function duplikill(text)
+function duplikill(tagz)
+	tf=""
+	if tagz:match("\\t") then 
+	    for t in tagz:gmatch("(\\t%([^%(%)]-%))") do tf=tf..t end
+	    for t in tagz:gmatch("(\\t%([^%(%)]-%([^%)]-%)[^%)]-%))","") do tf=tf..t end
+	    tagz=tagz:gsub("\\t%([^%(%)]+%)","")
+	    tagz=tagz:gsub("\\t%([^%(%)]-%([^%)]-%)[^%)]-%)","")
+	end
 	tags1={"blur","be","bord","shad","xbord","xshad","ybord","yshad","fs","fsp","fscx","fscy","frz","frx","fry","fax","fay"}
 	for i=1,#tags1 do
 	    tag=tags1[i]
-	    text=text:gsub("(\\"..tag.."[%d%.%-]+)([^}]-)(\\"..tag.."[%d%.%-]+)","%3%2")
+	    tagz=tagz:gsub("\\"..tag.."[%d%.%-]+([^}]-)(\\"..tag.."[%d%.%-]+)","%2%1")
 	end
-	text=text:gsub("\\1c&","\\c&")
+	tagz=tagz:gsub("\\1c&","\\c&")
 	tags2={"c","2c","3c","4c","1a","2a","3a","4a","alpha"}
 	for i=1,#tags2 do
 	    tag=tags2[i]
-	    text=text:gsub("\\"..tag.."&H%x+&([^}]-)(\\"..tag.."&H%x+&)","%1%2")
-	end	
-	return text
+	    tagz=tagz:gsub("\\"..tag.."&H%x+&([^}]-)(\\"..tag.."&H%x+&)","%2%1")
+	end
+	tagz=tagz:gsub("({\\[^}]-)}","%1"..tf.."}")
+	return tagz
 end
 
 function esc(str)
@@ -652,7 +715,7 @@ hh2={
     {x=9,y=1,width=1,height=1,class="dropdown",name="layers",
 	items={"-5","-4","-3","-2","-1","+1","+2","+3","+4","+5"},value="+1" },
     {x=9,y=2,width=1,height=1,class="dropdown",name="alpha",
-	items={"00","10","20","30","40","50","60","70","80","90","A0","B0","C0","D0","E0","F0","FF"},value="00" },
+	items={"00","10","20","30","40","50","60","70","80","90","A0","B0","C0","D0","E0","F0","F8","FF"},value="00" },
     {x=9,y=3,width=1,height=1,class="dropdown",name="alph1",
 	items={"00","10","20","30","40","50","60","70","80","90","A0","B0","C0","D0","E0","F0","FF"},value="00" },
     {x=9,y=4,width=1,height=1,class="dropdown",name="alph2",
@@ -699,7 +762,7 @@ hh3={
     {x=6,y=12,width=2,height=1,class="floatedit",name="fscy2",value=100,min=0 },
 
     {x=0,y=12,width=1,height=1,class="label",label="Special functions:"},
-    {x=1,y=12,width=3,height=1,class="dropdown",name="spec",items={"fscx -> fscy","fscy -> fscx","move colour tag to first block","convert clip <-> iclip","clean up tags","sort tags in set order","clean up and sort transforms","back and forth transform","convert clip to drawing","clip square grid small","clip square grid large","create 3D effect from shadow","split line in 3 parts"},value="convert clip <-> iclip"},
+    {x=1,y=12,width=3,height=1,class="dropdown",name="spec",items={"fscx -> fscy","fscy -> fscx","move colour tag to first block","convert clip <-> iclip","clean up tags","sort tags in set order","clean up and sort transforms","back and forth transform","select overlaps","convert clip to drawing","convert drawing to clip","clip square grid small","clip square grid large","create 3D effect from shadow","split line in 3 parts"},value="convert clip <-> iclip"},
     
     {x=0,y=13,width=1,height=1,class="label",label="Tag position*:"},
     {x=1,y=13,width=5,height=1,class="edit",name="linetext",value=linetext,hint="Place asterisk where you want the tags"},
@@ -714,7 +777,7 @@ hh3={
 
 	buttons={{"Apply","Repeat Last","Load Medium","Load Full","Cancel"},
 	{"Apply","Repeat Last","Load Full","Cancel"},{"Apply","Transform","Repeat Last","Special","Help","Cancel"}}
-	hh_gui=hh1	loaded=1
+	hh_gui=hh1	loaded=sm
 	if sm==2 then for i=1,#hh2 do l=hh2[i] table.insert(hh_gui,l) end loaded=2 end
 	if sm==3 then for i=1,#hh2 do l=hh2[i] table.insert(hh_gui,l) end for i=1,#hh3 do l=hh3[i] table.insert(hh_gui,l) end end
 	hh_buttons=buttons[sm]
@@ -727,7 +790,7 @@ hh3={
 	
 	if pressed=="Load Full" then aegisub.progress.title(string.format("Loading Heads "..(loaded+1)*2 .."-7"))
 	    if loaded<2 then  for i=1,#hh2 do l=hh2[i] table.insert(hh_gui,l) end  end
-	    for i=1,#hh3 do l=hh3[i] table.insert(hh_gui,l) end
+	    for i=1,#hh3 do l=hh3[i] table.insert(hh_gui,l) end loaded=3
 	    pressed,res=aegisub.dialog.display(hh_gui,buttons[3],{ok='Apply',cancel='Cancel'})
 	end
 	
@@ -768,7 +831,7 @@ hh3={
 	
 	if pressed=="Apply" then trans=0 hh9(subs, sel) end
 	if pressed=="Transform" then trans=1 hh9(subs, sel) end
-	if pressed=="Special" then special(subs, sel) end
+	if pressed=="Special" then sel=special(subs, sel) end
 	
 	if pressed~="Repeat Last" then
 	    last_set={}
@@ -794,10 +857,11 @@ hh3={
 	    end
 	    hh9(subs, sel)
 	end
+	return sel
 end
 
 function hydra(subs, sel)
-    konfig(subs, sel)
+    sel=konfig(subs, sel)
     aegisub.set_undo_point(script_name)
     return sel
 end
