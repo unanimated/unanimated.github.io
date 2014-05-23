@@ -3,11 +3,11 @@
 script_name="Script Cleanup"
 script_description="Removes unwanted stuff from script"
 script_author="unanimated"
-script_version="2.55"
+script_version="2.61"
 
 dont_delete_empty_tags=false	-- option to not delete {}
 
-function cleanlines(subs, sel)
+function cleanlines(subs,sel)
     if res.all then res.nocom=true res.clear_a=true res.clear_e=true res.layers=true 
 	    res.cleantag=true res.overlap=true res.clear_a=true res.spaces=true end
     for x, i in ipairs(sel) do
@@ -35,15 +35,14 @@ function cleanlines(subs, sel)
 	    end
 	    
 	    if res["cleantag"] and text:match("{\\") then
-	    text=text:gsub("{(\\[^}]-)}{(\\r[^}]-)}","{%2}") :gsub("^{\\r([\\}])","{%1")
+	    text=text:gsub("{\\\\k0}","") :gsub("{(\\[^}]-)}{(\\r[^}]-)}","{%2}") :gsub("^{\\r([\\}])","{%1")
 	    repeat text=text:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
 	    until not text:match("{(\\[^}]-)}{(\\[^}]-)}")
 	    text=text:gsub("({\\[^}]-){(\\[^}]-})","%1%2")
-	    text=text:gsub("^{(\\[^}]-)\\frx0\\fry0([\\}])","{%1%2")
+	    :gsub("^{(\\[^}]-)\\frx0\\fry0([\\}])","{%1%2")
 	    repeat text=text:gsub("(\\fad%([%d,]+%))(.-)\\fad%([%d,]+%)","%1%2")
 	    until not text:match("\\fad%([%d,]+%).-\\fad%([%d,]+%)")
-	    text=text:gsub("\\fad%(0,0%)","")
-	    text=text:gsub("{\\[^}]-}$","")
+	    text=text:gsub("\\fad%(0,0%)","") :gsub("{\\[^}]-}$","")
 	    for tgs in text:gmatch("{\\[^}]-}") do
   	      tgs2=tgs
   	      tgs2=tgs2
@@ -177,7 +176,7 @@ return num
 end
 
 -- delete commented lines from selected lines
-function nocom_line(subs, sel)
+function nocom_line(subs,sel)
 	aegisub.progress.title(string.format("Deleting commented lines")) 
 	ncl_sel={}
 	for i=#sel,1,-1 do
@@ -193,7 +192,7 @@ function nocom_line(subs, sel)
 end
 
 -- delete empty lines from selected lines
-function noempty(subs, sel)
+function noempty(subs,sel)
 	aegisub.progress.title(string.format("Deleting empty lines")) 
 	noe_sel={}
 	for i=#sel,1,-1 do
@@ -209,7 +208,7 @@ function noempty(subs, sel)
 end
 
 -- delete commented or empty lines from selected lines
-function noemptycom(subs, sel)
+function noemptycom(subs,sel)
 	aegisub.progress.title(string.format("Deleting commented/empty lines"))
 	noecom_sel={}
 	for i=#sel,1,-1 do
@@ -222,10 +221,33 @@ function noemptycom(subs, sel)
 		end
 	end
 	return noecom_sel
-end 
+end
+
+-- delete unused styles
+function nostyle(subs,sel)
+	stylist=",,"
+	for i=#subs,1,-1 do
+	    if subs[i].class=="dialogue" then
+		line=subs[i]
+		st=line.style
+		est=esc(st)
+		if not stylist:match(","..est..",") then stylist=stylist..st..",," end
+	    end
+	    if subs[i].class=="style" then
+		style=subs[i]
+		snm=esc(style.name)
+		if not stylist:match(","..snm..",") then 
+		    subs.delete(i) 
+		    aegisub.log("\n Deleted style: "..style.name)
+		    for s=1,#sel do sel[s]=sel[s]-1 end
+		end
+	    end
+	end
+	return sel
+end
 
 -- kill everything
-function killemall(subs, sel)
+function killemall(subs,sel)
     for x, i in ipairs(sel) do
       local line=subs[i]
       local text=subs[i].text
@@ -316,7 +338,7 @@ str=str
 return str
 end
 
-function cleanup(subs, sel)
+function cleanup(subs,sel,act)
 cleanup_cfg=
 {
 {x=0,y=0,width=1,height=1,class="checkbox",name="nots",label="Remove TS timecodes",value=false,hint="Removes timecodes like {TS 12:36}"},
@@ -338,7 +360,7 @@ cleanup_cfg=
 {x=2,y=4,width=1,height=1,class="checkbox",name="allsize",label="Remove size/scaling",value=false},
 --{x=2,y=5,width=1,height=1,class="label",label="",    },
 --{x=2,y=6,width=1,height=1,class="label",label="",    },
---{x=2,y=7,width=1,height=1,class="label",label="",    },
+{x=2,y=7,width=1,height=1,class="checkbox",name="nostyle",label="Delete unused styles",value=false},
 {x=2,y=8,width=1,height=1,class="checkbox",name="nobreak2",label="Remove linebreaks  - \\N (nospace)",value=false},  
 {x=2,y=9,width=1,height=1,class="checkbox",name="nobreak",label="Remove linebreaks  - \\N",value=false},  
 {x=2,y=10,width=1,height=1,class="checkbox",name="alphacol",label="Try to fix alpha / colour tags",value=false},
@@ -389,26 +411,27 @@ cleanup_cfg=
 	pressed, res=aegisub.dialog.display(cleanup_cfg,
 	{"Run selected","Comments","Tags","Dial 5","Clean Tags","^ Kill checked tags","Cancer"},{ok='Run selected',cancel='Cancer'})
 	if pressed=="Cancer" then aegisub.cancel() end
-	if pressed=="^ Kill checked tags" then killemall(subs, sel) end
-	if pressed=="Comments" then res.nocom=true cleanlines(subs, sel) end
-	if pressed=="Tags" then res.notag=true cleanlines(subs, sel) end
-	if pressed=="Dial 5" then res.layers=true cleanlines(subs, sel) end
-	if pressed=="Clean Tags" then res.cleantag=true cleanlines(subs, sel) end
+	if pressed=="^ Kill checked tags" then killemall(subs,sel) end
+	if pressed=="Comments" then res.nocom=true cleanlines(subs,sel) end
+	if pressed=="Tags" then res.notag=true cleanlines(subs,sel) end
+	if pressed=="Dial 5" then res.layers=true cleanlines(subs,sel) end
+	if pressed=="Clean Tags" then res.cleantag=true cleanlines(subs,sel) end
 	if pressed=="Run selected" then 
 	    if res["all"] then 
 		for key,v in ipairs(cleanup_cfg) do  if v.x==2 then res[v.name]=false end  end
-		cleanlines(subs, sel)
-		sel=noemptycom(subs, sel)
-	    else cleanlines(subs, sel)
-		if res.nocomline and res.noempty then sel=noemptycom(subs, sel)
+		cleanlines(subs,sel)
+		sel=noemptycom(subs,sel)
+	    else cleanlines(subs,sel)
+		if res.nocomline and res.noempty then sel=noemptycom(subs,sel)
 		else
-		    if res.nocomline then sel=nocom_line(subs, sel) end
-		    if res.noempty then sel=noempty(subs, sel) end
+		    if res.nocomline then sel=nocom_line(subs,sel) end
+		    if res.noempty then sel=noempty(subs,sel) end
 		end
+		if res.nostyle then act,sel=nostyle(subs,sel) end
 	    end
 	end
 	aegisub.set_undo_point(script_name)
-	return sel
+	return sel, act
 end
 
 aegisub.register_macro(script_name, script_description, cleanup)

@@ -1,7 +1,7 @@
 ﻿script_name="Quality Check"
 script_description="Quality Check"
 script_author="unanimated"
-script_version="2.62"
+script_version="2.65"
 
 require "clipboard"
 
@@ -83,6 +83,7 @@ cont={"im","youre","hes","shes","theyre","isnt","arent","wasnt","werent","didnt"
 	    if k=="PlayResX" then resx=v end
 	    if k=="PlayResY" then resy=v end
       end
+      if video==nil then prop=aegisub.project_properties() video=prop.video_file:gsub("^.*\\","") end
       if subs[i].class=="dialogue" then break end
     end
     
@@ -204,7 +205,7 @@ cont={"im","youre","hes","shes","theyre","isnt","arent","wasnt","werent","didnt"
 		actor=actor.." [overlap "..prevend-start.."ms]" over=over+1 
 			if prevend-start<100 then actor=actor.." ...timer pls" end
 		end
-		if start>prevend and start-prevend<200 then 
+		if start>prevend and start-prevend<250 then 
 		actor=actor.." [time gap "..start-prevend.."ms]" gap=gap+1 
 			if start-prevend<100 then actor=actor.." ...timer pls" end
 		end
@@ -493,7 +494,7 @@ cont={"im","youre","hes","shes","theyre","isnt","arent","wasnt","werent","didnt"
     if trilin~=0 then report=report.."THREE-LINERS... "..trilin.."\n" end
     if over~=0 then report=report.."Suspicious timing overlaps... "..over.."\n" end
     if gap>9 then gapu="  --  Timer a shit" else gapu="" end
-    if gap~=0 then report=report.."Suspicious gaps in timing (under 200ms)... "..gap..gapu.."\n" end
+    if gap~=0 then report=report.."Suspicious gaps in timing (under 250ms)... "..gap..gapu.."\n" end
     if zerot~=0 then report=report.."Lines with text but zero time... "..zerot.."\n" end
     if negadur~=0 then report=report.."Lines with negative duration... "..negadur.."\n" end
     if dspace~=0 then report=report.."Dialogue lines with double spaces... "..dspace.."\n" end

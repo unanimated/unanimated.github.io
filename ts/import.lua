@@ -1,7 +1,7 @@
 ﻿script_name="Unimportant"
 script_description="Import stuff, number stuff, do other stuff."
 script_author="unanimated"
-script_version="1.5"
+script_version="1.56"
 
 require "clipboard"
 re=require'aegisub.re'
@@ -114,6 +114,7 @@ function important(subs, sel, act)
 	    basetime=aline.start_time
 	    basend=aline.end_time
 	    basestyle=aline.style
+	    baselayer=aline.layer
 	    
 	    -- import-signs list and GUI
 	    if res.mega=="import signs" then
@@ -185,7 +186,7 @@ function important(subs, sel, act)
 	    if not res.keep then subs.delete(act) else 
 	    -- keep line, restore initial state + comment out
 	    atext=btext aline.comment=true aline.start_time=basetime aline.end_time=basend aline.style=basestyle aline.actor="" aline.effect=""
-	    aline.text=atext subs[act]=aline 
+	    aline.layer=baselayer aline.text=atext subs[act]=aline 
 	    end
 	end
 	
@@ -429,6 +430,19 @@ function stuff(subs, sel)
         line=subs[sel[i]]
         text=line.text
 	
+	if res.stuff=="save/load" and i==1 then
+	    if savedata==nil then savedata="" end
+	    if res.dat~="" then
+		savedata=savedata.."\n\n"..res.dat
+		savedata=savedata
+		:gsub("^\n\n","")
+		:gsub("\n\n\n","\n\n")
+		aegisub.dialog.display({{class="label",label="Data saved.",x=0,y=0,width=20,height=2}},{"OK"},{close='OK'})
+	    else
+		aegisub.dialog.display({{x=0,y=0,width=50,height=18,class="textbox",name="savetxt",value=savedata},},{"OK"},{close='OK'})
+	    end
+	end
+	
 	if res.stuff=="lua replacer" then
 	    lim=sub3:match("^%d+")
 	    if lim==nil then limit=1 else limit=tonumber(lim) end
@@ -459,6 +473,50 @@ function stuff(subs, sel)
 	    if text~=tk then repl=repl+1 end
 	end
 	
+	if res.stuff=="lua calc" then
+	    lim=sub3:match("^%d+")
+	    if lim==nil then limit=1 else limit=tonumber(lim) end
+	    replicant1=sub1:gsub("\\","\\")
+	    replicant2=sub2:gsub("\\","\\")
+	    replicant1=sub1:gsub("\\\\","\\")
+	    replicant2=sub2:gsub("\\\\","\\")
+	    replicant2="||"..replicant2.."||"
+	    replicant2=replicant2:gsub("%.%.","||")
+	    tk=text
+	    count=0
+	    repeat 
+	    text=text:gsub(replicant1,function(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p)
+		tab1={"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p"}
+		tab2={a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p}
+		r2=replicant2
+		asd=1
+		repeat
+		for r=1,16 do
+		  r2=r2
+		  :gsub(tab1[r].."%*([%d%.]+)",function(num) return tab2[r]*tonumber(num) end)
+		  :gsub(tab1[r].."%/([%d%.]+)",function(num) return tab2[r]/tonumber(num) end)
+		  :gsub(tab1[r].."%+([%d%.]+)",function(num) return tab2[r]+tonumber(num) end)
+		  :gsub(tab1[r].."%-([%d%.]+)",function(num) return tab2[r]-tonumber(num) end)
+		  :gsub("([%d%.]+)%*([%d%.]+)",function(n1,n2) return tonumber(n1)*tonumber(n2) end)
+		  :gsub("([%d%.]+)%/([%d%.]+)",function(n1,n2) return tonumber(n1)/tonumber(n2) end)
+		  :gsub("([%d%.]+)%+([%d%.]+)",function(n1,n2) return tonumber(n1)+tonumber(n2) end)
+		  :gsub("([%d%.]+)%-([%d%.]+)",function(n1,n2) return tonumber(n1)-tonumber(n2) end)
+		end
+		for r=1,16 do
+		    if tab2[r]~=nil then 
+		    r2=r2:gsub("([|%*%/%+%-])"..tab1[r].."|","%1"..tab2[r].."|")
+		    r2=r2:gsub("%("..tab1[r].."%)","("..tab2[r]..")")
+		    end
+		end
+		r2=r2:gsub("round%(([^%)]+)%)",function(num) return math.floor(tonumber(num)+0.5) end)
+		asd=asd+1
+		until not r2:match("[%*%/%+%-]") or asd==12
+		r2=r2:gsub("||","")
+		return r2 end) count=count+1
+	    until count==limit
+	    if text~=tk then repl=repl+1 end
+	end
+	
 	if res.stuff=="add comment" then
 		text=text.."{"..res.dat.."}"
 	end
@@ -474,6 +532,7 @@ function stuff(subs, sel)
 	
 	if res.stuff=="switch commented/visible" then
 		text=text
+		:gsub("\\N","_br_")
 		:gsub("{([^\\}]-)}","}%1{")
 		:gsub("^([^{]+)","{%1")
 		:gsub("([^}]+)$","%1}")
@@ -481,6 +540,38 @@ function stuff(subs, sel)
 		:gsub("^({\\[^}]-})([^{])","%1{%2")
 		:gsub("([^}])({\\[^}]-})$","%1}%2")
 		:gsub("{}","")
+		:gsub("_br_","\\N")
+	end
+	
+	if res.stuff=="fake capitals" then
+	    tags=text:match("^{\\[^}]-}") if tags==nil then tags="" end
+	    text=text:gsub("^{\\[^}]-}","")
+		:gsub("(%u)","{\\fs"..sub1.."}%1{\\fs}")
+		:gsub("{\\fs}(%p?){\\fs%d+}","{\\fs}%1")
+	    repeat
+		text=text:gsub("{\\fs}([%w']+){\\fs}","{\\fs}%1")
+	    until not text:match("{\\fs}([%w']+){\\fs}")
+	    text=tags..text
+	end
+	
+	if res.stuff=="transform \\k to \\t\\alpha" then
+	    repeat text=text:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}") until not text:match("{(\\[^}]-)}{(\\[^}]-)}")
+	    if text:match("^{[^}]-\\alpha") then alf=text:match("^{[^}]-\\alpha&H(%x%x)&") else alf="00" end
+	    text=text:gsub("\\alpha&H%x%x&","")
+	    tab={}
+	    for kpart in text:gmatch("{[^}]-\\k[fo]%d+[^}]-}[^{]*") do
+		table.insert(tab,kpart)
+	    end
+	    lastim=0
+	    text=""
+	    for k=1,#tab do
+		part=tab[k]
+		tim=tonumber(part:match("\\k[fo](%d+)"))*10
+		part=part:gsub("\\k[fo]%d+","\\alpha&HFF&\\t("..lastim..","..lastim+tim..",\\alpha&H"..alf.."&)")
+		tab[k]=part
+		lastim=lastim+tim
+		text=text..tab[k]
+	    end
 	end
 	
 
@@ -572,7 +663,7 @@ function merge(subs, sel)
 	end
 	if vis~=rt then aegisub.dialog.display({{class="label",label="Error. Inconsistent text."}},{"OK"},{close='OK'}) aegisub.cancel() end
 	stags=text:match("^{(\\[^}]-)}")
-	if stags~=nil then stg=stg..stags end
+	if stags~=nil then stg=stg..stags stg=duplikill(stg) end
 	text=text:gsub("^{\\[^}]-}","") :gsub("{[^\\}]-}","")
 	count=0
 	for seq in text:gmatch("[^{]-{%*?\\[^}]-}") do
@@ -588,12 +679,11 @@ function merge(subs, sel)
 	newline=newline..tk[i]
 	newt=""
 	for n, t in ipairs(tg) do
-	    if t.p==i then newt=newt..t.t as=t.a end
+	    if t.p==i then newt=newt..t.t newt=duplikill(newt) as=t.a end
 	end
 	if newt~="" then newline=newline.."{"..as..newt.."}" end
     end
     newtext="{"..stg.."}"..newline
-    newtext=newtext:gsub("({\\[^}]-})",function(tg) return duplikill(tg) end)
     line=subs[sel[1]]
     line.text=newtext
     subs[sel[1]]=line
@@ -712,6 +802,7 @@ function duplikill(tagz)
 	    tag=tags2[i]
 	    tagz=tagz:gsub("\\"..tag.."&H%x+&([^}]-)(\\"..tag.."&H%x+&)","%2%1")
 	end
+	tagz=tagz:gsub("(\\pos%([^%)]+%))([^}]-)(\\pos%([^%)]+%))","%1%2")
 	tagz=tagz:gsub("({\\[^}]-)}","%1"..tf.."}")
 	return tagz
 end
@@ -736,6 +827,7 @@ function info(subs,sel,act)
     sdur=0
     S=subs[sel[1]].start_time
     E=subs[sel[#sel]].end_time
+    prop=aegisub.project_properties()
     for x,i in ipairs(sel) do
 	line=subs[i]
 	dur=line.end_time-line.start_time
@@ -754,6 +846,7 @@ function info(subs,sel,act)
 	    if k=="PlayResX" then resx=v end
 	    if k=="PlayResY" then resy=v end
         end
+	if video==nil then prop=aegisub.project_properties() video=prop.video_file:gsub("^.*\\","") end
 	if stitle==nil then sct="" else sct="Script title: "..stitle.."\n" end
 	if video==nil then vf="" else vf="Video file: "..video.."\n" end
 	if resy==nil then reso="" else reso="Script resolution: "..resx.."x"..resy.."\n" end
@@ -808,7 +901,7 @@ help_c="- CHAPTERS -\n\nThis will generate chapters from the .ass file\n\nMARKER
 
 help_n="- NUMBERS -\n\nThis is a tool to number lines and add various markers to actor/effect fields.\nThe dropdown with \"01\" lets you choose how many leading zeros you want.\nThe Left and Right fields will add stuff to the numbers. If Left is \"x\" and Right is \"yz\", the first marker will be \"x01yz\".\nWhat makes this function much more versatile is the \"Mod\" field.\nIf you put in one number, then that's the number from which the numbering will start, so \"5\" -> 5, 6, 7, etc.\nYou can, however, use a comma or slash to modify the numbering some more.\n\"8,3\" or \"8/3\" will start numbering from 8, repeating each number 3 times, so 8, 8, 8, 9, 9, 9, 10, 10, 10, etc.\nThis allows you to easily number lines that are typeset in layers etc.\nAdditionally, you can set a limit in [], for example 1/3[2], which will start from 1, use each number 3 times,\nand only go up to 2 and then start again, so: 1 1 1 2 2 2 1 1 1 2 2 2\n2/3[4] would give you 2 2 2 3 3 3 4 4 4 1 1 1 2 2 2 3 3 3 4 4 4 1 1 1...\nIf the first number is higher than the limit, like 5/3[4], it will subtract the limit from the starting number.\n\n\"add to marker\" uses the Left and Right fields to add stuff to the current content of actor/effect/text.\nIf you number lines for the OP, you can set \"OP-\" in Left and \"-eng\" in Right to get \"OP-01-eng\".\n(Mod does nothing when adding markers.)"
 
-help_d="- DO STUFF -\n\n- Lua Replacer -\nUse \"Left\" and \"Right\" for a lua regexp replace function.\n\n- Perl Replacer -\nUse \"Left\" and \"Right\" for a perl regexp replace function.\n\n- Jump to Next -\nThis is meant to get you to the \"next sign\" in the subtitle grid.\nWhen mocha-tracking 1000+ lines, it can be a pain in the ass to find where one sign ends and another begins.\nSelect lines that belong to the current \"sign\", ie. different layers/masks/texts.\nThe script will search for the first line in the grid that doesn't match any of the selected ones, based on the \"Marker\".\n\n- Alpha Shift -\nShifts {\\alpha&HFF&} by one letter for each line. Text thus appears letter by letter.\nIt's an alternative to the script that spawns \\ko, but this works with shadow too.\nDuplicate a line with {\\alpha&HFF&} however many times you need and run the script on the whole selection.\n\n- Merge Inline Tags -\nSelect lines with the same text but different tags, and they will be merged into one line with tags from all of them. For example:\n{\\bord2}AB{\\shad3}C\nA{\\fs55}BC\n-> {\\bord2}A{\\fs55}B{\\shad3}C\n\n- Add Comment -\nText that you type here in this box will be added as a {comment} at the end of selected lines.\n\n- Make Comments Visible -\nNukes { } from comments, thus making them part of the text visible on screen.\n\n- Switch Commented/Visible -\nComments out what's visible and makes visible what's commented. Allows switching between two texts.\n\n- Honorificslaughterhouse -\nComments out honorifics.\n\n- Convert Framerate -\nConverts framerate from a to b where a is the input from \"Left\" and b is input from \"Right\".\n"
+help_d="- DO STUFF -\n\n- Save/Load -\nYou can use this to save for example bits of text you need to paste frequently (like a multi-clipboard).\nPaste text in the data area to save it. If the data area is empty, the function will load your saved texts.\n\n- Lua Replacer -\nUse \"Left\" and \"Right\" for a lua regexp replace function.\n\n- Perl Replacer -\nUse \"Left\" and \"Right\" for a perl regexp replace function.\n\n- Lua Calc -\nUse \"Left\" and \"Right\" with lua regexp to perform calculations on captured numbers.\nCaptures will be named a, b, c... up to p (16 captures max).\nFunctions are +, -, *, /, and round(a), which rounds the number captured in a.\n> Example: (%d)(%d)(%d) -> a+1b*2c-3\nThis will match 3-digit patterns, add 1 to first digit, multiply the second by 2, and subtract 3 from the 3rd.\nIf you want to leave one of the captures as is, use .. to separate it from other letters: a+1b..c-3 \n> Example: pos%(([%d%.]+),([%d%.]+) -> pos(a+50,b-100\nThis will shift position right by 50 and up by 100. \n\n- Jump to Next -\nThis is meant to get you to the \"next sign\" in the subtitle grid.\nWhen mocha-tracking 1000+ lines, it can be a pain in the ass to find where one sign ends and another begins.\nSelect lines that belong to the current \"sign\", ie. different layers/masks/texts.\nThe script will search for the first line in the grid that doesn't match any of the selected ones, based on the \"Marker\".\n\n- Alpha Shift -\nShifts {\\alpha&HFF&} by one letter for each line. Text thus appears letter by letter.\nIt's an alternative to the script that spawns \\ko, but this works with shadow too.\nDuplicate a line with {\\alpha&HFF&} however many times you need and run the script on the whole selection.\n\n- Merge Inline Tags -\nSelect lines with the same text but different tags, and they will be merged into one line with tags from all of them. For example:\n{\\bord2}AB{\\shad3}C\nA{\\fs55}BC\n-> {\\bord2}A{\\fs55}B{\\shad3}C\n\n- Add Comment -\nText that you type here in this box will be added as a {comment} at the end of selected lines.\n\n- Make Comments Visible -\nNukes { } from comments, thus making them part of the text visible on screen.\n\n- Switch Commented/Visible -\nComments out what's visible and makes visible what's commented. Allows switching between two texts.\n\n- Honorificslaughterhouse -\nComments out honorifics.\n\n- Convert Framerate -\nConverts framerate from a to b where a is the input from \"Left\" and b is input from \"Right\".\n"
 
 
 function unimportant(subs, sel, act)
@@ -861,7 +954,7 @@ unconfig={
 	
 	-- stuff
 	{x=0,y=15,width=1,height=1,class="label",label="Stuff  "},
-	{x=1,y=15,width=2,height=1,class="dropdown",name="stuff",items={"lua replacer","perl replacer","jump to next","alpha shift","merge inline tags","add comment","add comment line by line","make comments visible","switch commented/visible","honorificslaughterhouse","convert framerate"},value="lua replacer"},
+	{x=1,y=15,width=2,height=1,class="dropdown",name="stuff",items={"save/load","lua replacer","perl replacer","lua calc","jump to next","alpha shift","merge inline tags","add comment","add comment line by line","make comments visible","switch commented/visible","fake capitals","honorificslaughterhouse","transform \\k to \\t\\alpha","convert framerate"},value="lua replacer"},
 	{x=8,y=15,width=1,height=1,class="label",label="Marker:"},
 	
 	-- textboxes
