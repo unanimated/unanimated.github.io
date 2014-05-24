@@ -1,7 +1,7 @@
 ﻿script_name="MultiCopy"
 script_description="Copy tags or text from multiple lines and paste to others"
 script_author="unanimated"
-script_version="1.83"
+script_version="1.9"
 
 require "clipboard"
 
@@ -95,6 +95,7 @@ function copyc(subs, sel)	-- clip etc
 	if CM=="layer" then copyclip=copyclip..line.layer.."\n" end
 	if CM=="actor" then copyclip=copyclip..line.actor.."\n" end
 	if CM=="effect" then copyclip=copyclip..line.effect.."\n" end
+	if CM=="style" then copyclip=copyclip..line.style.."\n" end
 	if CM=="duration" then copyclip=copyclip..line.end_time-line.start_time.."\n" end
 	
 	if x==#sel then copyclip=copyclip:gsub("\n$","") end
@@ -380,6 +381,104 @@ raw=res.dat	raw=raw:gsub("\n","")
 	end
 	
     end
+    
+    
+    
+    
+    
+    
+    
+    
+    -- super pasta - advanced paste over
+    if PM=="super pasta" then
+      styles=""
+      warningstyles=""
+      for i=1,#subs do
+        if subs[i].class=="style" then
+	styles=styles..","..subs[i].name..","
+        end
+      end
+	if #data<10 then spg=#data else spg=10 end
+	spgui={
+	{x=0,y=0,width=1,height=1,class="checkbox",name="clay",label="layer",value=false},
+	{x=1,y=0,width=1,height=1,class="checkbox",name="cstart",label="start time",value=false},
+	{x=2,y=0,width=1,height=1,class="checkbox",name="cendt",label="end time",value=false},
+	{x=3,y=0,width=1,height=1,class="checkbox",name="cstyle",label="style",value=false},
+	{x=4,y=0,width=1,height=1,class="checkbox",name="cactor",label="actor",value=false},
+	{x=5,y=0,width=1,height=1,class="checkbox",name="ceffect",label="effect",value=false},
+	{x=6,y=0,width=1,height=1,class="checkbox",name="cL",label="L",value=false},
+	{x=7,y=0,width=1,height=1,class="checkbox",name="cR",label="R",value=false},
+	{x=8,y=0,width=1,height=1,class="checkbox",name="cV",label="V",value=false},
+	{x=9,y=0,width=1,height=1,class="checkbox",name="ctext",label="text",value=false},
+	    {x=10,y=0,width=1,height=1,class="label",label="<-- check columns to use"},
+	{x=0,y=spg+1,width=1,height=1,class="dropdown",name="dlay",value="layer",items={"layer","L","R","V","style","actor","effect","text"}},
+	{x=1,y=spg+1,width=1,height=1,class="dropdown",name="dstart",value="start time",items={"start time","end time","actor","effect"}},
+	{x=2,y=spg+1,width=1,height=1,class="dropdown",name="dendt",value="end time",items={"start time","end time","actor","effect"}},
+	{x=3,y=spg+1,width=1,height=1,class="dropdown",name="dstyle",value="style",items={"style","actor","effect","text"}},
+	{x=4,y=spg+1,width=1,height=1,class="dropdown",name="dactor",value="actor",items={"style","actor","effect","text"}},
+	{x=5,y=spg+1,width=1,height=1,class="dropdown",name="deffect",value="effect",items={"style","actor","effect","text"}},
+	{x=6,y=spg+1,width=1,height=1,class="dropdown",name="dL",value="L",items={"L","R","V","layer"}},
+	{x=7,y=spg+1,width=1,height=1,class="dropdown",name="dR",value="R",items={"L","R","V","layer"}},
+	{x=8,y=spg+1,width=1,height=1,class="dropdown",name="dV",value="V",items={"L","R","V","layer"}},
+	{x=9,y=spg+1,width=1,height=1,class="dropdown",name="dtext",value="text",items={"style","actor","effect","text"}},
+	    {x=10,y=spg+1,width=1,height=1,class="label",label="<-- columns to apply to"},
+	    {x=0,y=spg+2,width=10,height=1,class="label",label="Paste over selected columns or copy the content of one column to another. (GUI shows only first 10 lines for reference.)"},
+	}
+	lines={}
+	for li=1,#data do dtext=data[li]
+	if not dtext:match("^Dialogue") and not dtext:match("^Comment") then
+	aegisub.dialog.display({{class="label",label="»"..dtext.."\nNot a valid/complete dialogue line.",width=1,height=2}},
+	{"OK"},{close='OK'}) aegisub.cancel() end
+	dline=string2line(dtext) table.insert(lines,dline) end
+	for d=1,spg do
+	    dtext=data[d]    dline=lines[d]
+	    table.insert(spgui,{x=0,y=d,width=1,height=1,class="label",name="lay"..d,label=dline.layer})
+	    table.insert(spgui,{x=1,y=d,width=1,height=1,class="label",name="start"..d,label=dline.start_time})
+	    table.insert(spgui,{x=2,y=d,width=1,height=1,class="label",name="endt"..d,label=dline.end_time})
+	    table.insert(spgui,{x=3,y=d,width=1,height=1,class="label",name="style"..d,label=dline.style})
+	    table.insert(spgui,{x=4,y=d,width=1,height=1,class="label",name="actor"..d,label=dline.actor})
+	    table.insert(spgui,{x=5,y=d,width=1,height=1,class="label",name="effect"..d,label=dline.effect})
+	    table.insert(spgui,{x=6,y=d,width=1,height=1,class="label",name="margl"..d,label=dline.margin_l})
+	    table.insert(spgui,{x=7,y=d,width=1,height=1,class="label",name="margr"..d,label=dline.margin_r})
+	    table.insert(spgui,{x=8,y=d,width=1,height=1,class="label",name="margt"..d,label=dline.margin_t})
+	    table.insert(spgui,{x=9,y=d,width=25,height=1,class="edit",name="text"..d,value=dline.text})
+	end
+	-- run gui
+	repeat
+	    if press=="Check all" then
+		for key,val in ipairs(spgui) do
+		    if val.class=="checkbox" then val.value=true end
+		end
+	    end
+	    if press=="Uncheck all" then
+		for key,val in ipairs(spgui) do
+		    if val.class=="checkbox" then val.value=false end
+		end
+	    end
+	press,rez=aegisub.dialog.display(spgui,{"OK","Check all","Uncheck all","Cancel"},{ok='OK',close='Cancel'})
+	until press~="Check all" and press~="Uncheck all"
+	if press=="Cancel" then aegisub.cancel() end
+	
+	-- Apply pasteover
+	for x, i in ipairs(sel) do
+          line=subs[i]
+	  if lines[x]~=nil then
+	    if rez.clay then target=rez.dlay source=lines[x].layer line=shoot(line) end
+	    if rez.cstart then target=rez.dstart source=lines[x].start_time line=shoot(line) end
+	    if rez.cendt then target=rez.dendt source=lines[x].end_time line=shoot(line) end
+	    if rez.cstyle then target=rez.dstyle source=lines[x].style line=shoot(line) end
+	    if rez.cactor then target=rez.dactor source=lines[x].actor line=shoot(line) end
+	    if rez.ceffect then target=rez.deffect source=lines[x].effect line=shoot(line) end
+	    if rez.cL then target=rez.dL source=lines[x].margin_l line=shoot(line) end
+	    if rez.cR then target=rez.dR source=lines[x].margin_r line=shoot(line) end
+	    if rez.cV then target=rez.dV source=lines[x].margin_t line=shoot(line) end
+	    if rez.ctext then target=rez.dtext source=lines[x].text line=shoot(line) end
+	    --aegisub.log("\n lines[x].margin_l "..lines[x].margin_l)
+	    --aegisub.log("\n lines.margin_t "..line.margin_t)
+	  end
+	  subs[i]=line
+	end
+    end
       
     if #sel~=#data and pasteover==0 then failc=1
     else
@@ -429,6 +528,10 @@ raw=res.dat	raw=raw:gsub("\n","")
     label="Line count of the selection \ndoesn't match pasted data.\nSelection: "..#sel.."\nPasted data: "..#data,x=0,y=0,width=1,height=2}},
     {"OK"},{close='OK'})
     end
+    
+    if warningstyles~="" then warningstyles=warningstyles:gsub(",,",", ") :gsub("^,","") :gsub(",$","")
+     aegisub.dialog.display({{class="label",label="Warning! These styles don't exist: "..warningstyles}},{"OK"},{close='OK'})
+    end
 	
     if pasteover==1 then pr,rs=aegisub.dialog.display({
     {x=0,y=0,width=40,height=1,class="label",name="ch1",label="line       % matched    matched words"},
@@ -440,6 +543,25 @@ raw=res.dat	raw=raw:gsub("\n","")
 	  for x, i in ipairs(sel) do l=subs[i] l.effect="" subs[i]=l end
 	end
     end
+end
+
+function shoot(line)
+    if target=="layer" then line.layer=source end
+    if target=="start time" then line.start_time=source end
+    if target=="end time" then line.end_time=source end
+    if target=="style" then line.style=source --if source=="" then source="[empty_string]" end
+	source="\""..source.."\""
+	if not styles:match(","..esc(source)..",") and not warningstyles:match(","..esc(source)..",") then
+	warningstyles=warningstyles..","..source..","
+	end
+    end
+    if target=="actor" then line.actor=source end
+    if target=="effect" then line.effect=source end
+    if target=="L" then line.margin_l=source end
+    if target=="R" then line.margin_r=source end
+    if target=="V" then line.margin_t=source end
+    if target=="text" then line.text=source end
+    return line
 end
 
 -- paste text over while keeping tags
@@ -497,6 +619,8 @@ function string2line(str)
 end
 
 function string2time(timecode)
+	if timecode==nil then aegisub.dialog.display({{class="label",label="Invalid timecode.",width=1,height=2}},{"OK"},{close='OK'})
+	aegisub.cancel() end
 	timecode=timecode:gsub("(%d):(%d%d):(%d%d)%.(%d%d)",function(a,b,c,d) return d*10+c*1000+b*60000+a*3600000 end)
 	return timecode
 end
@@ -527,18 +651,33 @@ function duplikill(tagz)
 	return tagz
 end
 
+function esc(str)
+str=str
+:gsub("%%","%%%%")
+:gsub("%(","%%%(")
+:gsub("%)","%%%)")
+:gsub("%[","%%%[")
+:gsub("%]","%%%]")
+:gsub("%.","%%%.")
+:gsub("%*","%%%*")
+:gsub("%-","%%%-")
+:gsub("%+","%%%+")
+:gsub("%?","%%%?")
+return str
+end
+
 -- GUI PART
 
 function multicopy(subs, sel)
 	gui={
 	{x=1,y=18,width=3,height=1,class="dropdown",name="copymode",value="tags",
-	items={"tags","text","all","------","export CR for pad","------","clip","position","blur","border","\\1c","\\3c","\\4c","alpha","\\fscx","\\fscy","------","layer","duration","actor","effect"}},
+	items={"tags","text","all","------","export CR for pad","------","clip","position","blur","border","\\1c","\\3c","\\4c","alpha","\\fscx","\\fscy","------","layer","duration","actor","effect","style"}},
 	{x=0,y=17,width=10,height=1,class="label",label="Copy stuff from selected lines, select new lines [same number of them], run script again to paste stored data to new lines"},
 	{x=0,y=0,width=10,height=17,class="textbox",name="dat"},
 	{x=0,y=18,width=1,height=1,class="label",label="Copy:"},
-	{x=4,y=18,width=1,height=1,class="label",label="Paste specific:"},
+	{x=4,y=18,width=1,height=1,class="label",label="Paste extra: "},
 	{x=5,y=18,width=1,height=1,class="dropdown",name="pastemode",value="all",
-	items={"all","text mod.","gbc text","de-irc","clip","position","blur","border","\\1c","\\3c","\\4c","alpha","\\fscx","\\fscy","\\fscx\\fscy","any tag","------","layer","duration","actor","effect"}},
+	items={"all","text mod.","super pasta","gbc text","de-irc","clip","position","blur","border","\\1c","\\3c","\\4c","alpha","\\fscx","\\fscy","\\fscx\\fscy","any tag","------","layer","duration","actor","effect"}},
 	{x=6,y=18,width=5,height=1,class="checkbox",name="oneline",label="Paste one line to all selected lines",value=false},
 	}
 	buttons={"Copy","Paste tags","Paste text","Paste spec.","Paste from clipboard","Help","Cancel"}
