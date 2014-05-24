@@ -1,7 +1,7 @@
 ﻿script_name="MultiCopy"
 script_description="Copy tags or text from multiple lines and paste to others"
 script_author="unanimated"
-script_version="1.9"
+script_version="1.91"
 
 require "clipboard"
 
@@ -529,7 +529,7 @@ raw=res.dat	raw=raw:gsub("\n","")
     {"OK"},{close='OK'})
     end
     
-    if warningstyles~="" then warningstyles=warningstyles:gsub(",,",", ") :gsub("^,","") :gsub(",$","")
+    if warningstyles~="" and warningstyles~=nil then warningstyles=warningstyles:gsub(",,",", ") :gsub("^,","") :gsub(",$","")
      aegisub.dialog.display({{class="label",label="Warning! These styles don't exist: "..warningstyles}},{"OK"},{close='OK'})
     end
 	
