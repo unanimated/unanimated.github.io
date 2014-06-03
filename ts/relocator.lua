@@ -4,7 +4,7 @@
 script_name="Hyperdimensional Relocator"
 script_description="Makes things appear different from before"
 script_author="reanimated"
-script_version="2.5"
+script_version="2.52"
 
 --	SETTINGS	-- randomize?
 
@@ -46,7 +46,8 @@ function positron(subs,sel)
         aegisub.progress.title(string.format("Depositing line %d/%d",x,#sel))
 	local line=subs[i]
 	local text=line.text
-	if x==1 and not text:match("\\pos") and res.posi~="clip to fax" then aegisub.dialog.display({{class="label",
+	if x==1 and not text:match("\\pos") and res.posi~="clip to fax" and not res.posi:match"mirror" then 
+	aegisub.dialog.display({{class="label",
 	    label="No \\pos tag in the first line.",x=0,y=0,width=1,height=2}},{"OK"},{close='OK'}) aegisub.cancel()  end
 		    
 	if x==1 and res.first then pxx,pyy=text:match("\\pos%(([%d%.%-]+),([%d%.%-]+)%)")
@@ -63,7 +64,7 @@ function positron(subs,sel)
 	
 	-- Mirrors
 	elseif res.posi:match"mirror" then
-	    if not text:match("\\pos") then 
+	    if not text:match("\\pos") and not text:match("\\move") then 
 		aegisub.dialog.display({{class="label",label="Fail. Some lines are missing \\pos.",width=1,height=2}},{"OK"},{close='OK'})
 		aegisub.cancel() 
 	    end
@@ -75,6 +76,7 @@ function positron(subs,sel)
 	    if res.posi=="horizontal mirror" then
 	    mirs={"1","4","7","9","6","3"}
 	    text2=text:gsub("\\pos%(([%d%.%-]+),([%d%.%-]+)%)",function(x,y) return "\\pos("..resx-x..","..y..")" end)
+	    :gsub("\\move%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)",function(x,y,x2,y2) return "\\move("..resx-x..","..y..","..resx-x2..","..y2 end)
 	    :gsub("\\an([147369])",function(a) for m=1,6 do if a==mirs[m] then b=mirs[7-m] end end return "\\an"..b end)
 	    	if res.rota then 
 		    if not text2:match("^{[^}]-\\fry") then text2=addtag("\\fry0",text2) end text2=flip("fry",text2)
@@ -82,6 +84,7 @@ function positron(subs,sel)
 	    else
 	    mirs={"1","2","3","9","8","7"}
 	    text2=text:gsub("\\pos%(([%d%.%-]+),([%d%.%-]+)%)",function(x,y) return "\\pos("..x..","..resy-y..")" end)
+	    :gsub("\\move%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)",function(x,y,x2,y2) return "\\move("..x..","..resy-y..","..x2..","..resy-y2 end)
 	    :gsub("\\an([123789])",function(a) for m=1,6 do if a==mirs[m] then b=mirs[7-m] end end return "\\an"..b end)
 	    	if res.rota then 
 		    if not text2:match("^{[^}]-\\frx") then text2=addtag("\\frx0",text2) end text2=flip("frx",text2)
@@ -844,7 +847,7 @@ function terraform(tags)
 	if tra==nil then tra=text:match("(\\t%([^%(%)]-%([^%)]-%)[^%)]-%))") end	--aegisub.log("\ntra: "..tra)
 	trstart,trend=tra:match("\\t%((%d+),(%d+)")
 	if trstart==nil then trstart=fr2ms(startf)-start end
-	if trend==nil then trend=fr2ms(endf-1)-start end
+	if trend==nil or trend=="0" then trend=fr2ms(endf-1)-start end
 	tfstartf=ms2fr(start+trstart)		tfendf=ms2fr(start+trend)
 	toffset=tfstartf-startf		if toffset<0 then toffset=0 end
 	tlimit=tfendf-startf
@@ -870,6 +873,7 @@ function terraform(tags)
 		if tpart<0 then valf=val1 end
 		if tpart>tlimit-toffset then valf=valt end
 		ftags=ftags.."\\"..tg..valf
+		--aegisub.log("\n val1: "..val1.."  valf: "..valf.."  tpart: "..tpart.."  twhole: "..twhole)
 	end
 	-- clip
 	if tra:match("\\clip") then

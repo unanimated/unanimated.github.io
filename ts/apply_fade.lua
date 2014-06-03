@@ -7,11 +7,15 @@
 -- Fade across multiple lines will create a set of alpha transforms across lines. 
 --   Nukes all present alpha tags; supports shadow alpha.
 --   "Global time" will use times relative to video, rather than of each individual line.
+-- Fade in to current frame - sets fade in to current video frame
+-- Fade out from current frame - sets fade out to current video frame
+-- Fade between 0 and 1 gives you that fraction of the line's duration, so fade in 0.2 with 1 second is \fad(200,0).
+-- Negative fade gives you the inverse with respect to duration, so if dur=3000 and fade in is -500, you get \fad(2500,0), or to 500 from end.
 
 script_name="Apply fade"
 script_description="Applies fade to selected lines"
 script_author="unanimated"
-script_version="3.2"
+script_version="3.4"
 
 --	SETTINGS	--
 
@@ -36,10 +40,12 @@ function fade(subs, sel)
 	fadein=res.fadein 
 	fadeout=res.fadeout 
 	dur=line.end_time-line.start_time
-	if fadein==1 then fadein=dur end
-	if fadein==0.5 then fadein=dur/2 end
-	if fadeout==1 then fadeout=dur end
-	if fadeout==0.5 then fadeout=dur/2 end
+	if fadein<=1 and fadein>0 then fadein=round(dur*fadein) end
+	if fadeout<=1 and fadeout>0 then fadeout=round(dur*fadeout) end
+	if fadein<0 then fadein=dur+fadein end
+	if fadeout<0 then fadeout=dur+fadeout end
+	if fadein<0 then fadein=0 end
+	if fadeout<0 then fadeout=0 end
 	    -- remove existing fade
 	    text=text:gsub("\\fad%([%d%.%,]-%)","")
 
@@ -121,6 +127,7 @@ function fade(subs, sel)
 
 	    end -- not del
 
+	text=text:gsub("\\fad%(0,0%)","") :gsub("{}","")
 	line.text=text
 	subs[i]=line
     end
@@ -172,6 +179,12 @@ end
 function fadalpha(subs, sel)
 	if res.clr or res.crl then res.alf=true end
 	fadin=res.fadein	fadout=res.fadeout
+	if fadin<=1 and fadin>0 then fadin=round(dur*fadin) end
+	if fadout<=1 and fadout>0 then fadout=round(dur*fadout) end
+	if fadin<0 then fadin=dur+fadin end
+	if fadout<0 then fadout=dur+fadout end
+	if fadin<0 then fadin=0 end
+	if fadout<0 then fadout=0 end
 	blin="\\blur"..res.bli	blout="\\blur"..res.blu
 	for z, i in ipairs(sel) do
 	    local line=subs[i]
@@ -195,7 +208,7 @@ function fadalpha(subs, sel)
 		a00="\\alpha&H00&"	aff="\\alpha&HFF&"	lb=""
 		
 		-- blur w/o alpha
-		if res.blur then lineblur=text:match("^{\\[^}]-(\\blur[%d%.]+)")
+		if res.blur then lineblur=text:match("^{[^}]-(\\blur[%d%.]+)")
 		    if lineblur==nil then lineblur="\\blur0.6" end
 		    text=text:gsub("^({[^}]-)\\blur[%d%.]+","%1")
 		    text=text:gsub("^{}","{\\}")
@@ -340,6 +353,8 @@ end
 
 function fadeacross(subs, sel)
 	fadin=res.fadein	fadout=res.fadeout
+	if fadin<0 then fadin=0 end
+	if fadout<0 then fadout=0 end
 	full=0	war=0
 	S=subs[sel[1]].start_time
 	E=subs[sel[#sel]].end_time
@@ -423,6 +438,34 @@ function fadeacross(subs, sel)
 	end
 end
 
+function vfade(subs, sel)
+    if aegisub.project_properties==nil then
+	aegisub.dialog.display({{class="label",label="Current frame unknown. Probably your Aegisub is too old."}},
+	{"OK"},{close='OK'}) aegisub.cancel()
+    end
+    vframe=aegisub.project_properties().video_position
+    fr2ms=aegisub.ms_from_frame
+    if vframe==nil or fr2ms(1)==nil then
+	aegisub.dialog.display({{class="label",label="Current frame unknown. Probably no video loaded."}},
+	{"OK"},{close='OK'}) aegisub.cancel()
+    end
+    for z, i in ipairs(sel) do
+	line=subs[i]
+	text=line.text
+	st=line.start_time
+	et=line.end_time
+	vt=math.floor((fr2ms(vframe+1)+fr2ms(vframe))/2)
+	vfin=vt-st
+	vfut=et-vt
+	if not text:match("\\fad%(") then text="{\\fad(0,0)}"..text text=text:gsub("{\\fad%(0,0%)}{\\","{\\fad(0,0)\\") end
+	if res.vin and vfin>0 then text=text:gsub("\\fad%(%d+,(%d+)%)","\\fad("..vfin..",%1)") end
+	if res.vout and vfut>0 then text=text:gsub("\\fad%((%d+),%d+%)","\\fad(%1,"..vfut..")") end
+	text=text:gsub("\\fad%(0,0%)","") :gsub("{}","")
+   	line.text=text
+	subs[i]=line
+    end
+end
+
 function killpha()
 	if shad~="00" then text=text:gsub("\\[1234]a&H%x%x&","") end
 	text=text:gsub("\\fad%([%d%.%,]-%)","") :gsub("\\alpha&H%x%x&","") :gsub("\\t%([^\\%)]-%)","") :gsub("{}","")
@@ -499,8 +542,8 @@ function fadeconfig(subs, sel)
 	    {x=0,y=0,width=4,height=1,class="label",label="fade  /  alpha/c/blur transform", },
 	    {x=0,y=1,width=1,height=1,class="label",label="Fade in:"},
 	    {x=0,y=2,width=1,height=1,class="label",label="Fade out:"},
-	    {x=1,y=1,width=3,height=1,class="floatedit",name="fadein",min=0,value=lastin},
-	    {x=1,y=2,width=3,height=1,class="floatedit",name="fadeout",min=0,value=lastout},
+	    {x=1,y=1,width=3,height=1,class="floatedit",name="fadein",value=lastin},
+	    {x=1,y=2,width=3,height=1,class="floatedit",name="fadeout",value=lastout},
 	    {x=4,y=0,width=1,height=1,class="checkbox",name="alf",label="alpha",value=lastalf},
 	    {x=5,y=0,width=1,height=1,class="checkbox",name="blur",label="blur",value=lastblur},
 	    {x=4,y=1,width=1,height=1,class="checkbox",name="crl",label="from:",value=lastfrom},
@@ -523,11 +566,15 @@ function fadeconfig(subs, sel)
 	    
 	    {x=0,y=6,width=4,height=1,class="checkbox",name="mult",label="Fade across multiple lines",value=false},
 	    {x=4,y=6,width=2,height=1,class="checkbox",name="time",label="Global time",value=false},
+	    
+	    {x=0,y=7,width=3,height=1,class="checkbox",name="vin",label="Fade in to current frame",value=false},
+	    {x=3,y=7,width=3,height=1,class="checkbox",name="vout",label="out from current frame",value=false},
 	} 	
 	pressed, res=aegisub.dialog.display(dialog_config,{"Apply Fade", "Letter by Letter","Cancel"},{ok='Apply Fade',cancel='Cancel'})
 	if pressed=="Apply Fade" then 
 		if res.alf or res.blur or res.clr or res.crl then fadalpha(subs, sel)
 		elseif res.mult then fadeacross(subs, sel)
+		elseif res.vin or res.vout then vfade(subs,sel)
 		else fade(subs, sel) end 
 	end
 	if pressed=="Letter by Letter" then fade(subs, sel) end
