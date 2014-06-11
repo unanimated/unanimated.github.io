@@ -574,7 +574,7 @@ function fadeconfig(subs, sel)
     if lastin==nil or rls==false then lastin=default_in end
     if lastout==nil or rls==false then lastout=default_out end
     if lastlbl==nil or rls==false then lastlbl=default_lbl end
-    if lastrtl==nil or rls==false then lastrtl=default_lbl end
+    if lastrtl==nil or rls==false then lastrtl=default_rtl end
     if lastaccin==nil or rls==false then lastaccin=default_accel_in end
     if lastaccout==nil or rls==false then lastaccout=default_accel_out end
     if lastblin==nil or rls==false then lastblin=default_blur_in end
