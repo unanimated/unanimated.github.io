@@ -1,7 +1,7 @@
 ﻿script_name="MultiCopy"
 script_description="Copy tags or text from multiple lines and paste to others"
 script_author="unanimated"
-script_version="1.91"
+script_version="2.0"
 
 require "clipboard"
 
@@ -36,75 +36,66 @@ function copyt(subs, sel)	-- text
     if pressed=="Copy to clipboard" then    clipboard.set(copytekst) end
 end
 
+function kopi(this)
+  if this~=nil then cc=cc..this.."\n" end
+end
+
 function copyc(subs, sel)	-- clip etc
-	copyclip=""
+	cc=""
+	tag=res.dat:gsub("\n","")
     for x, i in ipairs(sel) do
 	line=subs[i]
 	text=subs[i].text
+	tagst=text:match("^{\\[^}]-}") if tagst==nil then tagst="" end
+	tags=tagst:gsub("\\t%([^%(%)]+%)","") :gsub("\\t%([^%(%)]-%([^%)]-%)[^%)]-%)","")
 	
-	if CM=="clip" and text:match("^{[^}]-\\i?clip") then
-	klip=text:match("^{[^}]-\\i?clip%(([^%)]+)%)")
-	copyclip=copyclip..klip.."\n"
+	if CM=="clip" then klip=tags:match("\\i?clip%(([^%)]+)%)") kopi(klip) end
+	if CM=="position" then posi=tags:match("\\pos%(([^%)]+)%)") kopi(posi) end
+	if CM=="blur" then blurr=tags:match("\\blur([%d%.]+)") kopi(blurr) end
+	if CM=="border" then bordd=tags:match("\\bord([%d%.]+)") kopi(bordd) end
+	if CM=="\\1c" then kolor1=tags:match("\\1?c(&H%w+&)") kopi(kolor1) end
+	if CM=="\\3c" then kolor3=tags:match("\\3c(&H%w+&)") kopi(kolor3) end
+	if CM=="\\4c" then kolor4=tags:match("\\4c(&H%w+&)") kopi(kolor4) end
+	if CM=="alpha" then alphaa=tags:match("\\alpha(&H%w+&)") kopi(alphaa) end
+	if CM=="\\fscx" then fscxx=tags:match("\\fscx([%d%.]+)") kopi(fscxx) end
+	if CM=="\\fscy" then fscyy=tags:match("\\fscy([%d%.]+)") kopi(fscyy) end
+	
+	if CM=="any tag" then
+	 tak=nil
+	 if tag=="t" then
+	  if tagst:match("\\t") then tak=""
+	    for t in tagst:gmatch("(\\t%([^%(%)]-%))") do tak=tak..t end
+	    for t in tagst:gmatch("(\\t%([^%(%)]-%([^%)]-%)[^%)]-%))","") do tak=tak..t end
+	 aegisub.log("\n tak "..tak)
+	  end
+	 elseif tag=="a" then tak=tags:match("(\\a%d*)[\\}]")
+	 elseif tag=="b" then tak=tags:match("(\\b%d*)[\\}]")
+	 elseif tag=="i" then tak=tags:match("(\\i%d*)[\\}]")
+	 elseif tag=="k" then tak=tags:match("(\\k%d*)[\\}]")
+	 elseif tag=="p" then tak=tags:match("(\\p%d*)[\\}]")
+	 elseif tag=="s" then tak=tags:match("(\\s%d*)[\\}]")
+	 elseif tag=="fs" then tak=tags:match("(\\fs%d*)[\\}]")
+	 elseif tag=="c" then tak=tags:match("(\\c&[^\\}]*)")
+	 elseif tag=="fad" then tak=tags:match("(\\fad%([^\\}]*)")
+	 else
+	  tak=tags:match("(\\"..tag.."[^\\}]*)")
+	 end
+	 kopi(tak)
 	end
 	
-	if CM=="position" and text:match("^{[^}]-\\pos") then
-	posi=text:match("^{[^}]-\\pos%(([^%)]+)%)")
-	copyclip=copyclip..posi.."\n"
-	end
+	if CM=="layer" then cc=cc..line.layer.."\n" end
+	if CM=="actor" then cc=cc..line.actor.."\n" end
+	if CM=="effect" then cc=cc..line.effect.."\n" end
+	if CM=="style" then cc=cc..line.style.."\n" end
+	if CM=="duration" then cc=cc..line.end_time-line.start_time.."\n" end
 	
-	if CM=="blur" and text:match("^{[^}]-\\blur") then
-	blurr=text:match("^{[^}]-\\blur([%d%.]+)")
-	copyclip=copyclip..blurr.."\n"
-	end
-	
-	if CM=="border" and text:match("^{[^}]-\\bord") then
-	bordd=text:match("^{[^}]-\\bord([%d%.]+)")
-	copyclip=copyclip..bordd.."\n"
-	end
-	
-	if CM=="\\1c" and text:match("^{[^}]-\\1?c&") then
-	kolor1=text:match("^{[^}]-\\1?c(&H%w+&)")
-	copyclip=copyclip..kolor1.."\n"
-	end
-
-	if CM=="\\3c" and text:match("^{[^}]-\\3c") then
-	kolor3=text:match("^{[^}]-\\3c(&H%w+&)")
-	copyclip=copyclip..kolor3.."\n"
-	end
-
-	if CM=="\\4c" and text:match("^{[^}]-\\4c") then
-	kolor4=text:match("^{[^}]-\\4c(&H%w+&)")
-	copyclip=copyclip..kolor4.."\n"
-	end
-	
-	if CM=="alpha" and text:match("^{[^}]-\\alpha") then
-	alphaa=text:match("^{[^}]-\\alpha(&H%w+&)")
-	copyclip=copyclip..alphaa.."\n"
-	end
-	
-	if CM=="\\fscx" and text:match("^{[^}]-\\fscx") then
-	fscxx=text:match("^{[^}]-\\fscx([%d%.]+)")
-	copyclip=copyclip..fscxx.."\n"
-	end
-	
-	if CM=="\\fscy" and text:match("^{[^}]-\\fscy") then
-	fscyy=text:match("^{[^}]-\\fscy([%d%.]+)")
-	copyclip=copyclip..fscyy.."\n"
-	end
-	
-	if CM=="layer" then copyclip=copyclip..line.layer.."\n" end
-	if CM=="actor" then copyclip=copyclip..line.actor.."\n" end
-	if CM=="effect" then copyclip=copyclip..line.effect.."\n" end
-	if CM=="style" then copyclip=copyclip..line.style.."\n" end
-	if CM=="duration" then copyclip=copyclip..line.end_time-line.start_time.."\n" end
-	
-	if x==#sel then copyclip=copyclip:gsub("\n$","") end
+	if x==#sel then cc=cc:gsub("\n$","") end
     end
     copydialog=
 	{{x=0,y=0,width=40,height=1,class="label",label="Data to export:"},
-	{x=0,y=1,width=40,height=15,class="textbox",name="copytext",value=copyclip},}
+	{x=0,y=1,width=40,height=15,class="textbox",name="copytext",value=cc},}
     pressed,res=aegisub.dialog.display(copydialog,{"OK","Copy to clipboard"},{close='OK'})
-    if pressed=="Copy to clipboard" then    clipboard.set(copyclip) end
+    if pressed=="Copy to clipboard" then    clipboard.set(cc) end
 end
 
 function copyall(subs, sel)	-- all
@@ -382,13 +373,6 @@ raw=res.dat	raw=raw:gsub("\n","")
 	
     end
     
-    
-    
-    
-    
-    
-    
-    
     -- super pasta - advanced paste over
     if PM=="super pasta" then
       styles=""
@@ -473,8 +457,6 @@ raw=res.dat	raw=raw:gsub("\n","")
 	    if rez.cR then target=rez.dR source=lines[x].margin_r line=shoot(line) end
 	    if rez.cV then target=rez.dV source=lines[x].margin_t line=shoot(line) end
 	    if rez.ctext then target=rez.dtext source=lines[x].text line=shoot(line) end
-	    --aegisub.log("\n lines[x].margin_l "..lines[x].margin_l)
-	    --aegisub.log("\n lines.margin_t "..line.margin_t)
 	  end
 	  subs[i]=line
 	end
@@ -627,7 +609,7 @@ end
 
 function addtag(tag,text) text=text:gsub("^({\\[^}]-)}","%1"..tag.."}") return text end
 
-tags1={"blur","be","bord","shad","xbord","xshad","ybord","yshad","fs","fsp","fscx","fscy","frz","frx","fry","fax","fay"}
+tags1={"blur","be","bord","shad","xbord","xshad","ybord","yshad","fs","fsp","fscx","fscy","frz","frx","fry","fax","fay","b","i"}
 tags2={"c","2c","3c","4c","1a","2a","3a","4a","alpha"}
 
 function duplikill(tagz)
@@ -671,7 +653,7 @@ end
 function multicopy(subs, sel)
 	gui={
 	{x=1,y=18,width=3,height=1,class="dropdown",name="copymode",value="tags",
-	items={"tags","text","all","------","export CR for pad","------","clip","position","blur","border","\\1c","\\3c","\\4c","alpha","\\fscx","\\fscy","------","layer","duration","actor","effect","style"}},
+	items={"tags","text","all","------","export CR for pad","------","clip","position","blur","border","\\1c","\\3c","\\4c","alpha","\\fscx","\\fscy","any tag","------","layer","duration","actor","effect","style"}},
 	{x=0,y=17,width=10,height=1,class="label",label="Copy stuff from selected lines, select new lines [same number of them], run script again to paste stored data to new lines"},
 	{x=0,y=0,width=10,height=17,class="textbox",name="dat"},
 	{x=0,y=18,width=1,height=1,class="label",label="Copy:"},
@@ -690,7 +672,7 @@ function multicopy(subs, sel)
 		end
 	end
 	if pressed=="Help" then
-	herp="COPY part copies specified things line by line. PASTE part pastes these things line by line.\nThe idea is to copy something from for example 6 lines and paste it to another 6 lines.\nFor text you can just get the text from outside Aegisub and paste it to the appropriate number of lines.\n\ntags = initial tags\ntext = text AFTER initial tags (will include inline tags)\nall = tags+text, ie. everything in the Text field\n\nexport CR for pad: signs go to top with {TS} timecodes, nukes linebreaks and other CR garbage, fixes styles, etc.\n\nClip and the other tags should be obvious.\n\nPaste part:\nall: this is like regular paste over from a pad, but with checks to help identify where stuff breaks if the line count is different or shifted somewhere. if you're pasting over a script that has different line splitting than it should, this will show you pretty reliably where the discrepancies are.\n\ntext mod.: this pastes over text while keeping inline tags. If your line is {\\t1}a{\\t2}b{\\t3}c and you paste \"def\", you will get {\\t1}d{\\t2}e{\\t3}f. This simply counts characters, so if you paste \"defgh\", you get {\\t1}d{\\t2}e{\\t3}fgh, and if you paste \"d\", you get {\\t1}d. Comments get nuked.\n\ngbc text: this is pretty much only useful for updating lyrics when your song styling has rainbows, or any gradient by character. You get this:\n[initial tags][pasted text without last character][tag that was before last character][last character of pasted text]\n\nde-irc: paste straight from irc with timecodes and nicknames, and stuff gets parsed correctly.\n\n'Paste one line to all selected lines'\nApplies the same line, in any mode, to all selected lines. Make sure you paste only one line to the textbox."
+	herp="COPY part copies specified things line by line. PASTE part pastes these things line by line.\nThe idea is to copy something from for example 6 lines and paste it to another 6 lines.\nFor text you can just get the text from outside Aegisub and paste it to the appropriate number of lines.\n\ntags = initial tags\ntext = text AFTER initial tags (will include inline tags)\nall = tags+text, ie. everything in the Text field\nany tag = copies whatever tag you specify by typing in this field, like \"org\", \"fad\", or \"t\".\n\nexport CR for pad: signs go to top with {TS} timecodes, nukes linebreaks and other CR garbage, fixes styles, etc.\nClip and the other tags should be obvious.\n\nPaste part:\nall: this is like regular paste over from a pad, but with checks to help identify where stuff breaks if the line count is different or shifted somewhere. if you're pasting over a script that has different line splitting than it should, this will show you pretty reliably where the discrepancies are.\n\ntext mod.: this pastes over text while keeping inline tags. If your line is {\\t1}a{\\t2}b{\\t3}c and you paste \"def\", you will get {\\t1}d{\\t2}e{\\t3}f. This simply counts characters, so if you paste \"defgh\", you get {\\t1}d{\\t2}e{\\t3}fgh, and if you paste \"d\", you get {\\t1}d. Comments get nuked.\n\ngbc text: this is pretty much only useful for updating lyrics when your song styling has rainbows, or any gradient by character. You get this:\n[initial tags][pasted text without last character][tag that was before last character][last character of pasted text]\n\nde-irc: paste straight from irc with timecodes and nicknames, and stuff gets parsed correctly.\n\n'Paste one line to all selected lines'\nApplies the same line, in any mode, to all selected lines. Make sure you paste only one line to the textbox."
 		for key,val in ipairs(gui) do
 		    if val.name=="dat" then val.value=herp
 		    else val.value=res[val.name] end

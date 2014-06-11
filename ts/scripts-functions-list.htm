@@ -158,6 +158,7 @@ create alpha transforms from fade
 create colour transforms from fade
 create blur transforms from fade
 create fades letter by letter, including right to left
+make text appear letter by letter or word by word using \ko
 create a fade across multiple lines
 set fades as fractions of duration
 set negative fades (counting from the other end of the line)
@@ -196,11 +197,11 @@ active line statistics: # in script, style, font, weight, fnot size, border, sha
 <b>Masquerade</b>
 create a mask with a predefined shape (includes 2 alignment grids)
 create a mask from clipped area
-make text appear letter by letter using \ko
-recalculate fscx / fsxy for a given \fs (mocha scale)
-transform underline/strikeout tags into alpha tags, as well as @30@ -> \\alpha&H30& etc. (strikealpha)
-alpha time line(s) (splits text by given markers, times evenly)
 shift tags left or right by letters or words
+recalculate fscx / fsxy for a given \fs (mocha scale)
+make text appear letter by letter using alpha (shift alpha FF tag line by line)
+alpha time line(s) (splits text by given markers, times evenly)
+transform underline/strikeout tags into alpha tags, as well as @30@ -> \\alpha&H30& etc. (strikealpha)
 
 
 <b>Copyfax This</b>

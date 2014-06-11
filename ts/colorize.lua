@@ -1,7 +1,7 @@
 ﻿script_name="Colorize"
 script_description="Does things with colours"
 script_author="unanimated"
-script_version="3.4"
+script_version="3.5"
 
 --[[
 
@@ -35,8 +35,7 @@ script_version="3.4"
 	Adjust RGB / Brightness
  Simple and lame way of increasing/decreasing brightness for one (RGB) or all (Brightness) colours.
  This works for lines with multiple same-type colour tags, including gradient by character.
- You can select from -10 to 10. One step is 1/16 of the spectrum.
- (The way this works: If colour is \c&H9D9337&, it's split to 9D 93 37, and the first number/letter of each is raised by one -> ADA347.)
+ You can select from -255 to 255.
  Check types of colours you want it to apply to.
  "Apply even to colours without tags in line" means it will be applied to the colour set in style.
 
@@ -519,12 +518,10 @@ end
 end
 
 function brightness(klr,lvl)
-    ka,kb=klr:match("(%x)(%x)")
-    ka=tonumber(ka,16)
-    ka=ka+lvl
-    ka=tohex(ka)
-    klr2=ka..kb
-return klr2
+    klr=tonumber(klr,16)
+    klr=klr+lvl
+    klr=to_hex(klr)
+return klr
 end
 
 function to_hex(num)
@@ -642,14 +639,14 @@ function colorize(subs,sel)
 	{x=5,y=0,width=1,height=1,class="label",label=" "},
 		
 	{x=6,y=0,width=1,height=1,class="label",label="Red: "},
-	{x=7,y=0,width=2,height=1,class="intedit",name="R",value=0,min=-10,max=10},
+	{x=7,y=0,width=2,height=1,class="intedit",name="R",value=0,min=-255,max=255},
 	{x=6,y=1,width=1,height=1,class="label",label="Green: "},
-	{x=7,y=1,width=2,height=1,class="intedit",name="G",value=0,min=-10,max=10},
+	{x=7,y=1,width=2,height=1,class="intedit",name="G",value=0,min=-255,max=255},
 	{x=6,y=2,width=1,height=1,class="label",label="Blue: "},
-	{x=7,y=2,width=2,height=1,class="intedit",name="B",value=0,min=-10,max=10},
+	{x=7,y=2,width=2,height=1,class="intedit",name="B",value=0,min=-255,max=255},
 	{x=6,y=4,width=1,height=1,class="label",label="Brightness:"},
-	{x=7,y=4,width=2,height=1,class="intedit",name="bright",value=0,min=-10,max=10},
-	{x=6,y=3,width=5,height=1,class="label",label="From -10 to 10. 1 step is 1/16 of the spectrum."},
+	{x=7,y=4,width=2,height=1,class="intedit",name="bright",value=0,min=-255,max=255},
+	{x=6,y=3,width=5,height=1,class="label",label="You can use values from -255 to 255."},
 	{x=6,y=5,width=5,height=1,class="label",label="1 step for brightness equals 1 step for R+G+B."},
 
 	{x=6,y=6,width=1,height=1,class="checkbox",name="k1",label="\\c       ", value=true  },

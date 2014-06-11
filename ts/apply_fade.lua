@@ -1,21 +1,26 @@
--- For regular fade, type only fade in / fade out.
--- Checking alpha will use alpha transform instead, with the fade in/out values and accel.
--- Checking colours will do colour transforms (with accel). if only one checked, the other will be alpha transform.
--- Checking blur will do a blur transform with given start and end blur (and accel), using the current blur as the middle value.
--- In case of user stupidity, ie. blur missing, 0.6 is used as default.
--- For letter by letter, the dropdown is for each letter, while fade in/out are for the overall fades.
--- Fade across multiple lines will create a set of alpha transforms across lines. 
---   Nukes all present alpha tags; supports shadow alpha.
---   "Global time" will use times relative to video, rather than of each individual line.
--- Fade in to current frame - sets fade in to current video frame
--- Fade out from current frame - sets fade out to current video frame
--- Fade between 0 and 1 gives you that fraction of the line's duration, so fade in 0.2 with 1 second is \fad(200,0).
--- Negative fade gives you the inverse with respect to duration, so if dur=3000 and fade in is -500, you get \fad(2500,0), or to 500 from end.
+--[[ INSTRUCTIONS
+For regular fade, type only 'fade in' / 'fade out' values.
+Checking alpha will use alpha transform instead, with the fade in/out values and accel.
+Checking colours will do colour transforms (with accel). If only one checked, the other will be alpha transform.
+Checking blur will do a blur transform with given start and end blur (and accel), using the current blur as the middle value.
+In case of user stupidity, ie. blur missing, 0.6 is used as default.
+For letter by letter, the dropdown is for each letter, while fade in/out are for the overall fades.
+Letter by letter using \ko - uses {\ko#} tags instead of transforms for fade in
+  if the value is under 40, it's used as \ko[value]; if it's 40+, it's considered to be the overall fade, ie. when the last letter appears.
+\ko by word fades in by word instead of by letter.
+(Inline tags are supported, but if you fade by word and have tags in the middle of a word, it won't work as you want it to.)
+Fade across multiple lines will create a set of alpha transforms across lines. 
+  Nukes all present alpha tags; supports shadow alpha.
+  "Global time" will use times relative to video, rather than of each individual line.
+Fade in to current frame - sets fade in to current video frame
+Fade out from current frame - sets fade out to current video frame
+Fade between 0 and 1 gives you that fraction of the line's duration, so fade in 0.2 with 1 second is \fad(200,0).
+Negative fade gives you the inverse with respect to duration, so if dur=3000 and fade in is -500, you get \fad(2500,0), or to 500 from end. ]]
 
 script_name="Apply fade"
 script_description="Applies fade to selected lines"
 script_author="unanimated"
-script_version="3.4"
+script_version="3.5"
 
 --	SETTINGS	--
 
@@ -212,10 +217,12 @@ function fadalpha(subs, sel)
 		    if lineblur==nil then lineblur="\\blur0.6" end
 		    text=text:gsub("^({[^}]-)\\blur[%d%.]+","%1")
 		    text=text:gsub("^{}","{\\}")
+		    if not text:match("^{\\") then text="{\\notarealtag}"..text end
 		    if fadin==0 then lb=lineblur else lb="" end
 		    if not res.alf then 
 		    if fadin~=0 then text=text:gsub("^({\\[^}]-)}","%1"..blin.."\\t(0,"..fadin..","..res.inn..","..lineblur..")}") end
 		    if fadout~=0 then text=text:gsub("^({\\[^}]-)}","%1"..lb.."\\t("..dur-fadout..",0,"..res.ut..","..blout..")}") end
+		    text=text:gsub("\\notarealtag","")
 		    end
 		end
 		if not res.blur then lineblur="" blin="" blout="" end
@@ -349,6 +356,47 @@ function fadalpha(subs, sel)
 	    line.text=text
 	    subs[i]=line
 	end
+end
+
+function koko_da(subs,sel)
+    finn=res.fadein
+    if finn<1 then aegisub.dialog.display({{class="label",label="Fade in must be at least 1"}},{"OK"},{close='OK'}) aegisub.cancel() end
+    for x, i in ipairs(sel) do
+        line=subs[i]
+        text=line.text
+	text=text:gsub("\\ko%d+","") :gsub("{}","")
+	
+	-- save initial tags; remove other tags/comments
+	tags=""
+	if text:match("^{\\[^}]*}") then tags=text:match("^({\\[^}]*})") end
+	orig=text:gsub("^({\\[^}]*})","")
+	text=text:gsub("{[^}]*}","")
+	text=text:gsub("%s*$","")
+	text=text:gsub("\\N","*")
+	
+	--letter
+	if not res.word then
+	    matches=re.find(text,"[\\w[:punct:]][\\s\\\\*]*")
+	    len=#matches
+	    if finn>=40 then ko=round(finn/(len-1))/10 else ko=finn end
+	    text=re.sub(text,"([\\w[:punct:]])","{\\\\ko"..ko.."}\\1")
+	else
+	--word
+	    matches=re.find(text,"[\\w[:punct:]]+[\\s\\\\*]*")
+	    len=#matches
+	    if finn>=40 then ko=round(finn/(len-1)/10) else ko=finn end
+	    text=re.sub(text,"([\\w[:punct:]]+)","{\\\\ko"..ko.."}\\1")
+	end
+	
+	-- join saved tags + new text with transforms
+	text=tags..text
+	if not text:match("\\2a&HFF&") then text=text:gsub("^{","{\\2a&HFF&") end
+	text=text:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
+	text=text:gsub("%*","\\N")
+	if orig:match("{\\") then text=textmod(orig) end
+	line.text=text
+        subs[i]=line
+    end
 end
 
 function fadeacross(subs, sel)
@@ -537,6 +585,10 @@ function fadeconfig(subs, sel)
     if lastto==nil or rls==false then lastto=false end
     if lastc1==nil or rls==false then lastc1=nil end
     if lastc2==nil or rls==false then lastc2=nil end
+    if lastko==nil or rls==false then lastko=nil end
+    if lastword==nil or rls==false then lastword=nil end
+    if lastmult==nil or rls==false then lastmult=nil end
+    if lasttime==nil or rls==false then lasttime=nil end
 	dialog_config=
 	{
 	    {x=0,y=0,width=4,height=1,class="label",label="fade  /  alpha/c/blur transform", },
@@ -564,11 +616,14 @@ function fadeconfig(subs, sel)
 	    {x=4,y=5,width=1,height=1,class="checkbox",name="rtl",label="rtl",value=false,hint="right to left"},
 	    {x=5,y=5,width=1,height=1,class="checkbox",name="del",label="Delete",value=false,hint="delete letter-by-letter"},
 	    
-	    {x=0,y=6,width=4,height=1,class="checkbox",name="mult",label="Fade across multiple lines",value=false},
-	    {x=4,y=6,width=2,height=1,class="checkbox",name="time",label="Global time",value=false},
+	    {x=0,y=6,width=4,height=1,class="checkbox",name="ko",label="Letter by letter using \\ko",value=false},
+	    {x=4,y=6,width=4,height=1,class="checkbox",name="word",label="\\ko by word",value=false},
 	    
-	    {x=0,y=7,width=3,height=1,class="checkbox",name="vin",label="Fade in to current frame",value=false},
-	    {x=3,y=7,width=3,height=1,class="checkbox",name="vout",label="out from current frame",value=false},
+	    {x=0,y=7,width=4,height=1,class="checkbox",name="mult",label="Fade across multiple lines",value=false},
+	    {x=4,y=7,width=2,height=1,class="checkbox",name="time",label="Global time",value=false},
+	    
+	    {x=0,y=8,width=3,height=1,class="checkbox",name="vin",label="Fade in to current frame",value=false},
+	    {x=3,y=8,width=3,height=1,class="checkbox",name="vout",label="out from current frame",value=false},
 	} 	
 	pressed, res=aegisub.dialog.display(dialog_config,{"Apply Fade", "Letter by Letter","Cancel"},{ok='Apply Fade',cancel='Cancel'})
 	if pressed=="Apply Fade" then 
@@ -577,7 +632,7 @@ function fadeconfig(subs, sel)
 		elseif res.vin or res.vout then vfade(subs,sel)
 		else fade(subs, sel) end 
 	end
-	if pressed=="Letter by Letter" then fade(subs, sel) end
+	if pressed=="Letter by Letter" then if res.ko or res.word then koko_da(subs, sel) else fade(subs, sel) end end
 	lastin=res.fadein		lastout=res.fadeout
 	lastaccin=res.inn		lastaccout=res.ut
 	lastblin=res.bli		lastblout=res.blu
@@ -585,6 +640,8 @@ function fadeconfig(subs, sel)
 	lastfrom=res.crl		lastto=res.clr
 	lastc1=res.c1			lastc2=res.c2
 	lastlbl=res.letterfade		lastrtl=res.rtl
+	lastko=res.ko			lastword=res.word
+	lastmult=res.mult		lasttime=res.time
 end
 
 function apply_fade(subs, sel)

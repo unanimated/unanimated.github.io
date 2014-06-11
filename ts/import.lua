@@ -1,7 +1,7 @@
 ﻿script_name="Unimportant"
 script_description="Import stuff, number stuff, do other stuff."
 script_author="unanimated"
-script_version="1.56"
+script_version="1.57"
 
 require "clipboard"
 re=require'aegisub.re'
@@ -559,15 +559,15 @@ function stuff(subs, sel)
 	    if text:match("^{[^}]-\\alpha") then alf=text:match("^{[^}]-\\alpha&H(%x%x)&") else alf="00" end
 	    text=text:gsub("\\alpha&H%x%x&","")
 	    tab={}
-	    for kpart in text:gmatch("{[^}]-\\k[fo]%d+[^}]-}[^{]*") do
+	    for kpart in text:gmatch("{[^}]-\\k[fo][%d%.]+[^}]-}[^{]*") do
 		table.insert(tab,kpart)
 	    end
 	    lastim=0
 	    text=""
 	    for k=1,#tab do
 		part=tab[k]
-		tim=tonumber(part:match("\\k[fo](%d+)"))*10
-		part=part:gsub("\\k[fo]%d+","\\alpha&HFF&\\t("..lastim..","..lastim+tim..",\\alpha&H"..alf.."&)")
+		tim=tonumber(part:match("\\k[fo]([%d%.]+)"))*10
+		part=part:gsub("\\k[fo][%d%.]+","\\alpha&HFF&\\t("..lastim..","..lastim+tim..",\\alpha&H"..alf.."&)")
 		tab[k]=part
 		lastim=lastim+tim
 		text=text..tab[k]

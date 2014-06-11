@@ -1,47 +1,52 @@
 script_name="Masquerade"
 script_description="Masquerade"
 script_author="unanimated"
-script_version="1.9"
+script_version="2.0"
+
+-- \ko has been removed. much improved version is in 'Apply fade'. alpha shift does a similar thing differently.
 
 --[[
 
-	Create Mask
-		Creates a mask with the selected shape.
-		"create mask on a new line" does te obvious and raises the layer of the current line by 1.
-	
-	Strikealpha
-		Replaces strikeout or underline tags with \alpha&H00& or \alpha&HFF&. Also @.
-		@	->	{\alpha&HFF&}
-		@0	->	{\alpha&H00&}
-		{\u1}	->	{\alpha&HFF&}
-		{\u0}	->	{\alpha&H00&}
-		{\s0}	->	{\alpha&HFF&}
-		{\s1}	->	{\alpha&H00&}
-		@E3@	->	{\alpha&HE3&}
-	
-	an8 / q2 (obvious)
-	
-	\ko
-		Makes text appear letter by letter or word by word in specified intervals.
-		Text	-> 	{\2a&HFF&\ko8}T{\ko8}e{\ko8}x{\ko8}t{\ko8}.
-		Doesn't work with shadow. (Use Alpha Shift instead.)
-	
-	Alpha Time
-		Either select lines that are already timed for alpha timing and need alpha tags, or just one line that needs to be alpha timed.
-		In the GUI, split the line by hitting Enter where you want the alpha tags.
-		Alpha Text is for when yuo have the lines already timed and just need the tags.
-		Alpha Time is for one line. It will be split to equally long lines with alpha tags added.
-		If you add "@" to your line first, alpha tags will replace the @, and no GUI will pop up.
-		Example text:	This @is @a @test.
-	
-	Mocha Scale
-		Recalculates fscx and fscy for a given font size.
-		"tag end" is an option to add the tags at the end of the line instead of beginning.
-	
-	Shift Tags
-		Allows you to shift tags by character or by word.
-		For the first block, single tags can be moved right.
-		For inline tags, each block can be moved left or right.
+Create Mask
+	Creates a mask with the selected shape.
+	"create mask on a new line" does te obvious and raises the layer of the current line by 1.
+
+Shift Tags
+	Allows you to shift tags by character or by word.
+	For the first block, single tags can be moved right.
+	For inline tags, each block can be moved left or right.
+
+an8 / q2 (obvious)
+
+Mocha Scale
+	Recalculates fscx and fscy for a given font size.
+	"tag end" is an option to add the tags at the end of the line instead of beginning.
+
+alpha shift
+	Makes text appear letter by letter on frame-by-frame lines using alpha&HFF& like this:
+	{alpha&HFF&}text
+	t{alpha&HFF&}ext
+	te{alpha&HFF&}xt
+	tex{alpha&HFF&}t
+	text
+
+Alpha Time
+	Either select lines that are already timed for alpha timing and need alpha tags, or just one line that needs to be alpha timed.
+	In the GUI, split the line by hitting Enter where you want the alpha tags.
+	Alpha Text is for when yuo have the lines already timed and just need the tags.
+	Alpha Time is for one line. It will be split to equally long lines with alpha tags added.
+	If you add "@" to your line first, alpha tags will replace the @, and no GUI will pop up.
+	Example text:	This @is @a @test.
+
+Strikealpha
+	Replaces strikeout or underline tags with \alpha&H00& or \alpha&HFF&. Also @.
+	@	->	{\alpha&HFF&}
+	@0	->	{\alpha&H00&}
+	{\u1}	->	{\alpha&HFF&}
+	{\u0}	->	{\alpha&H00&}
+	{\s0}	->	{\alpha&HFF&}
+	{\s1}	->	{\alpha&H00&}
+	@E3@	->	{\alpha&HE3&}
 
 --]]
 
@@ -142,40 +147,24 @@ function add_an8(subs, sel, act)
 	end
 end
 
-function koko_da(subs, sel,act)
+function alfashift(subs, sel)
+    count=1
     for x, i in ipairs(sel) do
-        local line=subs[i]
-        local text=subs[i].text
-	tekst1=text:match("^([^{]*)")
-	    if res.word==false then
-	--letter
-		for text2 in text:gmatch("}([^{]*)") do
-		text2m=text2:gsub("([%w%s%.,%?%!'])","{\\ko"..res.ko.."}%1")
-		text2=esc(text2)
-		text=text:gsub(text2,text2m)
-		end
-		if tekst1~=nil then
-		tekst1m=tekst1:gsub("([%w%s%.,%?%!'])","{\\ko"..res.ko.."}%1")
-		tekst1=esc(tekst1)
-		text=text:gsub(tekst1,tekst1m)
-		end
-	    else
-	--word
-		for text2 in text:gmatch("}([^{]*)") do
-		text2m=text2:gsub("([%w\']+)","{\\ko"..res.ko.."}%1")
-		text2=esc(text2)
-		text=text:gsub(text2,text2m)
-		end
-		if tekst1~=nil then
-		tekst1m=tekst1:gsub("([%w\']+)","{\\ko"..res.ko.."}%1")
-		tekst1=esc(tekst1)
-		text=text:gsub(tekst1,tekst1m)
-		end
-	    end
-	if text:match("^{")==nil then text=text:gsub("^","{\\ko"..res.ko.."}") end
-	if not text:match("\\2a&HFF&") then text=text:gsub("^{","{\\2a&HFF&") end
-	text=text:gsub("\\({\\ko[%d]+})N","\\N%1")
-	text=text:gsub("\\ko[%d]+(\\ko[%d]+)","%1")
+        line=subs[i]
+	text=line.text
+	if not text:match("{\\alpha&HFF&}[%w%p]") then aegisub.dialog.display({{class="label",
+		label="Line "..x.." does not \nappear to have alpha FF",x=0,y=0,width=1,height=2}},{"OK"}) aegisub.cancel() end
+	if count>1 then
+		switch=1
+		repeat 
+		text=text:gsub("({\\alpha&HFF&})([%w%p])","%2%1")
+		text=text:gsub("({\\alpha&HFF&})(%s)","%2%1")
+		text=text:gsub("({\\alpha&HFF&})(\\N)","%2%1")
+		text=text:gsub("({\\alpha&HFF&})$","")
+		switch=switch+1
+		until switch>=count
+	end
+	count=count+1
 	line.text=text
         subs[i]=line
     end
@@ -434,13 +423,14 @@ function alfatime(subs,sel)
       for x, i in ipairs(sel) do
         altxt=""
 	for a=1,x do altxt=altxt..altab[a] end
+	esctxt=esc(altxt)
 	line=subs[i]
 	text=line.text
 	if altab[x]~=nil then
 	  tags=text:match("^{\\[^}]-}")
 	  text=data2
 	  :gsub("\n","")
-	  :gsub(altxt,altxt.."{\\alpha&HFF&}")
+	  :gsub(esctxt,altxt.."{\\alpha&HFF&}")
 	  :gsub("({\\alpha&HFF&}.-){\\alpha&HFF&}","%1")
 	  :gsub("{\\alpha&HFF&}$","")
 	  :gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
@@ -463,12 +453,13 @@ function alfatime(subs,sel)
 	for a=#altab,1,-1 do
           altxt=""
 	  altxt=altxt..altab[a]
+	  esctxt=esc(altxt)
 	  line.text=line.text:gsub("@","")
 	  line2=line
 	  tags=line2.text:match("^{\\[^}]-}")
 	  line2.text=data2
 	  :gsub("\n","")
-	  :gsub(altxt,altxt.."{\\alpha&HFF&}")
+	  :gsub(esctxt,altxt.."{\\alpha&HFF&}")
 	  :gsub("({\\alpha&HFF&}.-){\\alpha&HFF&}","%1")
 	  :gsub("{\\alpha&HFF&}$","")
 	  :gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
@@ -542,28 +533,22 @@ function masquerade(subs,sel,act)
 	    {x=3,y=0,width=1,height=1,class="dropdown",name="an8",
 		items={"q2","an1","an2","an3","an4","an5","an6","an7","an8","an9"},value="an8"},
 		
-	    {x=5,y=0,width=1,height=1,class="label",label="\\ko:",},
-	    {x=6,y=0,width=1,height=1,class="floatedit",name="ko",value="8",},
-	    {x=5,y=1,width=2,height=1,class="checkbox",name="word",label="word by word",value=false},
+	    --{x=4,y=0,width=1,height=2,class="label",label="::\n::\n::",},
 	    
-	    {x=7,y=0,width=1,height=2,class="label",label=":\n:\n:",},
+	    {x=5,y=0,width=2,height=1,class="label",label="scaling ",},
+	    {x=5,y=1,width=1,height=1,class="label",label="\\fs:",},
+	    {x=6,y=1,width=2,height=1,class="intedit",name="fs",value=3,min=1},
+	    {x=7,y=0,width=1,height=1,class="checkbox",name="mend",label="tag end",value=false},
 	    
-	    {x=8,y=0,width=2,height=1,class="label",label="scaling ",},
-	    {x=8,y=1,width=1,height=1,class="label",label="\\fs:",},
-	    {x=9,y=1,width=2,height=1,class="intedit",name="fs",value=2,min=1},
-	    {x=10,y=0,width=1,height=1,class="checkbox",name="mend",label="tag end",value=false},
-	    
-	    {x=2,y=0,width=1,height=2,class="label",label=":\n:\n:",},
-	    {x=4,y=0,width=1,height=2,class="label",label=":\n:\n:",},
-	    {x=11,y=0,width=1,height=0,class="label",label="Masquerade v"..script_version},
+	    {x=17,y=0,width=1,height=0,class="label",label="Masquerade v"..script_version},
 	} 	
 	pressed, res=aegisub.dialog.display(dialog_config,
-	{"create mask","strikealpha","an8 / q2","\\ko","alpha time","mocha scale","shift tags","cancel"},{cancel='cancel'})
+	{"create mask","shift tags","an8 / q2","mocha scale","alpha shift","alpha time","strikealpha","cancel"},{cancel='cancel'})
 	if pressed=="cancel" then aegisub.cancel() end
 	if pressed=="create mask" then addmask(subs, sel) end
 	if pressed=="strikealpha" then strikealpha(subs, sel) end
 	if pressed=="an8 / q2" then add_an8(subs, sel,act) end
-	if pressed=="\\ko" then koko_da(subs, sel) end
+	if pressed=="alpha shift" then alfashift(subs, sel) end
 	if pressed=="alpha time" then alfatime(subs, sel) end	
 	if pressed=="mocha scale" then scale(subs, sel) end
 	if pressed=="shift tags" then shiftag(subs,sel,act) end

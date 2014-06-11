@@ -3,7 +3,7 @@
 script_name="Script Cleanup"
 script_description="Removes unwanted stuff from script"
 script_author="unanimated"
-script_version="2.61"
+script_version="2.62"
 
 dont_delete_empty_tags=false	-- option to not delete {}
 
@@ -282,7 +282,7 @@ function killemall(subs,sel)
 	if res.anna then text=killtag("an",text) end
 	if res.align then text=killtag("a",text) end
 	if res["return"] then text=text:gsub("\\r.+([\\}])","%1") end
-	if res.kara then text=text:gsub("\\k[fo]?[%d]+([\\}])","%1") end
+	if res.kara then text=text:gsub("\\k[fo]?[%d%.]+([\\}])","%1") end
 	if res.ital then text=text:gsub("\\i[01]?([\\}])","%1") end
 	if res.bold then text=text:gsub("\\b[01]?([\\}])","%1") end
 	if res.trans then text=text:gsub("\\t%([^%(%)]-%)","") text=text:gsub("\\t%([^%(%)]-%([^%)]-%)[^%)]-%)","") end
