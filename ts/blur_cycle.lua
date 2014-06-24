@@ -3,11 +3,11 @@
 script_name="Blur Cycle"
 script_description="Adds blur"
 script_author="unanimated"
-script_version="1.6"
+script_version="1.61"
 
-sequence={"0.6","0.8","1","1.2","1.5","2","3","4","5","8","0.4","0.5"}	-- you can modify this
+sequence={"0.6","0.8","1","1.2","1.5","2","3","4","5","6","8","0.4","0.5"}	-- you can modify this
 
-function blur(subs,sel)
+function blur(subs,sel,act)
     for z, i in ipairs(sel) do
 	line=subs[i]
 	text=line.text
@@ -18,7 +18,8 @@ function blur(subs,sel)
 		    for t in tags:gmatch("(\\t%([^%(%)]-%))") do tf=tf..t end
 		    for t in tags:gmatch("(\\t%([^%(%)]-%([^%)]-%)[^%)]-%))","") do tf=tf..t end
 		    tags=tags:gsub("\\t%([^%(%)]+%)","")
-		    tags=tags:gsub("\\t%([^%(%)]-%([^%)]-%)[^%)]-%)","")
+		    :gsub("\\t%([^%(%)]-%([^%)]-%)[^%)]-%)","")
+		    :gsub("{}","")
 		    text=tags..after
 		end
 	    end

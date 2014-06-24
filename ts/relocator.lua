@@ -4,9 +4,9 @@
 script_name="Hyperdimensional Relocator"
 script_description="Makes things appear different from before"
 script_author="reanimated"
-script_version="2.52"
+script_version="2.53"
 
---	SETTINGS	-- randomize?
+--	SETTINGS	--
 
 align_with_first=true
 posi_rotate=false
@@ -118,7 +118,7 @@ function positron(subs,sel)
 	    faks=round1(tangf*100)/100
 	    text=addtag("\\fax"..faks,text)
 	    text=text:gsub("\\org%([^%)]+%)","")
-	    text=duplikill(text)
+	    text=text:gsub("({\\[^}]-})",function(tg) return duplikill(tg) end)
 	
 	-- clip to fax
 	elseif res.posi=="clip to fax" then
@@ -139,7 +139,7 @@ function positron(subs,sel)
 	    faks=round1(tangf*100)/100
 	    text=addtag("\\fax"..faks,text)
 	    text=text:gsub("\\clip%([^%)]+%)","")
-	    text=duplikill(text)
+	    text=text:gsub("({\\[^}]-})",function(tg) return duplikill(tg) end)
 	
 	-- shake
 	elseif res.posi=="shake" then
@@ -801,13 +801,13 @@ function movetofbf(subs, sel)
 		    if tags==nil then tags="" end
 		    -- transforms
 		    if tags:match("\\t") then
-			text=text:gsub("^({\\[^}]-})",function(tg) return cleantr(tg) end)
+			l2.text=l2.text:gsub("^({\\[^}]-})",function(tg) return cleantr(tg) end)
 			terraform(tags)
 			
 			l2.text=l2.text:gsub("(\\t%([^%(%)]-%([^%)]-%)[^%)]-%))","")	:gsub("(\\t%([^%(%)]-%))","")
 			l2.text=l2.text:gsub("^({[^}]*)}","%1"..ftags.."}")
 			
-			l2.text=duplikill(l2.text)
+			l2.text=l2.text:gsub("({\\[^}]-})",function(tg) return duplikill(tg) end)
 		    end
 		    
 		    l2.start_time=fr2ms(frm)
@@ -846,7 +846,8 @@ function terraform(tags)
 	tra=tags:match("(\\t%([^%(%)]-%))")
 	if tra==nil then tra=text:match("(\\t%([^%(%)]-%([^%)]-%)[^%)]-%))") end	--aegisub.log("\ntra: "..tra)
 	trstart,trend=tra:match("\\t%((%d+),(%d+)")
-	if trstart==nil then trstart=fr2ms(startf)-start end
+	--frdiff=(fr2ms(startf+1)-fr2ms(startf))/2
+	if trstart==nil or trstart=="0" then trstart=fr2ms(startf)-start end
 	if trend==nil or trend=="0" then trend=fr2ms(endf-1)-start end
 	tfstartf=ms2fr(start+trstart)		tfendf=ms2fr(start+trend)
 	toffset=tfstartf-startf		if toffset<0 then toffset=0 end
@@ -929,20 +930,27 @@ function cleantr(tags)
 	return tags
 end
 
-function duplikill(text)
-	tags1={"blur","be","bord","shad","fs","fsp","fscx","fscy","frz","frx","fry","fax","fay"}
+function duplikill(tagz)
+	tf=""
+	if tagz:match("\\t") then 
+	    for t in tagz:gmatch("(\\t%([^%(%)]-%))") do tf=tf..t end
+	    for t in tagz:gmatch("(\\t%([^%(%)]-%([^%)]-%)[^%)]-%))","") do tf=tf..t end
+	    tagz=tagz:gsub("\\t%([^%(%)]+%)","")
+	    tagz=tagz:gsub("\\t%([^%(%)]-%([^%)]-%)[^%)]-%)","")
+	end
+	tags1={"blur","be","bord","shad","xbord","xshad","ybord","yshad","fs","fsp","fscx","fscy","frz","frx","fry","fax","fay"}
 	for i=1,#tags1 do
 	    tag=tags1[i]
-	    text=text:gsub("\\"..tag.."[%d%.%-]+([^}]-)(\\"..tag.."[%d%.%-]+)","%2%1")
+	    tagz=tagz:gsub("\\"..tag.."[%d%.%-]+([^}]-)(\\"..tag.."[%d%.%-]+)","%2%1")
 	end
-	text=text:gsub("\\1c&","\\c&")
+	tagz=tagz:gsub("\\1c&","\\c&")
 	tags2={"c","2c","3c","4c","1a","2a","3a","4a","alpha"}
 	for i=1,#tags2 do
-	    tag=tags1[i]
-	    text=text:gsub("\\"..tag.."&H%x+&([^}]-)(\\"..tag.."&H%x+&)","%2%1")
+	    tag=tags2[i]
+	    tagz=tagz:gsub("\\"..tag.."&H%x+&([^}]-)(\\"..tag.."&H%x+&)","%2%1")
 	end
-	text=text:gsub("\\i?clip%([^%)]-%)([^}]-)(\\i?clip%([^%)]-%))","%2%1")
-	return text
+	tagz=tagz:gsub("({\\[^}]-)}","%1"..tf.."}")
+	return tagz
 end
 
 function joinfbflines(subs, sel)

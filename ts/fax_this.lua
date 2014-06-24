@@ -1,47 +1,51 @@
 ﻿script_name="Copyfax This"
 script_description="Copyfax This"
 script_author="unanimated"
-script_version="2.22"
+script_version="2.51"
 
 -- all the "copy" things copy things from first selected line and paste them to the other lines
 -- clip shift coordinates will shift the clip by that amount each line
 
 --[[
 
-	Fax It
-		Adds a \fax tag. "to the right" just adds a "-". (Yes, that's pretty useless.)
-		"from clip" calculates the fax value from the first two points of a vector clip.
-	
-	Copy Stuff
-		This lets you copy almost anything from one line to others.
-		The primary use is to copy from the first line of your selection to the others.
-		If you need to copy to a line that's above the source like in the grid, just click Copy with the selected things
-		and then use Paste Saved on the line(s) you want to copy to.
-		You can copy inline tags too, but they will only be pasted to the first tag block.
-	
-	Copy Tags
-		Copies the first block of tags in its entirety from first selected line to the others.
-	
-	Copy Text
-		Copies what's after the first block of tags from first selected line to the others (including inline tags).
-	
-	Copy Clip
-		Copies clip from first selected line to the others.
-		Clip shift coordinates will shift the clip by that amount each line.
-	
-	Copy Colours
-		Copies checked colours from first selected line to the others.
-		Unlike Copy Stuff, this can read the colours from the style when tags are missing.
-		You can also include alpha for the checked colours.
-	
-	Split by \N
-		Splits a line at each linebreak.
-		If there's no linebreak, you can split by tags or spaces.
-		Splitting by linebreak will try to keep the position of each part, but it only supports \fs, \fscy, and \an.
+Fax It
+	Adds a \fax tag. "to the right" just adds a "-". (Yes, that's pretty useless.)
+	"from clip" calculates the fax value from the first two points of a vector clip.
+	  if the clip has 4 points, points 3-4 are used to calculate fax for the last character (for grad-by-char).
 
---]]
+Copy Stuff
+	This lets you copy almost anything from one line to others.
+	The primary use is to copy from the first line of your selection to the others.
+	If you need to copy to a line that's above the source like in the grid, just click Copy with the selected things
+	and then use Paste Saved on the line(s) you want to copy to.
+	You can copy inline tags too, but they will only be pasted to the first tag block.
+	[Un]hide lets you hide/unhide checked tags (by making them comments). Nothing checked = unhide. Good for clips, for example.
 
-copy_style=true
+Copy Tags
+	Copies the first block of tags in its entirety from first selected line to the others.
+
+Copy Text
+	Copies what's after the first block of tags from first selected line to the others (including inline tags).
+
+Copy Clip
+	Copies clip from first selected line to the others.
+	Clip shift coordinates will shift the clip by that amount each line.
+
+Copy Colours
+	Copies checked colours from first selected line to the others.
+	Unlike Copy Stuff, this can read the colours from the style when tags are missing.
+	You can also include alpha for the checked colours.
+
+Split by \N
+	Splits a line at each linebreak.
+	If there's no linebreak, you can split by tags or spaces.
+	Splitting by linebreak will try to keep the position of each part, but it only supports \fs, \fscy, and \an.
+
+
+-- OPTIONS (true/false)													]]
+copy_style=true			-- "copy style with tags" checked in the gui
+autogradient_clip2fax=true	-- automatically gradient \fax for "fax from clip" with 4-point clip
+
 
 function fucks(subs, sel)
 	if res.right then res.fax=0-res.fax end
@@ -58,7 +62,8 @@ function fucks(subs, sel)
 		if not t:match("\\clip") then
 		  aegisub.dialog.display({{class="label",label="Missing \\clip.",width=1,height=2}},{"OK"},{close='OK'}) aegisub.cancel()
 		end
-		cx1,cy1,cx2,cy2=t:match("\\clip%(m ([%d%-]+) ([%d%-]+) l ([%d%-]+) ([%d%-]+)")
+		cx1,cy1,cx2,cy2,cx3,cy3,cx4,cy4=t:match("\\clip%(m ([%d%-]+) ([%d%-]+) l ([%d%-]+) ([%d%-]+) ([%d%-]+) ([%d%-]+) ([%d%-]+) ([%d%-]+)")
+		if cx1==nil then cx1,cy1,cx2,cy2=t:match("\\clip%(m ([%d%-]+) ([%d%-]+) l ([%d%-]+) ([%d%-]+)") end
 		rota=t:match("\\frz([%d%.%-]+)")
 		if rota==nil then rota=0 end
 		ad=cx1-cx2
@@ -70,8 +75,42 @@ function fucks(subs, sel)
 		
 		faks=round(tangf*100)/100
 		t=addtag("\\fax"..faks,t)
+		if cy4~=nil then
+		    tang2=((cx3-cx4)/(cy3-cy4))
+		    ang3=math.deg(math.atan(tang2))
+		    ang4=ang3-rota
+		    tangf2=math.tan(math.rad(ang4))
+		    faks2=round(tangf2*100)/100
+		    endcom=""
+		    repeat
+			t=t:gsub("({[^}]-})%s*$",function(ec) endcom=ec..endcom return "" end)
+		    until not t:match("}$")
+		    t=t:gsub("(.)$","{\\fax"..faks2.."}%1")
+		    
+		    if autogradient_clip2fax then
+			vis=t:gsub("{[^}]-}","")
+			orig=t:gsub("^{\\[^}]*}","")
+			tg=t:match("^{\\[^}]-}")
+			chars={}
+			for char in vis:gmatch(".") do table.insert(chars,char) end
+			faxdiff=(faks2-faks)/(#chars-1)
+			tt=chars[1]
+			for c=2,#chars do
+			    if c==#chars then ast="" else ast="*" end
+			    if chars[c]==" " then tt=tt.." " else
+			    tt=tt.."{"..ast.."\\fax"..round((faks+faxdiff*(c-1))*100)/100 .."}"..chars[c]
+			    end
+			end
+			t=tg..tt
+			if orig:match("{%*?\\") then t=textmod(orig,t) end
+		    end
+		    
+		    t=t..endcom
+		end
+		
 		t=t:gsub("\\clip%([^%)]+%)","")
-		t=duplikill(t)
+		:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
+		:gsub("(\\fax[%d%.%-]+)([^}]-)(\\fax[%d%.%-]+)","%3%2")
 	    end	
 	    l.text=t
 	    subs[i]=l
@@ -79,6 +118,49 @@ function fucks(subs, sel)
 end
 
 function round(num)  num=math.floor(num+0.5)  return num  end
+
+function textmod(orig,text)
+    tk={}
+    tg={}
+	text=text:gsub("{\\\\k0}","")
+	repeat text=text:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
+	    until not text:match("{(\\[^}]-)}{(\\[^}]-)}")
+	vis=text:gsub("{[^}]-}","")
+	  for c in vis:gmatch(".") do
+	    table.insert(tk,c)
+	  end
+	stags=text:match("^{(\\[^}]-)}")
+	if stags==nil then stags="" end
+	text=text:gsub("^{\\[^}]-}","") :gsub("{[^\\}]-}","")
+	count=0
+	for seq in text:gmatch("[^{]-{%*?\\[^}]-}") do
+	    chars,as,tak=seq:match("([^{]-){(%*?)(\\[^}]-)}")
+	    pos=chars:len()+count
+	    tgl={p=pos,t=tak,a=as}
+	    table.insert(tg,tgl)
+	    count=pos
+	end
+	count=0
+	for seq in orig:gmatch("[^{]-{%*?\\[^}]-}") do
+	    chars,as,tak=seq:match("([^{]-){(%*?)(\\[^}]-)}")
+	    pos=chars:len()+count
+	    tgl={p=pos,t=tak,a=as}
+	    table.insert(tg,tgl)
+	    count=pos
+	end
+    newline=""
+    for i=1,#tk do
+	newline=newline..tk[i]
+	newt=""
+	for n, t in ipairs(tg) do
+	    if t.p==i then newt=newt..t.a..t.t end
+	end
+	if newt~="" then newline=newline.."{"..newt.."}" end
+    end
+    newtext="{"..stags.."}"..newline
+    text=newtext
+    return text
+end
 
 function copystuff(subs, sel)
     -- get stuff from line 1
@@ -152,7 +234,7 @@ function copystuff(subs, sel)
 		    if val.class=="checkbox" and not val.label:match("%[ ") and val.x==0 then val.value=true end
 		end
 	    end
-	press,rez=aegisub.dialog.display(copyshit,{"Copy","Check All Tags","Paste Saved","Cancel"},{ok='Copy',close='Cancel'})
+	press,rez=aegisub.dialog.display(copyshit,{"Copy","Check All Tags","Paste Saved","[Un]hide","Cancel"},{ok='Copy',close='Cancel'})
 	until press~="Check All Tags"
 	if press=="Cancel" then aegisub.cancel() end
 	-- save checked tags
@@ -166,7 +248,7 @@ function copystuff(subs, sel)
 	if press=="Paste Saved" then kopytags=savedkopytags copytfs=savedcopytfs sn=1
 	csstyle=savedstyle csst=savedt1 cset=savedt2 cstext=savedtext
 	rez.css=savedcss rez.chks=savedchks rez.chke=savedchke rez.tkst=savedtkst
-	else sn=2 
+	elseif press=="Copy" then sn=2 
 	savedkopytags=kopytags
 	savedcopytfs=copytfs
 	savedt1=csst savedt2=cset savedstyle=csstyle
@@ -175,6 +257,7 @@ function copystuff(subs, sel)
 	end
 
     -- lines 2+
+    if press~="[Un]hide" then
     for i=sn,#sel do
         local line=subs[sel[i]]
         local text=subs[sel[i]].text
@@ -206,6 +289,39 @@ function copystuff(subs, sel)
 	if rez.tkst then text=text:gsub("^({\\[^}]-}).*","%1"..cstext) end
 	line.text=text
 	subs[sel[i]]=line
+    end
+    else
+	txt=rine.text
+	    -- unhide
+	    if kopytags=="" then 
+		uncom={}
+		wai=0
+		for com in txt:gmatch("{//([^}]+)}") do
+		    table.insert(uncom,{x=0,y=wai,class="checkbox",label=com,name=com,value=false}) wai=wai+1
+		end
+		if #uncom<=1 then 
+		    txt=txt:gsub("^(.*){//([^}]+})","{\\%2%1")
+		    txt=txt:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%2%1}")
+		else
+		    pss,rz=aegisub.dialog.display(uncom,{"OK","Cancel"},{ok='OK',close='Cancel'})
+		    if pss=="Cancel" then aegisub.cancel() end
+		    for key,val in ipairs(uncom) do
+			enam=esc(val.name)
+			if rz[val.name]==true then 
+			    txt=txt:gsub("^(.*){//("..enam..")}","{\\%2}%1")
+			    txt=txt:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%2%1}")
+			end
+		    end
+		end
+	    -- hide
+	    else
+		ekopytags=esc(kopytags)
+		for tg in ekopytags:gmatch("\\[^\\}]+") do txt=txt:gsub(tg,"") end
+		for tg in kopytags:gmatch("\\([^\\}]+)") do txt=txt.."{//"..tg.."}" end
+		txt=txt:gsub("{}","")
+	    end
+	rine.text=txt
+	subs[sel[1]]=rine
     end
     trnsfrm=nil
 end
@@ -270,10 +386,9 @@ function copyclip(subs, sel)
 	      if not text:match("\\i?clip") then text=addtag("\\clip()",text) end
 	      
 		-- calculations
-		if xc~=0 and yc~=0 then factor=x-1
+		if xc~=0 or yc~=0 then factor=x-1
 		    klip=klipstart:gsub("([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)",
 		    function(a,b,c,d) return a+xc*factor.. "," ..b+yc*factor.. "," ..c+xc*factor.. "," ..d+yc*factor end)
-		    
 		    if klipstart:match("m [%d%a%s%-]+") then
 		    klip=klipstart:match("m ([%d%a%s%-]+)")
 		    klip2=klip:gsub("([%d%-]+)%s([%d%-]+)",function(a,b) return a+xc*factor.." "..b+yc*factor end)
@@ -518,6 +633,21 @@ function extrakill(text)
 	text=text:gsub("(\\pos[^\\}]+)([^}]-)(\\move[^\\}]+)","%3%2")
 	text=text:gsub("(\\move[^\\}]+)([^}]-)(\\pos[^\\}]+)","%3%2")
 	return text
+end
+
+function esc(str)
+str=str
+:gsub("%%","%%%%")
+:gsub("%(","%%%(")
+:gsub("%)","%%%)")
+:gsub("%[","%%%[")
+:gsub("%]","%%%]")
+:gsub("%.","%%%.")
+:gsub("%*","%%%*")
+:gsub("%-","%%%-")
+:gsub("%+","%%%+")
+:gsub("%?","%%%?")
+return str
 end
 
 function stylechk(subs,stylename)

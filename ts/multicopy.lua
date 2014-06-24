@@ -1,7 +1,9 @@
 ﻿script_name="MultiCopy"
 script_description="Copy tags or text from multiple lines and paste to others"
 script_author="unanimated"
-script_version="2.0"
+script_version="2.01"
+
+-- Use the Help button for info
 
 require "clipboard"
 
@@ -308,12 +310,12 @@ raw=res.dat	raw=raw:gsub("\n","")
       for x, i in ipairs(sel) do
 	line=subs[i]
 	T1l=subs[i].text				T2l=data[x]	if T2l==nil then T2l="" end T2l=T2l:gsub("^%w+:([^%s])","%1")
-	T1=T1l:gsub("{[^}]-}","") :gsub("\\N"," ")	T2=T2l:gsub("{[^}]-}","") :gsub("\\N"," ")
+	T1=T1l:gsub("{[^}]-}","") :gsub(" ?\\N"," ")	T2=T2l:gsub("{[^}]-}","") :gsub(" ?\\N"," ")
 	L1=T1:len()					L2=T2:len()
 	ln=i-z	if ln<10 then ln="00"..ln elseif ln<100 then ln="0"..ln end
 	
 	-- comparing words between current and pasted
-	TC=T1:gsub("[%.,%?!\"—]","") TD=T2:gsub("[%.,%?!\"—]","")	ml=""
+	TC=T1:gsub("[%.,%?!\":;%—]","") TD=T2:gsub("[%.,%?!\":;%—]","")	ml=""
 	for c in TC:gmatch("[%w']+") do
 	    for d in TD:gmatch("[%w']+") do
 		if c:lower()==d:lower() then
@@ -327,9 +329,10 @@ raw=res.dat	raw=raw:gsub("\n","")
 	M1=ml:len()
 	M2=TC:len()	if M2==0 then M2=1 end
 	match1=math.floor((M1*100/M2+0.5))
+	if M1==0 and M2==1 then match1=100 end
 	
 	-- other direction
-	TC=T1:gsub("[%.,%?!\"—]","") TD=T2:gsub("[%.,%?!\"—]","")	mr=""
+	TC=T1:gsub("[%.,%?!\":;%—]","") TD=T2:gsub("[%.,%?!\":;%—]","")	mr=""
 	for c in TD:gmatch("[%w']+") do
 	    for d in TC:gmatch("[%w']+") do
 		if c:lower()==d:lower() then
@@ -343,6 +346,7 @@ raw=res.dat	raw=raw:gsub("\n","")
 	M1=mr:len()
 	M2=TD:len()	if M2==0 then M2=1 end
 	match2=math.floor((M1*100/M2+0.5))
+	if M1==0 and M2==1 then match2=100 end
 	
 	if match1>match2 then match=match1 othermatch=match2 ma=ml else match=match2 othermatch=match1 ma=mr end
 	pasterep=pasterep..ln.."	"..match.."%	"..ma.."\n"

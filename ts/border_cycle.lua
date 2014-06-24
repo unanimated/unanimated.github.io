@@ -3,7 +3,7 @@
 script_name="Border cycle"
 script_description="Add border tags to selected lines."
 script_author="unanimated"
-script_version="1.6"
+script_version="1.61"
 
 sequence={"0","1","2","3","4","5","6","7","8","9"}	-- you can modify this
 
@@ -18,7 +18,8 @@ function bord(subs, sel)
 		    for t in tags:gmatch("(\\t%([^%(%)]-%))") do tf=tf..t end
 		    for t in tags:gmatch("(\\t%([^%(%)]-%([^%)]-%)[^%)]-%))","") do tf=tf..t end
 		    tags=tags:gsub("\\t%([^%(%)]+%)","")
-		    tags=tags:gsub("\\t%([^%(%)]-%([^%)]-%)[^%)]-%)","")
+		    :gsub("\\t%([^%(%)]-%([^%)]-%)[^%)]-%)","")
+		    :gsub("{}","")
 		    text=tags..after
 		end
 	    end

@@ -1,7 +1,7 @@
 ﻿script_name="HYDRA"
 script_description="A multi-headed typesetting tool"
 script_author="unanimated"
-script_version="3.57"
+script_version="3.58"
 
 -- SETTINGS - feel free to change these
 
@@ -96,7 +96,7 @@ function hh9(subs, sel)
 	-- temporarily remove transforms
 	if text:match("\\t") then
 	text=text:gsub("^({\\[^}]-})",function(tg) return trem(tg) end)
-	if text:match("^{}") then text=text:gsub("^{}","{\\}")  end
+	if text:match("^{}") then text=text:gsub("^{}","{\\hydra}")  end
 	end
 	
 	tags=""
