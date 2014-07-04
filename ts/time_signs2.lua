@@ -4,14 +4,15 @@
 script_name="Time signs from timecodes"
 script_description="Rough-times signs from TS timecodes"
 script_author="unanimated"
-script_version="2.4"
+script_version="2.5"
 
 function signtime(subs, sel)
     for i=#sel,1,-1 do
 	line=subs[sel[i]]
 	text=line.text
 	-- format timecodes
-	text=text:gsub("^(%d%d%d%d)%s%s*","{TS %1}")		-- ^1234  text
+	text=text
+	:gsub("^(%d%d%d%d)%s%s*","{TS %1}")			-- ^1234  text
 	:gsub("(%d%d)ish","%1")				-- 1:23ish
 	:gsub("^([%d%s:,%-]+)","{%1}")				-- ^1:23, 2:34, 4:56
 	:gsub("^(%d%d?:%d%d)%s%-%s","{TS %1}")			-- ^12?:34 -
@@ -24,6 +25,9 @@ function signtime(subs, sel)
 	:gsub("{TS%s([^%d\\}]+)%s(%d%d?:%d%d)","{TS %2 %1")	-- {TS comment 12:34}
 	:gsub(":%s?}","}")					-- {TS 12:34: }
 	:gsub("|","\\N")
+	tc=text:match("^{[^}]-}")
+	tc=tc:gsub("(%d%d)(%d%d)","%1:%2")
+	text=text:gsub("^{[^}]-}%s*",tc)
 	line.text=text
 
 	tstags=text:match("{TS[^}]-}")
@@ -74,6 +78,7 @@ function signtime(subs, sel)
 			end
 		end
 	    end
+	    line.text=line.text:gsub("{TS[^}]-}","{TS "..tim.."}")
 	    subs.insert(sel[i]+1,line)
 	    if t>1 then table.insert(sel,sel[#sel]+1) end
 	end
@@ -97,11 +102,11 @@ dialog_config=
     {x=0,y=0,width=4,height=1,class="label",label="Check this if all your timecodes are too late or early:", },
     {x=0,y=1,width=1,height=1,class="checkbox",name="shift",label="Shift timecodes by ",value=false },
     {x=1,y=1,width=2,height=1,class="intedit",name="secs",value=-10,hint="Negative=backward / positive=forward" },
-    {x=3,y=1,width=1,height=1,class="label",label=" seconds", },
-    {x=0,y=2,width=4,height=1,class="checkbox",name="copy",label="For lines without timecodes, copy them from the previous line",value=false},
+    {x=3,y=1,width=1,height=1,class="label",label=" sec.", },
+    {x=0,y=2,width=4,height=1,class="checkbox",name="copy",label="For lines without timecodes, copy from the previous line",value=false},
     {x=0,y=3,width=2,height=1,class="checkbox",name="snap",label="Snapping to keyframes:",value=true },
-    {x=0,y=4,width=2,height=1,class="label",label="Number of frames to search back", },
-    {x=0,y=5,width=2,height=1,class="label",label="Number of frames to search forward", },
+    {x=0,y=4,width=2,height=1,class="label",label="Frames to search back:", },
+    {x=0,y=5,width=2,height=1,class="label",label="Frames to search forward:", },
     {x=2,y=4,width=2,height=1,class="intedit",name="kfs",value="24",step=1,min=1,max=250 },	-- default search back [24]
     {x=2,y=5,width=2,height=1,class="intedit",name="kfe",value="24",step=1,min=1,max=250 },	-- default search forward [24]
 }

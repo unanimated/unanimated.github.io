@@ -617,7 +617,7 @@ function fadeconfig(subs, sel)
 	    {x=5,y=5,width=1,height=1,class="checkbox",name="del",label="Delete",value=false,hint="delete letter-by-letter"},
 	    
 	    {x=0,y=6,width=4,height=1,class="checkbox",name="ko",label="Letter by letter using \\ko",value=false},
-	    {x=4,y=6,width=4,height=1,class="checkbox",name="word",label="\\ko by word",value=false},
+	    {x=4,y=6,width=2,height=1,class="checkbox",name="word",label="\\ko by word",value=false},
 	    
 	    {x=0,y=7,width=4,height=1,class="checkbox",name="mult",label="Fade across multiple lines",value=false},
 	    {x=4,y=7,width=2,height=1,class="checkbox",name="time",label="Global time",value=false},
@@ -626,11 +626,11 @@ function fadeconfig(subs, sel)
 	    {x=3,y=8,width=3,height=1,class="checkbox",name="vout",label="out from current frame",value=false},
 	} 	
 	pressed, res=aegisub.dialog.display(dialog_config,{"Apply Fade", "Letter by Letter","Cancel"},{ok='Apply Fade',cancel='Cancel'})
-	if pressed=="Apply Fade" then 
-		if res.alf or res.blur or res.clr or res.crl then fadalpha(subs, sel)
-		elseif res.mult then fadeacross(subs, sel)
+	if pressed=="Apply Fade" then
+		if res.alf or res.blur or res.clr or res.crl then fadalpha(subs,sel)
+		elseif res.mult then fadeacross(subs,sel)
 		elseif res.vin or res.vout then vfade(subs,sel)
-		else fade(subs, sel) end 
+		else fade(subs,sel) end
 	end
 	if pressed=="Letter by Letter" then if res.ko or res.word then koko_da(subs, sel) else fade(subs, sel) end end
 	lastin=res.fadein		lastout=res.fadeout

@@ -1,20 +1,19 @@
-<html><head><title>unanimated's Aegisub scripts - list of functions</title>
+﻿<html><head><title>unanimated's Aegisub scripts - list of functions</title>
+<meta charset="utf-8">
+<link rel="stylesheet" href="ts.css" type="text/css" />
 <style>
-td {font-family:Verdana; font-size:12; text-align:justify; color:606366}
-pre {font-family:Verdana; font-size:12; text-align:justify}
-a {font-weight:bold; text-decoration:none; color:667788}
+td {color:606366}
+a {color:667788}
 b {font-weight:bold; color:556677}
-A:hover {color:e0e3e6}
 </style></head>
 
-<body bgcolor=000000 topmargin=0>
-<center><br>
+<body topmargin=0><center><br>
 <table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=800>
-<tr><td bgcolor=000000>
+<tr><td>
 <b><font size=5 color=445566>list of functions of unanimated's <a href="scripts-unanimated.htm">Aegisub scripts</a></font><br><br>
 aka "Is there a script that does ......?"</b> (All scripts include detailed descriptions.)
 </td></tr>
-<tr><td bgcolor=000000>
+<tr><td>
 
 <pre>
 <b>HYDRA</b>
@@ -116,6 +115,7 @@ remove linebreaks
 multiply values of tags
 add to or subtract from values of tags
 resize clips / drawings
+shift karaoke (by changing value for the first \k tag in line)
 
 
 <b>Selectricks</b>
@@ -137,6 +137,8 @@ copy from / paste to selected lines:
 	initial tags, text after tags, both, clip, pos, blur, bord, colours, alpha, fscx, fscy, layer, duration, actor, effect
 export a crunchyroll script for pad
 paste over with check for errors
+paste over from irc (automatically removes timecodes and nicknames)
+paste over for lines with GBC (keeps the tag before last character so you can just rerun GBC after that)
 paste the same tags / text to multiple lines
 paste over of selected fields (layer, effect, text...)
 copy from one column (layer, effect, text...) to another
@@ -162,6 +164,7 @@ make text appear letter by letter or word by word using \ko
 create a fade across multiple lines
 set fades as fractions of duration
 set negative fades (counting from the other end of the line)
+set fade in/out to current video frame
 
 
 <b>Change Capitalization</b>
@@ -187,6 +190,7 @@ add a list of comments line by line
 uncomment commented text (nuke { })
 switch commented / visible text
 fake capitalisation of uppercase text using higher \fs for the first letter of each word
+format dates to one of 4 patterns: "January 1", "January 1st", "1st of January", "1st January"
 transform kara tags (\k, \kf, \ko) into alpha transforms (FF->00)
 comment honorifics
 convert framerate
