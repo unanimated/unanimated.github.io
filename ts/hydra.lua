@@ -1,7 +1,9 @@
 ﻿script_name="HYDRA"
 script_description="A multi-headed typesetting tool"
 script_author="unanimated"
-script_version="3.58"
+script_url1="http://unanimated.xtreemhost.com/ts/hydra.lua"
+script_url2="https://raw.githubusercontent.com/unanimated/luaegisub/master/hydra.lua"
+script_version="3.8"
 
 -- SETTINGS - feel free to change these
 
@@ -14,14 +16,37 @@ default_spacing=1
 default_fax=0.05
 default_fay=0.05
 
+-- ^ this block (with '=' replaced with ':') can be saved as 'hydra.conf' in your Application Data with values that will override these
+-- it must contain all 8 lines. you can use that if you don't want to overwrite these every time you update
+-- you can also get the default here: http://unanimated.xtreemhost.com/ts/hydra.conf
+
 -- this is the order "sort tags in set order" will use:
 order="\\r\\fad\\fade\\an\\q\\blur\\be\\bord\\shad\\fn\\fs\\fsp\\fscx\\fscy\\frx\\fry\\frz\\c\\2c\\3c\\4c\\alpha\\1a\\2a\\3a\\4a\\xbord\\ybord\\xshad\\yshad\\pos\\move\\org\\clip\\iclip\\b\\i\\u\\s\\p"
 
 -- END of SETTINGS
 
+function checkonfig()
+hconfig=aegisub.decode_path("?user").."\\hydra.conf"
+file=io.open(hconfig)
+    if file~=nil then
+	konf=file:read("*all")
+	startup_mode=tonumber(konf:match("startup_mode:(%d)"))
+	default_blur=tonumber(konf:match("default_blur:([%d%.]+)"))
+	default_border=tonumber(konf:match("default_border:([%d%.]+)"))
+	default_shadow=tonumber(konf:match("default_shadow:([%d%.]+)"))
+	default_fontsize=tonumber(konf:match("default_fontsize:([%d%.]+)"))
+	default_spacing=tonumber(konf:match("default_spacing:([%d%-%.]+)"))
+	default_fax=tonumber(konf:match("default_fax:([%d%-%.]+)"))
+	default_fay=tonumber(konf:match("default_fay:([%d%-%.]+)"))
+	io.close(file)
+    end
+end
+    
+re=require'aegisub.re'
+
 function hh9(subs, sel)
 	-- get colours from input
-	    getcolours()
+	getcolours()
 	
     for z, i in ipairs(sel) do
     cancelled=aegisub.progress.is_cancelled()
@@ -67,7 +92,6 @@ function hh9(subs, sel)
 	if tmode==3 then
 	    text=text:gsub("(\\t%([^%)]+)%)","%1alltagsgohere)")
 	end
-	
 	if tmode==1 then
 	  if text:match("^{[^}]-\\t%(\\") and tin==0 and tout==0 and res.accel==1 then
 	    text=text:gsub("^({[^}]*\\t%()\\","%1\\alltagsgohere\\")
@@ -78,6 +102,16 @@ function hh9(subs, sel)
 	
 	transform=""
 	transform=gettags(transform)
+	if res.relative then
+	    stags=text:match("^{\\[^}]-}") if stags==nil then stags="" end
+	    for tag,val in transform:gmatch("(\\%a+)([%d%.%-]+)") do
+		if stags:match(tag) then oldval=stags:match(tag.."([%d%.%-]+)")
+		    newval=oldval+val
+		    eval=esc(val)
+		    transform=transform:gsub(tag..eval,tag..newval)
+		end
+	    end
+	end
 	text=text:gsub("\\alltagsgohere",transform)
 	text=text:gsub("\\t%(0,0,1,","\\t(")
 	for tranz in text:gmatch("\\t(%([^%(%)]+%))") do
@@ -122,17 +156,27 @@ function hh9(subs, sel)
 		  until m==lngth	end	--aegisub.log("\n text "..text)
 		text=text:gsub("%*","{"..tags.."}") :gsub("({"..tags.."})({[^}]-})","%2%1") 
 		:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}") :gsub("_ast_","*")
-	    else
-	    -- AT ASTERISK POINT
+	    elseif res.tagpres=="custom pattern" then
 		pl1=esc(pl1)	pl3=esc(pl3)
 		text=text:gsub(pl1.."({\\[^}]-)}"..pl3,pl1.."%1"..tags.."}"..pl3)
 		if bkp==text then text=text:gsub(pl1..pl3,pl1.."{"..tags.."}"..pl3) end
+	    else
+	    -- AT ASTERISK POINT
+		initags=text:match("^{\\[^}]-}") if initags==nil then initags="" end
+		orig=text
+		replace=place:gsub("%*","{"..tags.."}")
+		v1=orig:gsub("{[^}]-}","")
+		v2=replace:gsub("{[^}]-}","")
+		if v1==v2 then
+		  text=textmod(orig,replace)
+		  text=initags..text
+		end
 	    end
 	else
 	-- REGULAR STARTING TAGS
 	    text=text:gsub("^({\\[^}]-)}","%1"..tags.."}")
 	end
-	text=text:gsub("({\\[^}]-})",function(tg) return duplikill(tg) end)
+	text=text:gsub("({%*?\\[^}]-})",function(tg) return duplikill(tg) end)
 	
 	
 	-- bold
@@ -195,7 +239,7 @@ function hh9(subs, sel)
     end
     -- the end
 	
-    text=text:gsub("\\hydra","")	:gsub("{}","")
+    text=text:gsub("\\hydra","")	:gsub("{}","")	:gsub("\\t%(%)","")
     line.text=text
     subs[i]=line
     end
@@ -262,9 +306,9 @@ function special(subs, sel)
         aegisub.progress.title(string.format(res.spec..": %d/%d",#sel-i,#sel))
 	prog=math.floor((#sel-i+0.5)/#sel*100)
  	aegisub.progress.set(prog)
-	local line=subs[sel[i]]
-        local text=subs[sel[i]].text
-	local layer=line.layer
+	line=subs[sel[i]]
+        text=subs[sel[i]].text
+	layer=line.layer
 	text=text:gsub("\\1c","\\c")
 	
 	if text:match("\\fscx") and text:match("\\fscy") then
@@ -285,7 +329,7 @@ function special(subs, sel)
 	    text=text:gsub("(\\[1234]?c&H%x+&)","") :gsub("{}","") 
 	    text=tags.."{"..klrs.."}"..text
 	    text=text:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
-	    text=text:gsub("({\\[^}]-})",function(tg) return duplikill(tg) end)
+	    text=text:gsub("({%*?\\[^}]-})",function(tg) return duplikill(tg) end)
 	end
 	
 	if res.spec=="convert clip <-> iclip" then
@@ -304,7 +348,7 @@ function special(subs, sel)
 		text=text:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
 		until text:match("{(\\[^}]-)}{(\\[^}]-)}")==nil
 	    text=text:gsub("^{(\\[^}]-)\\frx0\\fry0([\\}])","{%1%2")
-	    text=text:gsub("({\\[^}]-})",function(tg) return duplikill(tg) end)
+	    text=text:gsub("({%*?\\[^}]-})",function(tg) return duplikill(tg) end)
 	end
 	
 	-- SORT TAGS
@@ -532,10 +576,7 @@ function selover(subs,sel)
   return sel
 end
 
-function round(num)
-	if num-math.floor(num)>=0.5 then num=math.ceil(num) else num=math.floor(num) end
-	return num
-end
+function round(num) num=math.floor(num+0.5) return num end
 
 function trem(tags)
 	trnsfrm=""
@@ -585,6 +626,52 @@ function duplikill(tagz)
 	end
 	tagz=tagz:gsub("({\\[^}]-)}","%1"..tf.."}")
 	return tagz
+end
+
+function textmod(orig,text)
+    tk={}
+    tg={}
+	text=text:gsub("{\\\\k0}","")
+	repeat text=text:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
+	    until not text:match("{(\\[^}]-)}{(\\[^}]-)}")
+	vis=text:gsub("{[^}]-}","")
+	ltrmatches=re.find(vis,".")
+	  for l=1,#ltrmatches do
+	    table.insert(tk,ltrmatches[l].str)
+	  end
+	stags=text:match("^{(\\[^}]-)}")
+	if stags==nil then stags="" end
+	text=text:gsub("^{\\[^}]-}","") :gsub("{[^\\}]-}","")
+	count=0
+	for seq in orig:gmatch("[^{]-{%*?\\[^}]-}") do
+	    chars,as,tak=seq:match("([^{]-){(%*?)(\\[^}]-)}")
+	    pos=re.find(chars,".")
+	    if pos==nil then ps=0+count else ps=#pos+count end
+	    tgl={p=ps,t=tak,a=as}
+	    table.insert(tg,tgl)
+	    count=ps
+	end
+	count=0
+	for seq in text:gmatch("[^{]-{%*?\\[^}]-}") do
+	    chars,as,tak=seq:match("([^{]-){(%*?)(\\[^}]-)}")
+	    pos=re.find(chars,".")
+	    if pos==nil then ps=0+count else ps=#pos+count end
+	    tgl={p=ps,t=tak,a=as}
+	    table.insert(tg,tgl)
+	    count=ps
+	end
+    newline=""
+    for i=1,#tk do
+	newline=newline..tk[i]
+	newt=""
+	for n, t in ipairs(tg) do
+	    if t.p==i then newt=newt..t.a..t.t end
+	end
+	if newt~="" then newline=newline.."{"..as..newt.."}" end
+    end
+    newtext="{"..stags.."}"..newline
+    text=newtext
+    return text
 end
 
 function esc(str)
@@ -748,6 +835,8 @@ hh3={
     {x=1,y=11,width=2,height=1,class="floatedit",name="accel",value=1 },
     {x=3,y=11,width=2,height=1,class="floatedit",name="int",value=500,hint="interval for 'back and forth transform'"},
     {x=4,y=12,width=1,height=1,class="label",label="^inetrval"},
+    {x=8,y=8,width=2,height=1,class="checkbox",name="relative",label="Relative transform",value=false,
+	hint="Example:\ntag: \\frz30\ninput: 60\nresult: \\t(\\frz90)"},
     
     {x=5,y=8,width=1,height=1,class="checkbox",name="frz1",label="\\frz",value=false },
     {x=5,y=9,width=1,height=1,class="checkbox",name="frx1",label="\\frx",value=false },
@@ -766,7 +855,7 @@ hh3={
     
     {x=0,y=13,width=1,height=1,class="label",label="Tag position*:"},
     {x=1,y=13,width=5,height=1,class="edit",name="linetext",value=linetext,hint="Place asterisk where you want the tags"},
-    {x=6,y=13,width=2,height=1,class="dropdown",name="tagpres",items={"--- presets ---","before last char.","in the middle","1/4 of text","3/4 of text","1/8 of text","3/8 of text","5/8 of text","7/8 of text"},value="--- presets ---"},
+    {x=6,y=13,width=2,height=1,class="dropdown",name="tagpres",items={"--- presets ---","before last char.","in the middle","1/4 of text","3/4 of text","1/8 of text","3/8 of text","5/8 of text","7/8 of text","custom pattern"},value="--- presets ---"},
     
     {x=8,y=9,width=2,height=1,class="label",label="Apply to:"},
     {x=8,y=10,width=2,height=1,class="dropdown",name="applay",items=app_lay,value="All Layers"},
@@ -784,26 +873,29 @@ hh3={
 	pressed,res=aegisub.dialog.display(hh_gui,hh_buttons,{ok='Apply',cancel='Cancel'})
 	
 	if pressed=="Load Medium" then aegisub.progress.title(string.format("Loading Heads 4-5"))
+	    for key,val in ipairs(hh_gui) do val.value=res[val.name] end
 	    for i=1,#hh2 do l=hh2[i] table.insert(hh_gui,l) end loaded=2
 	    pressed,res=aegisub.dialog.display(hh_gui,buttons[2],{ok='Apply',cancel='Cancel'})
 	end
 	
 	if pressed=="Load Full" then aegisub.progress.title(string.format("Loading Heads "..(loaded+1)*2 .."-7"))
+	    for key,val in ipairs(hh_gui) do val.value=res[val.name] end
 	    if loaded<2 then  for i=1,#hh2 do l=hh2[i] table.insert(hh_gui,l) end  end
 	    for i=1,#hh3 do l=hh3[i] table.insert(hh_gui,l) end loaded=3
 	    pressed,res=aegisub.dialog.display(hh_gui,buttons[3],{ok='Apply',cancel='Cancel'})
 	end
 	
 	if pressed=="Help" then aegisub.progress.title(string.format("Loading Head 8"))
+	for key,val in ipairs(hh_gui) do val.value=res[val.name] end
 	hhh={x=0,y=14,width=10,height=1,class="dropdown",name="herp",items={"HELP (scroll/click to read)",
 	"Standard mode: check tags, set values, click 'Apply'.",
 	"Transform mode normal: check tags, set values, set t1/t2/accel if needed, click 'Transform'.",
 	"Transform mode add2first: the transforms will be added to the first existing transform in the line.",
 	"Transform mode add2all: the transforms will be added to all existing transforms in the line.",
+	"Relative transform: If you have frz30 and set transform to frz60, you get \\t(\\frz90), or transform BY 60.",
+	"Relative transform: This allows you to keep layers with different frz in sync. (No effect on alpha/colours.)",
 	"Additional tags: type any extra tags you want to add.",
 	"Tag position: This shows the text of your first line. Type * where you want your tags to go.",
-	"Tag position: You can create your won patterns. '*abc' will put tags before every instance of 'abc'.",
-	"Tag position: If other selected lines match the same pattern, it will apply to them too.",
 	"Tag position presets: This places tags in specified positions, proportionally for each selected line.",
 	"Special functions: select a function, click 'Special'.",
 	"Special functions - back and forth transform: select tags, set interval (ms). Missing initial tags are taken from style.",
@@ -814,19 +906,11 @@ hh3={
 	pressed,res=aegisub.dialog.display(hh_gui,{"Apply","Transform","Repeat Last","Special","Cancel"},{ok='Apply',cancel='Cancel'})
 	end
 	
-	--aegisub.log("\n res.alph1 "..res.alph1)
-	--res.alph1=res.alph1:gsub("#(%x%x)(%x%x)(%x%x)(%x%x)","%4")
-	
 	if res.tmode=="normal" then tmode=1 end
 	if res.tmode=="add2first" then tmode=2 end
 	if res.tmode=="add2all" then tmode=3 end
-	if res.tagpres=="in the middle" then fak=0.5 end 
-	if res.tagpres=="1/4 of text" then fak=0.25 end
-	if res.tagpres=="3/4 of text" then fak=0.75 end
-	if res.tagpres=="1/8 of text" then fak=1/8 end
-	if res.tagpres=="3/8 of text" then fak=3/8 end
-	if res.tagpres=="5/8 of text" then fak=5/8 end
-	if res.tagpres=="7/8 of text" then fak=7/8 end
+	if res.tagpres=="in the middle" then fak=0.5 end
+	if res.tagpres:match("of text") then fa,fb=res.tagpres:match("(%d)/(%d)") fak=fa/fb end
 	if res.aonly then res.alfas=true end
 	
 	if pressed=="Apply" then trans=0 hh9(subs, sel) end
@@ -861,6 +945,7 @@ hh3={
 end
 
 function hydra(subs, sel)
+    checkonfig()
     sel=konfig(subs, sel)
     aegisub.set_undo_point(script_name)
     return sel

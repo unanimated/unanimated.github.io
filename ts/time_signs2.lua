@@ -4,7 +4,7 @@
 script_name="Time signs from timecodes"
 script_description="Rough-times signs from TS timecodes"
 script_author="unanimated"
-script_version="2.5"
+script_version="2.51"
 
 function signtime(subs, sel)
     for i=#sel,1,-1 do
@@ -25,7 +25,7 @@ function signtime(subs, sel)
 	:gsub("{TS%s([^%d\\}]+)%s(%d%d?:%d%d)","{TS %2 %1")	-- {TS comment 12:34}
 	:gsub(":%s?}","}")					-- {TS 12:34: }
 	:gsub("|","\\N")
-	tc=text:match("^{[^}]-}")
+	tc=text:match("^{[^}]-}") if tc==nil then tc="" end
 	tc=tc:gsub("(%d%d)(%d%d)","%1:%2")
 	text=text:gsub("^{[^}]-}%s*",tc)
 	line.text=text

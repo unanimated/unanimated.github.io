@@ -2,66 +2,86 @@
 <meta charset="utf-8">
 <style>
 td {font-family:Verdana; font-size:12; text-align:justify}
+a {color:668899; font-weight:bold}
 A:hover {color:e0e3e6}
-
 </style>
 </head>
-<body bgcolor=000000 text=808386 topmargin=0 link=668899 vlink=668899 alink=668899>
-
+<body bgcolor=000000 text=808386 topmargin=0>
 
 <center><br>
-<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=800>
-
+<table bgcolor=101316 cellpadding=15 cellspacing=2 width=860>
+<tr><td bgcolor=000000>
+<center><font size=5 color=446677><b>How to make xvid keyframes</center></td></tr>
 
 <tr><td bgcolor=000000>
-<center><font size=5 color=446677><b>How to make xvid keyframes
-</center></td></tr>
+Things you need:<br><br>
 
-
-<tr><td bgcolor=000000><center>
-by herkz<br><br><br></center>
-
-xvid keyframes are usually more accurate than x264 keyfarmes (which can be off by 1 frame near scene changes). However, they do behave slightly different so it may take a while for you to get used to it. Also, making xvid keyframes is only useful if you have no intention of making a workraw and you just want to time to the premux.
-<br><br>
-Things you need to install:<br><br>
-
-1. <a target="_blank" href="http://downloads.sourceforge.net/project/avisynth2/AviSynth%202.5/AviSynth%202.5.8/Avisynth_258.exe">Avisynth</a>
-<br><br>
-Install this first.
+1. Install <a target="_blank" href="http://downloads.sourceforge.net/project/avisynth2/AviSynth%202.5/AviSynth%202.5.8/Avisynth_258.exe">Avisynth</a>
 <br><br>
 
-2. <a target="_blank" href="SCXvid.dll">SCXviD.dll</a> 
-<br><br>
-Place this is the Avisynth\Plugins folder wherever you just installed it.
-<br><br>
-
+2. <a target="_blank" href="SCXvid.dll">SCXviD.dll</a><br>
 3. <a target="_blank" href="https://code.google.com/p/ffmpegsource/downloads/list">ffms2.dll</a>
 <br><br>
-Copy this from you Aegisub folder and place it in the Avisynth\Plugins folder. The version included with the most recent build of Aegisub 3.0 should also have the most recent version of ffms2.dll.
+Place these in the Avisynth\Plugins folder wherever you just installed it.
 <br><br>
 
-4. <a target="_blank" href="http://akuvian.org/src/avisynth/avs2yuv/avs2yuv.exe">avs2yuv.exe</a> 
+4. <a target="_blank" href="AVSMeter178.zip">AVSMeter</a>
 <br><br>
-If you're lazy like me you can just place this in your C:\Windows folder. If you know what you're doing you can put it in whatever folder and add it to your path. You could also put it in whatever folder you're going to put the batch file from later in.
+Put the exe in a system folder, like C:\Windows.<br>
+If you know what you're doing, you can put it in any folder and add it to your path.<br>
+You could also put it in whatever folder you run the batch from.
 <br><br>
 
 5. <a href="scx.zip">This batch script</a>  (below if you don't want to download it)
 <br><br>
 
-
+<font color=667788>
 @echo off<br>
 echo Making SCXvid keyframes...<br>
 set video=%~1<br>
 set video2=%~n1<br>
-<br>
 echo FFvideosource("%video%") > "%video2%_keyframes.avs"<br>
 echo SCXvid("%video2%_keyframes.log") >> "%video2%_keyframes.avs"<br>
-avs2yuv "%video2%_keyframes.avs" -o NUL<br>
+avsmeter "%video2%_keyframes.avs"<br>
 del "%video2%_keyframes.avs"<br>
 del "%video%.ffindex"<br>
 echo Keyframes complete<br>
 @pause<br><br><br>
+</font>
 
-Copy and paste this into a text file and rename it to keyframes.bat (or whatever.bat that you want). Personally, I place this on my desktop and drag the file I want to make keyframes for to the batch script. Although you can't see the progress, the script will tell you when it's done. It will also delete the files it created and leave you with just the keyframes. You can open these in Aegisub and time to the premux without spending time and hard drive space making a workraw.
-<br><br><br>
+Paste this into a text file and rename the file to keyframes.bat (or whatever.bat you want).<br>
+If you want to have all keyframes in the same folder, change the scxvid line to<br>
+<font color=667788>echo SCXvid("D:\your_path_here\%video2%_keyframes.log") >> "%video2%_keyframes.avs"</font><br>
+You can drag your video file onto the batch script, or you can open cmd.exe in the video's folder and type:<br>
+<font color=667788>keyframes "your_video.mkv"</font><br>
+where keyframes is the name of your batch file and the other thing is your video no matter what the extension.<br>
+You don't need the quotation marks if there's no space in the filename.<br>
+You'll see progress as it encodes. When done, go to "Video - Open Keyframes" in Aegisub and select the .log file.<br>
+If you're in a hurry, you can load it while it's being generated, and it will load whatever's done so far.<br>
+Don't forget to reload it before you time the part that wasn't done before.
+<br><br><hr color=101316><br>
+
+
+
+
+SCXvid keyframe generation script v2.0 (This is supposedly faster, but it doesn't work for me, so feel free to try.)<br>
+<br>
+1. Download standalone SCXvid <a target="_blank" href="https://github.com/soyokaze/SCXvid-standalone/releases">here</a><br>
+2. Download FFmpeg <a target="_blank" href="http://ffmpeg.zeranoe.com/builds/">here</a><br>
+3. Create batch script below:<br>
+<br>
+<font color=667788>
+@echo off<br>
+echo Making SCXvid keyframes...<br>
+set video=%~1<br>
+set video2=%~n1<br>
+ffmpeg -i %video% -f yuv4mpegpipe -vf scale=640:360 -pix_fmt yuv420p -vsync drop - | SCXvid.exe %video2%_keyframes.log<br>
+echo Keyframes complete<br>
+@pause<br>
+</font>
+<br>
+4. Run batch script and call your video file.<br>
+<br>
+Only works with 4:2:0 video, but this shouldn't be a problem 99% of the time.<br>
+
 

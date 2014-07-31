@@ -3,7 +3,7 @@
 script_name="Script Cleanup"
 script_description="Removes unwanted stuff from script"
 script_author="unanimated"
-script_version="2.64"
+script_version="2.71"
 
 dont_delete_empty_tags=false	-- option to not delete {}
 
@@ -145,6 +145,12 @@ function cleanlines(subs,sel)
 	    
 	    if res.allsize then text=text:gsub("\\fs[%d%.]+","") :gsub("\\fs([\\}%)])","%1") :gsub("\\fsc[xy][^\\}%)]*","") end
 	    
+	    if res.inline then 
+		tags=text:match("^{\\[^}]-}") if tags==nil then tags="" end
+		text=text:gsub("{%*?\\[^}]-}","")
+		text=tags..text
+	    end
+	    
 	    
 	if res.alphacol then
 	    text=text
@@ -254,49 +260,55 @@ end
 -- kill everything
 function killemall(subs,sel)
     for x, i in ipairs(sel) do
-      local line=subs[i]
-      local text=subs[i].text
-	if res.border then text=killtag("bord",text) text=killtag("xbord",text) text=killtag("ybord",text) end
-	if res.shadow then text=killtag("shad",text) text=killtag("xshad",text) text=killtag("yshad",text) end
-	if res.blur then text=killtag("blur",text) end
-	if res.bee then text=killtag("be",text) end
-	if res.fsize then text=killtag("fs",text) end
-	if res.fspace then text=killtag("fsp",text) end
-	if res.scalex then text=killtag("fscx",text) end
-	if res.scaley then text=killtag("fscy",text) end
-	if res.fade then text=text:gsub("\\fad%([%d%.%,]-%)","")	:gsub("\\fade%([%d%.%,]-%)","") end
-	if res.posi then text=text:gsub("\\pos%([%d%.%,%-]-%)","") end
-	if res.move then text=text:gsub("\\move%([%d%.%,%-]-%)","") end
-	if res.org then text=text:gsub("\\org%([%d%.%,%-]-%)","") end
-	if res.color1 then text=killctag("c",text) text=killctag("1c",text) end
-	if res.color2 then text=killctag("2c",text) end
-	if res.color3 then text=killctag("3c",text) end
-	if res.color4 then text=killctag("4c",text) end
-	if res.alfa1 then text=killctag("1a",text) end
-	if res.alfa2 then text=killctag("2a",text) end
-	if res.alfa3 then text=killctag("3a",text) end
-	if res.alfa4 then text=killctag("4a",text) end
-	if res.alpha then text=killctag("alpha",text) end
-	if res.clip then text=text:gsub("\\i?clip%([%w%,%.%s%-]-%)","") end
-	if res.fname then text=text:gsub("\\fn[^\\}]+","") end
-	if res.frz then text=killtag("frz",text) end
-	if res.frx then text=killtag("frx",text) end
-	if res.fry then text=killtag("fry",text) end
-	if res.fax then text=killtag("fax",text) end
-	if res.fay then text=killtag("fay",text) end
-	if res.anna then text=killtag("an",text) end
-	if res.align then text=killtag("a",text) end
-	if res["return"] then text=text:gsub("\\r.+([\\}])","%1") end
-	if res.kara then text=text:gsub("\\k[fo]?[%d%.]+([\\}])","%1") end
-	if res.ital then text=text:gsub("\\i[01]?([\\}])","%1") end
-	if res.bold then text=text:gsub("\\b[01]?([\\}])","%1") end
-	if res.trans then text=text:gsub("\\t%([^%(%)]-%)","") text=text:gsub("\\t%([^%(%)]-%([^%)]-%)[^%)]-%)","") end
-	text=text:gsub("\\t%(%)","")
-	text=text:gsub("\\t%([%d,]+%)","")
-	text=text:gsub("{%**}","")
-	line.text=text
-        subs[i]=line
-	aegisub.progress.title(string.format("Processing line: %d/%d",x,#sel))
+      line=subs[i]
+      text=line.text
+      eff=line.effect
+      tags=text:match("^{\\[^}]-}") if tags==nil then tags="" end
+      inline=text:gsub("^{\\[^}]-}","")
+      if eff=="start" then trgt=tags tg=1 elseif eff=="inline" then trgt=inline tg=2 else trgt=text tg=3 end
+	if res.border then trgt=killtag("bord",trgt) trgt=killtag("xbord",trgt) trgt=killtag("ybord",trgt) end
+	if res.shadow then trgt=killtag("shad",trgt) trgt=killtag("xshad",trgt) trgt=killtag("yshad",trgt) end
+	if res.blur then trgt=killtag("blur",trgt) end
+	if res.bee then trgt=killtag("be",trgt) end
+	if res.fsize then trgt=killtag("fs",trgt) end
+	if res.fspace then trgt=killtag("fsp",trgt) end
+	if res.scalex then trgt=killtag("fscx",trgt) end
+	if res.scaley then trgt=killtag("fscy",trgt) end
+	if res.fade then trgt=trgt:gsub("\\fad%([%d%.%,]-%)","")	:gsub("\\fade%([%d%.%,]-%)","") end
+	if res.posi then trgt=trgt:gsub("\\pos%([%d%.%,%-]-%)","") end
+	if res.move then trgt=trgt:gsub("\\move%([%d%.%,%-]-%)","") end
+	if res.org then trgt=trgt:gsub("\\org%([%d%.%,%-]-%)","") end
+	if res.color1 then trgt=killctag("c",trgt) trgt=killctag("1c",trgt) end
+	if res.color2 then trgt=killctag("2c",trgt) end
+	if res.color3 then trgt=killctag("3c",trgt) end
+	if res.color4 then trgt=killctag("4c",trgt) end
+	if res.alfa1 then trgt=killctag("1a",trgt) end
+	if res.alfa2 then trgt=killctag("2a",trgt) end
+	if res.alfa3 then trgt=killctag("3a",trgt) end
+	if res.alfa4 then trgt=killctag("4a",trgt) end
+	if res.alpha then trgt=killctag("alpha",trgt) end
+	if res.clip then trgt=trgt:gsub("\\i?clip%([%w%,%.%s%-]-%)","") end
+	if res.fname then trgt=trgt:gsub("\\fn[^\\}]+","") end
+	if res.frz then trgt=killtag("frz",trgt) end
+	if res.frx then trgt=killtag("frx",trgt) end
+	if res.fry then trgt=killtag("fry",trgt) end
+	if res.fax then trgt=killtag("fax",trgt) end
+	if res.fay then trgt=killtag("fay",trgt) end
+	if res.anna then trgt=killtag("an",trgt) end
+	if res.align then trgt=killtag("a",trgt) end
+	if res["return"] then trgt=trgt:gsub("\\r.+([\\}])","%1") end
+	if res.kara then trgt=trgt:gsub("\\k[fo]?[%d%.]+([\\}])","%1") end
+	if res.ital then trgt=trgt:gsub("\\i[01]?([\\}])","%1") end
+	if res.bold then trgt=trgt:gsub("\\b[01]?([\\}])","%1") end
+	if res.trans then trgt=trgt:gsub("\\t%([^%(%)]-%)","") trgt=trgt:gsub("\\t%([^%(%)]-%([^%)]-%)[^%)]-%)","") end
+      trgt=trgt:gsub("\\t%(%)","")
+      trgt=trgt:gsub("\\t%([%d,]+%)","")
+      trgt=trgt:gsub("{%**}","")
+      if tg==1 then tags=trgt elseif tg==2 then inline=trgt elseif tg==3 then text=trgt end
+      if trgt~=text then text=tags..inline end
+      line.text=text
+      subs[i]=line
+      aegisub.progress.title(string.format("Processing line: %d/%d",x,#sel))
     end
 end
 
@@ -363,7 +375,7 @@ cleanup_cfg=
 {x=2,y=2,width=1,height=1,class="checkbox",name="allrot",label="Remove all rotations",value=false},
 {x=2,y=3,width=1,height=1,class="checkbox",name="allpers",label="Remove all perspective",value=false},
 {x=2,y=4,width=1,height=1,class="checkbox",name="allsize",label="Remove size/scaling",value=false},
-
+{x=2,y=5,width=1,height=1,class="checkbox",name="inline",label="Remove inline tags",value=false},
 {x=2,y=6,width=1,height=1,class="checkbox",name="nostyle",label="Delete unused styles",value=false},
 {x=2,y=7,width=1,height=1,class="checkbox",name="nostyle2",label="Delete unused styles (leave Default)",value=false},
 {x=2,y=8,width=1,height=1,class="checkbox",name="nobreak2",label="Remove linebreaks  - \\N (nospace)",value=false},  

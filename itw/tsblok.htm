@@ -1,27 +1,315 @@
 ﻿<html><head><title>ITW - Typesetting Blog?!</title>
 <meta charset="utf-8">
 <style>
-td {font-family:Verdana; font-size:12; text-align:justify}
+td {font-family:Verdana; font-size:12; text-align:justify; color:405060}
 a {font-weight:bold; text-decoration:none; color:556677}
 A:hover {color:778899}
 h2 {color:445566}
 h4 {font-size:11; color:223344}
+pre {color:406050}
+.l {font-family:Tahoma; font-size:10; color:203040}
 </style></head>
 
-<body bgcolor=000000 text=405060 topmargin=0>
+<body bgcolor=000000 topmargin=0>
 
 <center><br>
-<table align=center bgcolor=000000 cellpadding=15 cellspacing=2 width=834>
+<table align=center bgcolor=000000 cellpadding=8 cellspacing=2 width=834>
 
 <tr><td bgcolor=000000>
 <center><b><font size=6 color=445566>wtf a Typesetting Blog?!</font><br><br>
-IRC: <a href="irc://irc.rizon.net/irrational-typesetting-wizardry">#irrational-typesetting-wizardry</a>
+IRC: <a href="irc://irc.rizon.net/irrational-typesetting-wizardry">#irrational-typesetting-wizardry</a><br><br>
+</td><td rowspan=2 valign=top>
+<b class=l>posts:</b><br><br>
+<a class=l href="#import">import </a><br>
+<a class=l href="#mask2">mask2 </a><br>
+<a class=l href="#hydra2">hydra2 </a><br>
+<a class=l href="#fax">fax </a><br>
+<a class=l href="#mask1">mask1 </a><br>
+<a class=l href="#hydra1">hydra1 </a><br>
+<a class=l href="#selectrix">slctrx </a><br>
+<a class=l href="#timing">timing </a><br>
+<a class=l href="#origin">origin </a><br>
+<a class=l href="#grid">grid </a>
 </td></tr>
 
-<tr><td bgcolor=000000>
-<br><br>
+<tr><td bgcolor=000000><br>
 
 
+<a name="import"></a>
+<h2>An "Unimportant" But Versatile Script</h2>
+<h4>2014-07-04</h4><br>
+This script ironically called <a href="import.lua">Unimportant</a> has probably escaped almost everyone's attention because they falsely believe it's actually unimportant (or because they can't be bothered reading the instructions). It is, however, my second largest script (after Relocator) and has plenty of useful functions. Unlike most others, this one doesn't focus on anything specific, but rather has everything that didn't fit into the other ones.<br><br>
+
+It may look complicated at first glance, but it really isn't. It consists of seven main parts.
+<br><br><br>
+<img src="unimport.png"><br><br>
+1. The large empty area which gets used by a number of functions.<br>
+2. The Import/Export part on the right (just the dropdown and 2 checkboxes) + Import/Export button<br>
+3. The Chapters part (3 dropdowns and a checkbox) + Chapters button<br>
+4. The Numbers part (3 dropdowns and uses bottom part)<br>
+5. The Stuff part (Stuff dropdown + uses Marker dropdow and bottom part)<br>
+6. The bottom part - Left/Right/Mod fields<br>
+7. Help menu + Help button<br>
+<br>
+
+Help is simple. You select one of the options and click Help, and you get a guide for all the functions. What I'm writing here is something like an extended guide with images and examples.<br><br>
+
+One extra thing is the Info button. With it you can get all kinds of information about the script, selection, and active line.
+<br><br><br>
+<img src="uninfo.png"><br><br>
+The top part is pretty clear. Combined length vs duration is the selected lines with and without the times between them.<br><br>
+
+The middle part is about the active line and its default style values. The most helpful thing here is the default position, as in position without a \pos tag present.<br><br><br>
+
+
+At the top of the lua script, there are some settings you can change, like default values for the GUI, and paths for use with some functions. (We'll get to that in a bit.)<br><br><br><br>
+
+
+<b>IMPORT/EXPORT</b><br><br>
+
+This is a powerful tool, very similar to lyger's templater, but without the complex GUI.<br><br>
+
+<b>Export</b><br><br>
+
+First, how to export a sign.<br>
+<br><img src="masktest1.png"><br><br>
+Here's a sign in 3 layers, with a mask on the bottom layer. It has "mask test" in the effect field. This is the marker by which the sign is recognized, or in other words, the name of the sign. The "x" in actor field for the mask marks a line that shouldn't be changed in any way. (Later about that.)<br>
+You can easily save/export this whole sign. Just select "export sign" and click the Import/Export button.<br>
+
+<br><img src="unexport.png"><br><br>
+
+Here you have 2 options. Add the sign to "signs.ass" or create a new file. I recommend just using signs.ass. The sings are distinguished from one another by the name in the effect field, so there's no need to make more files. Also having just signs.ass makes importing easier.<br>
+If you decide to create a new file anyway, the text field is where you set the filename.<br><br>
+
+As for where this is saved, that depends on your settings. By default, signs.ass will be created in the script folder. This in my case creates a "signs.ass" for each show. This is what you have in settings:<br>
+<pre>
+script_path="relative"
+relative_path=""
+absolute_path="D:\\typesetting\\"
+</pre>
+If you want an absolute path, change script_path to "absolute" and "D:\\typesetting\\" to whatever you want. Remember to use double backslashes and include (a double) one at the end.<br>
+Assuming you want to have a fixed path, you will have a "signs.ass" for all shows, so you may wanna have a "show - sign" pattern in the effect field. Or you can make a file for each sign, but you can't have more than 1 sign in anything other than "signs.ass".<br>
+If you want a different relative path, for example you have a folder for each episode, but you want the signs in the show folder, you set relative_path to "..\\", which is one folder up from where your script is.<br><br>
+
+So to export a sign, select all the lines that belong to the sign, set the name in the effect field, select "export sign", and just add it to "signs.ass".<br>
+It doesn't matter how many lines the sign has. There should be no problem with a 1000-line gradient or even mocha'd signs. Mocha'd signs will get shifted to your current line's start time, keeping the timing sequence.<br><br><br>
+
+
+<b>Import</b><br><br>
+
+To import a sign, with default settings just open Unimportant and hit Enter. The default option "import signs" works with "signs.ass". If you want another file, use "import sign", as in singular. Enter is bound to the Import/Export button, so this is simple.
+
+<br><br><img src="unimportsigns.png"><br><br>
+
+Import only works on the active line. Select the sign you need. (The list is a list of all signs found in "signs.ass".)<br>
+In the most common case, you want to set the the timecodes to your current line, as is checked by default.<br>
+You do not want this with mocha signs, so uncheck for those.<br>
+With these default settings when you click OK, you get this:
+
+<br><br><img src="imported1.png"><br><br>
+
+The active line is commented, and the sign is imported as is, except the times are set to the current line.<br>
+Without that checkbox, the first line's start time gets shifted to the active line's start time, and everything else gets shifted accordingly (mocha etc.).<br><br>
+
+The other most common option is that you want the new line(s) say "New Sign" instead of "this is a test", so you check "keep current line's text", and you get this:
+
+<br><br><img src="imported2.png"><br><br>
+
+The text has been replaced, except for the mask because you have "x" in the actor field.<br>
+If you want to change some tags, you set the tags in the current line and check "combine tags (current overrides)".
+
+<br><br><img src="imported3.png"><br><br>
+
+You can see blur0.6 was overridden by blur0.8, but again, not for the mask. (Note: actor must equal "x", not just contain it.)<br><br>
+
+The other combine option will basically only take tags from the current line that don't exist in the saved sign. So blur would be ignored, but for example \shad would be added because it doesn't exist in the saved line.<br>
+<br>
+"don't shift times (import as is)" - This is rarely useful, but when I worked on Noucome with other people, I imported their typesetting with this. It's pretty much copypasting the whole file, but I didn't feel like opening the file and selecting 5000 lines, so I used "import sign" and typed the filename.<br><br>
+
+As a side note here, it doesn't matter if the file with the signs has headers and stuff. Everything before the first "Dialogue:" is ignored.<br><br>
+
+"delete 'effect'" of course clears the effect field for the imported lines.<br><br>
+
+"delete original line" deletes the current line instead of just commenting it.<br><br>
+
+<br><br><img src="importsign.png"><br><br>
+If you want to use "import sign" instead, there's just one difference. Instead of the effect field, it's the filename that works as the name of the sign. The "custom" option is the default, and you type the filename (no need for extension), and there are several presets, like "title" which would look for "title.ass".<br><br><br>
+
+Import OP/ED are pretty much presets for "import sign", but without the other options because that would make no sense. You don't wanna change the text or mess with the times, so you have OP.ass saved, and it just gets shifted to the start time of the current line. To make this work right, your saved OP should have the first line timed to the first frame of the OP (and the current line should be timed to the first OP frame).<br><br><br>
+
+
+<b>Update Lyrics</b><br><br>
+
+Know the feeling when you need to update OP/ED lyrics, and you're dealing with a mess like this?
+
+<br><br><img src="lyrics1.png"><br><br>
+
+That's why I wrote this script. All you need is to have the lines numbered, something like you see here.<br>
+No matter how many layers the first line has, it's still line 01. Whatever has the text of the first line of lyrics is line 01, even if it's mocha'd over 600 lines. The other thing you may need is to distinguish between Romaji and English.<br>
+It's best to number the lines before styling the song, as whatever operations you do during styling, the numbers just follow their lines. But if you forget, you can use the Numbers section of Unimportant to do the numbering. (More on that later.)<br><br>
+
+So what now? Open Unimportant and select "update lyrics". Paste lyrics into the large area.<br>
+I just used a short part and changed some lines randomly here.<br>
+<br><br><img src="lyrics2.png"><br><br>
+
+Important note: I'm updating English, so I need to set the pattern here:
+
+<br><br><img src="lyrics4.png"><br><br>
+
+The pattern is "Left[numbers]Right".<br>
+I'm using "e[numbers]" and "j[numbers]", so for English it's "e" in Left and nothing in Right, and for Romaji it's "j" in Left.<br>
+You could have numbering like "rom-01-OP", so you'd need "rom-" in Left and "-OP" in Right.<br>
+Of course if you manage to select only the relevant lines, you only need numbers and no markers.<br><br>
+
+Now you run the script...
+
+<br><br><img src="lyrics3.png"><br><br>
+
+...and you get a log with what exactly happened. This makes it easy to see if there was some mismatch.<br>
+Lines with "(Changed)" are the ones that got updated, so you can see what did and what didn't.<br>
+Whatever you paste in to the large area gets numbered by lines, and these numbers get matched up with the ones in the effect field. (You can also use actor field if you set the Marker to it.)<br><br>
+
+If the lines have gradient by character, the tag before the last letter is saved and placed before the last letter of the new line. (So you just need to rerun gbc.)<br><br>
+
+So this makes lyrics updating much faster than ctrl+h, especially with crazy styling and hundreds of lines. Obviously this doesn't work for karaoke, but karaoke is lame, so we don't care about it.<br><br><br><br>
+
+
+
+<b>NUMBERS</b><br><br>
+
+Numbering lines can be pretty useful when you need to apply different effects to different sets of lines, like we just saw with updating lyrics. You can number lines using the effect, actor, or layer. You set this in the Marker dropdown menu. (Layer is not very useful, but it was easy to add it, and there are surprisingly many people who always request weird things.)<br><br>
+
+There are several options for numbering. The obvious default choice is from 1 up.<br>
+The modifications are:<br>
+• You can start from any number<br>
+• You can repeat each number X times<br>
+• You can set a limit for how high the number can go before it returns to the starting value<br><br>
+
+The way you use the GUI is "start/count by[limit]" in the Mod field.
+<br><br><img src="unmod.png"><br><br>
+
+With "3/2[6]", the counting starts from 3, repeats each value 2 times and only goes to 6 before returning to 3.<br>
+So the sequence you get is:<br>
+3 3 4 4 5 5 6 6 3 3 4 4 5 5 6 6 ...<br><br>
+"10/3/15" would produce:<br>
+10 10 10 11 11 11 12 12 12 13 13 13 14 14 14 15 15 15 10 10 10 11 11 11 ...<br><br>
+
+In addition to that, you can add markers before and after the number, using the Left and Right fields.<br>
+So if Left="eng" and Right="-OP", your number 1 will be "eng01-OP".
+
+<br><br><img src="unbottom.png"><br><br>
+
+The dropdown that says "01" lets you number 1 2 3, 01 02 03, 001 002 003, or 0001 0002 0003.<br>
+You probably won't need more unless you're Haidaraaaaa.<br><br>
+
+If you don't need a limit or count by more than 1, just leave those out.<br>
+You can use "2[4]" to get 2 3 4 2 3 4, or 5/2 to get 5 5 6 6 7 7 8 8 9 9 ... etc.<br><br>
+
+So how can we number this stuff so that we can update lyrics?
+<br><br><img src="numbers1.png"><br><br>
+
+Using Selectrix and Numbers.<br>
+1. Select lines with eng in style.<br>
+2. There are 3 lines for each eng. lyrics line, so number with "1/3" and set "eng" or something in Left. (or Right if you prefer.)<br>
+3. Select lines with rom in style.<br>
+4. There are 2 lines for each rom. lyrics line, so number with "1/2" and set "jp" or whatever in Left or Right.<br><br>
+
+That's the gist of it. Of course there may be irregularities, but you can always continue somewhere from the middle if you set the starting number higher.<br><br><br>
+
+You can also switch "number lines" to "add to marker".<br>
+This will add the content of Left and Right to existing content. So if you number lines and forget to set markers, you can do it with this. It adds Left and Right to whatever is already there, numbers or not. Obviously, Left adds before and Right adds after. Works for effect and actor, and just for fun... text.<br><br><br><br>
+
+
+<b>CHAPTERS</b><br><br>
+
+This is old and everyone probably knows how to use it anyway, so I won't explain it here. Just use the Help if you need.<br><br><br><br>
+
+
+<b>STUFF</b><br><br>
+
+This is the real "didn't fit anywhere else" section.
+
+<br><br><img src="unstuff.png"><br><br>
+
+
+
+<b>save/load</b> - This work as a multi-clipboard, if you need to save several things while typesetting (without leaving Aegisub). Paste your stuff into the large area and click Do Stuff. Stuff gets saved. When you run this without pasting anything into the large area, it works as "load". You get a window with all the previous things saved. Each new save just adds a blank line and your stuff at the end of the existing save. It's very simple and unsophisticated. It gets wiped when you rescan automation. Probably not very useful for very large pastes, but you can save sets of tags or back up some lines.<br><br>
+
+
+<b>lua replacer</b> - This is a replacer with lua regexp, using Left and Right fields. Aegi has ctrl+h with regexp, but to my knowledge it can't do captures. This is basically lua gsub. If you don't know how to use lua, then forget this.<br>
+You can do something like this:<br>
+Left: (%u%l+) (%u%l+)<br>
+Right: %2 %1<br>
+What this will do is find a sequence of 2 words that start with uppercase and continue with lowercase, with a space between them, and it will reverse their order. So for example this will match characters' names and switch order between English and Japanese. Of course it will also match any other random 2 words that just happen to be capitalized.<br>
+Anyway, if you know enough to use lua, you'll figure out what you can do with this.<br><br>
+
+
+<b>perl replacer</b> - This is the same thing, but with perl regexp, using the Aegisub re module.<br><br>
+
+
+<b>lua calc</b> - Experimental and poorly written, but can do some operations with numbers. Use like the replacer, and do calculations with captures. Captures are a, b, c, d, etc., instead of %1 %2. It goes up to "p", so you have 16 captures to work with.<br>
+Example:<br>
+Left: (%d) (%d)(%d) (%d)<br>
+Right: a+1 b*3..c/2 d-5<br>
+The captures are a b c d. Mathematical operations work like you see. Wherever two things stuck together would be confusing, separate with 2 dots. Obviously there are limits to how complex you can get with this, and it's mostly useful for simple things like taking all the numbers in a line and multiplying them by 2. Technically you could shift clips or resize drawings, though there are better scripts for that. But sometimes there's something odd that no script covers, and this might help.<br>
+(Note that the example above would most likely produce some idiotic results.)<br><br>
+
+
+<b>jump to next</b> - This is like the stand-alone script, but with more options. You can use it with layer, style, actor, effect, and text. Select some lines, use for example "effect" as marker, and it will jump to the first next line that doesn't contain the same thing in "effect" as any of the selected lines. It's a bit clumsy compared to the hotkeyed version, but it has more options, which can still be sometimes useful with scripts that have thousands of lines.<br><br>
+
+
+<b>alpha shift</b> - Place {\alpha&HFF&} before the first letter of visible text, split the line frame by frame, and run this. With each line, the alpha tag gets shifted by one letter, making the text appear letter by letter between lines. The alpha tag must be separated from other tags. (This function is more accessible in Masquerade.)<br><br>
+
+
+<b>merge inline tags</b> - Merges two or more lines with the same visible text but different tags. If you have trouble combining gradient by character with other things, duplicate the line, gbc one line and do whatever with the other, and this will merge them keeping all the tags from both lines in the right places. If both contain the same tag in the same place but different value, the later line overrides the one before it.<br>For example, if you want to gradient colour over the whole line, but you have a \bord tag in the middle, gbc will gradient the border for first half and colour for second half. So duplicate the line, nuke border on one and do the colour gradient, and merge with the other one that has the border.<br>You can also do two sets of gbc and merge them.<br><br>
+
+
+<b>add comment</b> - Type stuff in the large area, and it will be added as {comment} at the end of all selected lines.<br><br>
+
+
+<b>add comment line by line</b> - Paste text into the large area, and it will be added as {comments}, but if you paste 10 lines, they will go one by one to the first 10 lines of selection.<br><br>
+
+
+<b>make comments visible</b> - This nukes { } from comments, making them part of visible text.<br><br>
+
+
+<b>switch commented/visible</b> - "Black text{White text}" becomes "{Black Text}White text", effectively switching comments and visible text. Should work fine with multiple comments and not mess with tags. You should be able to switch back and forth without messing anything up.<br><br>
+
+
+<b>fake capitals</b> - For regular text, this sets given \fs to uppercase letters. For uppercase text, same happens for each first letter of a word. You set the \fs in the Left field.<br>
+Example with fs 65:<br><br>
+Text: Fake capitals Test.<br>
+Result: {\fs65}F{\fs}ake capitals {\fs65}T{\fs}est.<br><br>
+Text: FAKE CAPITALS TEST<br>
+Result: {\fs65}F{\fs}AKE {\fs65}C{\fs}APITALS {\fs65}T{\fs}EST<br><br>
+
+This can mainly be useful for fonts that are all uppercase.<br><br>
+
+
+<b>format dates</b> - Formats dates to one of the following patterns: "January 1", "January 1st", "1st of January", "1st January".<br>
+Will only work if the existing pattern is one of the 4. There's an option to log the changes.<br><br>
+
+
+<b>honorificslaughterhouse</b> - Hides honorifics in comments: skiddiks{-kun}.<br><br>
+
+
+<b>transform \k to \t\alpha</b> - Does what it says.<br>
+Before: {\2a&HFF&\ko12}A{\ko12}B{\ko12}C<br>
+After: {\2a&HFF&\alpha&HFF&\t(0,120,\alpha&H00&)}A{\alpha&HFF&\t(120,240,\alpha&H00&)}B{\alpha&HFF&\t(240,360,\alpha&H00&)}C<br>
+Works with any kara tag (\k \kf \ko).<br><br>
+
+
+<b>convert framerate</b> - Set original framerate in Left and target framerate in Right. Applies to the whole script, as it makes no sense to convert framerate for a selection.<br><br>
+
+
+
+
+
+<br><br><br><br>
+
+
+
+<a name="mask2"></a>
 <h2>Messing with Masks</h2>
 <h4>2014-03-24</h4><br>
 There are several functions added to <a href="../ts/relocator.lua">Relocator</a>'s Morphing Grounds. These allow for some simple operations with masks without needing ASSDraw or anything else.<br><br>
@@ -74,7 +362,7 @@ Of course, for anything more complicated, it's better to use ASSDraw or somethin
 
 
 
-
+<a name="hydra2"></a>
 <h2>The Hydraulics of Typesetting</h2>
 <h4>2014-03-04</h4><br>
 (No, the title doesn't make sense, but it's HYDRA-related.)<br><br>
@@ -145,7 +433,7 @@ Have fun.
 
 
 
-
+<a name="fax"></a>
 <h2>Two Ways of Calculating \fax</h2>
 <h4>2014-03-03</h4><br>
 As I'm sure everyone knows by now, I don't like having to type when typesetting. On the other hand, I like writing lua scripts, for some reason. So I've been thinking for a while about how to calculate the value for \fax instead of having to type one, see how it looks, change the number, and repeat until it's good. I figured I might be able to calculate it from two given points.<br><br>
@@ -206,7 +494,7 @@ That's the limitations, but I think this can probably cover more than 90% cases 
 
 
 
-
+<a name="mask1"></a>
 <h2>Quick Way to Make Custom Masks</h2>
 <h4>2014-03-01</h4><br>
 I used the convert-clip-to-drawing code and merged it into <a href="../ts/masquerade.lua">Masquerade</a>.<br>
@@ -239,7 +527,7 @@ k thx, that's all.
 
 
 
-
+<a name="hydra1"></a>
 <h2>HYDRA 3.0 - Inline Tags</h2>
 <h4>2014-01-15</h4><br>
 My extreme laziness to type made me try writing a function that would do inline tags, just to allow me to add a bunch of tags to the middle of the line without having to type them in the edit box. I haven't tested it extensively, and since I also rewrote half of the HYDRA code because of it, I'll leave it as a beta release until it gets properly tested.<br>
@@ -275,14 +563,16 @@ The inline-tag mode is activated when you put an asterisk in the line in the GUI
 
 One more thing: You can add new tags to a place where tags already exist. So if you use the script again on the line where we already added a colour tag before "Hydra" and put the asterisk before "Hydra", the new tags will be added to the colour tag. In other words, this is the one exception where the pattern is matched even though there are tags that you don't see in the GUI.<br><br><br>
 
-Do some testing and report if you find problems.
+Do some testing and report if you find problems.<br><br><br>
+
+Note: From version 3.61, this is fixed to work perfectly well with any inline tags, but you have to keep the whole text of the line in the GUI, so you can't use custom patterns with this. An added preset "custom pattern" handles that instead.
 
 <br><br><br><br>
 
 
 
 
-
+<a name="selectrix"></a>
 <h2>Select Tricks and Sort Tricks</h2>
 <h4>2013-12-02</h4><br>
 I've been updating this script in the past few days, and I think it has pretty much all it needs now.<br>
@@ -421,7 +711,7 @@ If you think there's still something missing that would be useful, let me know, 
 <br><br><br><br>
 
 
-
+<a name="timing"></a>
 <h2>Timing Operations</h2>
 <h4>2013-11-28</h4><br>
 
@@ -467,7 +757,7 @@ So in summary, what you have here in addition to regualr TPP stuff: cutting lead
 
 
 
-
+<a name="origin"></a>
 <h2>Calculating Origin Point</h2>
 <h4>2013-11-27</h4><br>
 
@@ -509,7 +799,7 @@ Edit: found some bugs and probably fixed them in v1.62.
 
 
 
-
+<a name="grid"></a>
 <h2>Aligning Signs Using an Alignment Grid</h2>
 <h4>2013-11-26</h4><br>
 

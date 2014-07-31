@@ -1,7 +1,9 @@
 ﻿script_name="Unimportant"
-script_description="Import stuff, number stuff, do other stuff."
+script_description="Import stuff, number stuff, chapter stuff, replace stuff, do other stuff to stuff."
 script_author="unanimated"
-script_version="1.6"
+script_url1="http://unanimated.xtreemhost.com/ts/import.lua"
+script_url2="https://raw.githubusercontent.com/unanimated/luaegisub/master/import.lua"
+script_version="2.0"
 
 require "clipboard"
 re=require'aegisub.re'
@@ -9,7 +11,7 @@ re=require'aegisub.re'
 --	SETTINGS	--
 
 -- IMPORT --
-import="import signs"			-- options: "import OP","import ED","import sign","import signs","update lyrics"
+import="import signs"			-- options: "import OP","import ED","import sign","import signs","export sign","update lyrics"
 keep_line=true				-- options: true / false
 style_restriction=false		-- options: true / false
 script_path="relative"			-- options: "relative" / "absolute"
@@ -21,6 +23,7 @@ absolute_path="D:\\typesetting\\"	-- absolute path to import scripts from if you
 default_marker="actor"			-- options: "actor","effect","comment"
 default_chapter_name="comment"		-- options: "comment","effect"
 default_save_name="script"		-- options: "script","video"
+deafault_chapter_mark="OP"		-- options: "Intro","OP","Part A","Part B","Part C","ED","Preview"
 autogenerate_intro=true			-- options: true / false
 ch_script_path="relative"		-- options: "relative" / "absolute"
 ch_relative_path=""			-- relative to where your script is -> "..\\chapters\\" = one folder up and then 'chapters' folder
@@ -31,10 +34,16 @@ ch_absolute_path="D:\\typesetting\\"	-- absolute path to save chapters if you se
 actor_effect="effect"			-- options: "actor","effect","layer","style","text"
 numbering="01"				-- options: "1","01","001","0001"
 
---	--	--	--
+-- STUFF --
+default_stuff="lua replacer"		-- options: just read them in the menu (backslashes must be double)
+
+--	--	--	--		-- optional external config file: http://unanimated.xtreemhost.com/ts/unimportant.conf
 
 function addtag(tag,text) text=text:gsub("^({\\[^}]-)}","%1"..tag.."}") return text end
+function round(num) num=math.floor(num+0.5) return num end
 
+
+--	IMPORT/EXPORT	-------------------------------------------------------------------------------------
 function important(subs, sel, act)
 	aline=subs[act]
 	atext=aline.text
@@ -194,12 +203,12 @@ function important(subs, sel, act)
 		end
 		if keeptags and actor~="x" then
 		    l2.text=addtag(atags,l2.text)
-		    l2.text=l2.text:gsub("({\\[^}]-})",function(tg) return duplikill(tg) end)
+		    l2.text=l2.text:gsub("({%*?\\[^}]-})",function(tg) return duplikill(tg) end)
 		end
 		if addtags and actor~="x" then
 		    l2.text="{"..atags.."}"..l2.text
 		    l2.text=l2.text:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
-		    :gsub("({\\[^}]-})",function(tg) return duplikill(tg) end)
+		    :gsub("({%*?\\[^}]-})",function(tg) return duplikill(tg) end)
 		end
 		
 		--aegisub.log("\n btext "..btext)
@@ -279,7 +288,10 @@ function important(subs, sel, act)
     noshift=nil		defect=nil	keeptxt=nil	deline=nil	keeptags=nil	addtags=nil
 end
 
---	 NUMBERS	--
+
+
+
+--	 NUMBERS	-------------------------------------------------------------------------------------
 function numbers(subs, sel)
     z=zer:len()
 	if sub3:match("[,/;]") then startn,int=sub3:match("(%d+)[,/;](%d+)") else startn=sub3:gsub("%[.-%]","") int=1 end
@@ -320,8 +332,30 @@ function numbers(subs, sel)
     end
 end
 
---	CHAPTERS	--
+
+
+
+--	CHAPTERS	-------------------------------------------------------------------------------------
 function chopters(subs, sel)
+  if res.marker=="effect" and res.nam=="effect" then 
+	aegisub.dialog.display({{class="label",label="Error. Both marker and name cannot be 'effect'."}},{"OK"},{close='OK'}) aegisub.cancel() 
+  end
+  if res.chmark then
+    if res.lang~="" then kap=res.lang else kap=res.chap end
+    for x, i in ipairs(sel) do
+      line=subs[i]
+      text=line.text
+	if res.marker=="actor" then line.actor="chptr" end
+	if res.marker=="effect" then line.effect="chptr" end
+	if res.marker=="comment" then text=text.."{chptr}" end
+	if res.nam=="effect" then line.effect=kap end
+	if res.nam=="comment" then text="{"..kap.."}"..text end
+	--line.effect="chptr"
+	--text="{"..res.chap.."}"
+      line.text=text
+      subs[i]=line
+    end
+  else
 	euid=2013
 	chptrs={}
 	subchptrs={}
@@ -453,13 +487,19 @@ function chopters(subs, sel)
 	file:write(chapters)
 	file:close()
     end
+  end
 end
 
---	STUFF	--
+
+
+
+--	STUFF	-------------------------------------------------------------------------------------
 function stuff(subs, sel)
     repl=0
     data={}	raw=res.dat.."\n"
     for dataline in raw:gmatch("(.-)\n") do table.insert(data,dataline) end
+    
+    -- DATES GUI --
     if res.stuff=="format dates" then
 	dategui=
 	{{x=0,y=0,class="dropdown",name="date",value="January 1st",items={"January 1","January 1st","1st of January","1st January"}},
@@ -468,9 +508,302 @@ function stuff(subs, sel)
 	if pres=="Cancel" then aegisub.cancel() end
 	datelog=""
     end
+    
+    -- EXPLODE GUI --
+    if res.stuff=="explode" then
+	-- remember values
+	if exploded then
+	    exx=expl_dist_x exy=expl_dist_y htype=ex_hor vtype=ex_ver expropx=xprop expropy=yprop exf=exfad cfad=cfade
+	    exinvx=xinv exinvy=yinv implo=implode exquence=exseq exkom=excom seqinv=invseq seqpercent=seqpc rmmbr=exremember
+	else
+	    exx=0 exy=0 htype="all" vtype="all" expropx=false expropy=false exf=0 cfad=0 exinvx=false exinvy=false
+	    implo=false exquence=false exkom=false seqinv=false seqpercent=100 rmmbr=false
+	end
+	explodegui={
+	  {x=0,y=0,class="label",label="Horizontal distance: "},
+	  {x=1,y=0,class="floatedit",name="edistx",value=exx,hint="Maximum horizontal distance for move"},
+	  {x=0,y=1,class="label",label="Vertical distance: "},
+	  {x=1,y=1,class="floatedit",name="edisty",value=exy,hint="Maximum vertical distance for move"},
+	  
+	  {x=2,y=0,class="label",label="direction: "},
+	  {x=3,y=0,class="dropdown",name="hortype",value=htype,items={"only left","mostly left","all","mostly right","only right"}},
+	  {x=4,y=0,class="checkbox",name="xprop",label="proportional",value=expropx,hint="Uniform move rather than random"},
+	  {x=5,y=0,class="checkbox",name="xinv",label="inverse",value=exinvx,hint="Uniform move in the other direction"},
+	  
+	  {x=2,y=1,class="label",label="direction: "},
+	  {x=3,y=1,class="dropdown",name="vertype",value=vtype,items={"only up","mostly up","all","mostly down","only down"}},
+	  {x=4,y=1,class="checkbox",name="yprop",label="proportional",value=expropy,hint="Uniform move rather than random"},
+	  {x=5,y=1,class="checkbox",name="yinv",label="inverse",value=exinvy,hint="Uniform move in the other direction"},
+	  
+	  {x=0,y=2,class="checkbox",name="ecfo",label="Custom fade:",hint="Default is line length",value=cfad},
+	  {x=1,y=2,class="floatedit",name="exfad",value=exf},
+	  
+	  {x=2,y=2,class="checkbox",name="exseq",label="sequence",value=exquence,hint="move in a sequence instead of all at the same time"},
+	  {x=3,y=2,class="floatedit",name="seqpc",value=seqpercent,step=nil,min=1,max=100,hint="how much time should the sequence take up"},
+	  {x=4,y=2,class="label",label="% of move"},
+	  {x=5,y=2,class="checkbox",name="invseq",label="inverse",value=seqinv,hint="inverse sequence"},
+	  
+	  {x=0,y=3,class="checkbox",name="impl",label="Implode",value=implo},
+	  {x=1,y=3,class="checkbox",name="rem",label="Same for all lines",value=rmmbr,hint="use only for layered lines with the same text"},
+	  {x=3,y=3,class="checkbox",name="excom",label="Leave original line commented out",value=exkom,width=3},
+	}
+	pres,rez=aegisub.dialog.display(explodegui,{"OK","Cancel"},{ok='OK',close='Cancel'})
+	if pres=="Cancel" then aegisub.cancel() end
+    	expl_dist_x=rez.edistx	expl_dist_y=rez.edisty
+	exfad=rez.exfad		cfade=rez.ecfo
+	ex_hor=rez.hortype	ex_ver=rez.vertype
+	xprop=rez.xprop		yprop=rez.yprop
+	xinv=rez.xinv		yinv=rez.yinv
+	implode=rez.impl	exseq=rez.exseq
+	seqpc=round(rez.seqpc)	invseq=rez.invseq
+	exremember=rez.rem	excom=rez.excom
+	exploded=true
+    end
+    
+    -- Clone Clip GUI --
+    if res.stuff=="clone clip" then
+	if clone_h~=nil then cchc=clone_h else cchc=1 end
+	if clone_v~=nil then ccvc=clone_v else ccvc=1 end
+	if dist_h~=nil then cchd=dist_h else cchd=0 end
+	if dist_v~=nil then ccvd=dist_v else ccvd=0 end
+	ccgui={
+	  {x=0,y=0,class="label",label="Horizontal distance:  "},
+	  {x=1,y=0,class="floatedit",name="hdist",value=cchd},
+	  {x=0,y=1,class="label",label="Horizontal clones:  "},
+	  {x=1,y=1,class="floatedit",name="hclone",value=cchc,step=1,min=1},
+	  {x=0,y=2,class="label",label="Vertical distance:  "},
+	  {x=1,y=2,class="floatedit",name="vdist",value=ccvd},
+	  {x=0,y=3,class="label",label="Vertical clones:  "},
+	  {x=1,y=3,class="floatedit",name="vclone",value=ccvc,step=1,min=1},
+	}
+	pres,rez=aegisub.dialog.display(ccgui,{"OK","Cancel"},{ok='OK',close='Cancel'})
+	if pres=="Cancel" then aegisub.cancel() end
+	clone_h=rez.hclone	dist_h=rez.hdist
+	clone_v=rez.vclone	dist_v=rez.vdist
+    end
+    
+    -- DISSOLVE GUI ---------------------------------------------------------------------------------------------
+    if res.stuff=="dissolve text" then
+	if dlast then ddistance=v_dist ddlines=dlines dshape=shape dalter=alternate dissin=disin otherd=otherdis v2direction=v2d
+	else ddistance=10 ddlines=10 dshape="square" dalter=true dissin=false otherd=false v2direction="randomly"
+	end
+	dissgui={
+	  {x=0,y=0,class="label",label="Distance between points:  "},
+	  {x=1,y=0,class="floatedit",name="ddist",value=ddistance,min=4,step=2},
+	  {x=0,y=1,class="label",label="Shape of clips:"},
+	  {x=1,y=1,class="dropdown",name="shape",items={"square","square 2","diamond","triangle 1","triangle 2","hexagon","wave/hexagram","vertical lines","horizontal lines"},value=dshape},
+	  {x=0,y=2,class="checkbox",name="alt",label="Shift even rows (all except vertical/horizontal lines)",value=dalter,width=2},
+	  {x=0,y=3,class="checkbox",name="disin",label="Reverse effect (fade in rather than out)",value=dissin,width=2},
+	  {x=0,y=4,class="checkbox",name="otherdiss",label="Dissolve v2.  ...  Lines:",value=otherd,hint="only square, diamond, vertical lines"},
+	  {x=1,y=4,class="floatedit",name="modlines",value=ddlines,min=6,step=2},
+	  {x=0,y=5,class="label",label="      Dissolve v2:   Dissolve"},
+	  {x=1,y=5,class="dropdown",name="v2dir",items={"randomly","from top","from bottom","from left","from right"},value=v2direction},
+	}
+	pres,rez=aegisub.dialog.display(dissgui,{"OK","What Is This","Cancel"},{ok='OK',close='Cancel'})
+	if pres=="What Is This" then
+	    dishelp={x=0,y=6,width=10,height=8,class="textbox",value="The script can either automatically draw a clip around the text,\nor you can make your own clip.\nThe automation only considers position, alignment, and scaling,\nso for anything more complex, make your own.\nYou can just try it without a clip,\nand if the result isn't right, draw a clip first. (Only 4 points!)\n\n'Distance between points' will be the distance between the\nstarting points of all the little iclips.\nLess Distance = more clips = more lag,\nso use the lowest values only for smaller text.\nYou can run this on one line or fbf lines.\nThe ideal 'fade' is as many frames as the given Distance.\nThat way the clips grow by 1 pixel per frame.\nAny other way doesn't look too good,\nbut you can apply Distance 10 over 20 lines\nand have each 2 consecutive lines identical.\nMore Distance than lines doesn't look so bad, and the effect is 'faster'.\nIf you apply this to 1 line, the line will be split to have the effect applied to as many frames as the Distance is. (This is preferred.)\nFor hexagon, the actual distance is twice the input. (It grows faster.)\n\nThe shapes should be self-explanatory, so just experiment.\n\n'Shift even rows' means that even rows will have an offset\nfrom odd rows by half of the given Distance.\nNot checking this will have a slightly different and less regular effect,\nthough it also depends on the shape. Again, experiment.\n\nIf you need to apply this to several layers, you have to do it one by one. The GUI remembers last values. But more layers = more lag.\n\nAll kinds of things can make this lag, so use carefully.\nLines are less laggy than other shapes.\nHorizontal lines are the least laggy. (Unless you have vertical text.)\n\nFor longer fades, use more Distance.\nThis works great with vertical lines but is pretty useless with horizontal.\n\n'Reverse effect' is like fade in while the default is fade out.\nWith one line selected, it applies to the first frames.\n\n'Dissolve v2' is a different kind of dissolve\nand only works with square, diamond, and vertical lines.\nLine count for this is independent on distance between points.\nIt's the only effect that allows Distance 4.\n'Shift even rows' has no effect here.\n\nYou can set a direction of Dissolve v2.\nObviously top and bottom is nonsense for vertical lines.\n'Reverse effect' reverses the direction too, so choose the opposite.\n\nThere may be weird results with some combinations of settings.\nThere may be some malfunctions, as the script is pretty complex.\nSome of them -might- be fixed by reloading automation scripts.\nMakes no sense with \\move. Nukes \\fad.\n\nThere are some fun side effects.\nFor example with 'square 2' and 'Shift even rows',\nyou get a brick wall on the last frame."}
+	    table.insert(dissgui,dishelp)
+	    pres,rez=aegisub.dialog.display(dissgui,{"OK","Cancel"},{ok='OK',close='Cancel'})
+	end
+	if pres=="Cancel" then aegisub.cancel() end
+	dlast=true
+	v_dist=rez.ddist
+	shape=rez.shape
+	alternate=rez.alt
+	disin=rez.disin
+	otherdis=rez.otherdiss
+	dlines=rez.modlines
+	v2d=rez.v2dir
+	dis2=false
+	if v2d=="randomly" then dir=5 end
+	if v2d=="from top" then dir=8 end
+	if v2d=="from bottom" then dir=2 end
+	if v2d=="from left" then dir=4 end
+	if v2d=="from right" then dir=6 end
+	if not otherdis and v_dist==4 then
+	  aegisub.dialog.display({{class="label",label="Distance 4 is only allowed for square mod. Changing to 6."}},{"OK"},{close='OK'})
+	  v_dist=6
+	end
+	if otherdis then
+	    if shape=="square" or shape=="diamond" or shape=="vertical lines" then dis2=true else dis2=false end
+	    if shape=="square" then alternate=false end
+	    if shape=="diamond" then alternate=true end
+	end
+	if dis2 and #sel==1 then linez=dlines 
+	elseif dis2 and #sel>1 then linez=#sel
+	else linez=v_dist end
+	
+	-- DISSOLVE create lines if only one selected ------------------------
+	if #sel==1 then
+	    rine=subs[sel[1]]
+	    rine.text=rine.text:gsub("\\fad%(.-%)","")
+	    start=rine.start_time	    endt=rine.end_time
+	    startf=ms2fr(start)		    endf=ms2fr(endt)
+	    lframes=ms2fr(endt-start)
+	      if lframes<linez then
+		aegisub.dialog.display({{class="label",label="Line must be at least "..linez.." frames long."}},
+		{"OK"},{close='OK'})		aegisub.cancel()
+	      end
+	    if disin then
+	      for l=1,linez do
+		rine.start_time=fr2ms(startf+l-1)
+		rine.end_time=fr2ms(startf+l)
+		subs.insert(sel[1],rine)
+		sel[1]=sel[1]+1
+	      end
+	      for s=1,linez do   table.insert(sel,sel[1]-s)   end
+	      table.sort(sel)
+	      rine.start_time=fr2ms(startf+linez)
+	      rine.end_time=endt
+	      subs[sel[#sel]]=rine
+	      table.remove(sel,#sel)
+	    else
+	      for l=1,linez do
+		rine.start_time=fr2ms(endf-l)
+		rine.end_time=fr2ms(endf-l+1)
+		subs.insert(sel[1]+1,rine)
+	      end
+	      for s=1,linez do   table.insert(sel,sel[1]+s)   end
+	      rine.start_time=start
+	      rine.end_time=fr2ms(endf-linez)
+	      subs[sel[1]]=rine
+	      table.remove(sel,1)
+	    end
+	end
+    if disin then table.sort(sel,function(a,b) return a>b end) end
+    
+    -- DISSOLVE Initial Calculations -----------------------------------------------------------------
+    line=subs[sel[1]]
+    text=line.text
+	text=text:gsub("\\clip%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)%)",function(a,b,c,d) 
+		a=math.floor(a) b=math.floor(b) c=math.ceil(c) d=math.ceil(d) 
+		return string.format("\\clip(m %d %d l %d %d %d %d %d %d)",a,b,c,b,c,d,a,d) end)
+	-- draw clip when no clip present
+	if not text:match("\\clip") then
+	    styleref=stylechk(subs,line.style)
+	    vis=text:gsub("{[^}]-}","")
+	    width,height,descent,ext_lead=aegisub.text_extents(styleref,vis)
+	    bord=text:match("\\bord([%d%.]+)")	if bord==nil then bord=styleref.outline end
+	    bord=math.ceil(bord)
+	    scx=text:match("\\fscx([%d%.]+)")	if scx==nil then scx=styleref.scale_x end	scx=scx/100
+	    scy=text:match("\\fscy([%d%.]+)")	if scy==nil then scy=styleref.scale_y end	scy=scy/100
+	    wi=round(width)
+	    he=round(height)
+	    text2=getpos(subs,text)
+	    if not text:match("\\pos") then text=text2 end
+	    xx,yy=text:match("\\pos%(([%d%.%-]+),([%d%.%-]+)%)")
+	    if h_al=="left" then	cx1=xx			cx2=xx+wi*scx end
+	    if h_al=="right" then	cx1=xx-wi*scx		cx2=xx end
+	    if h_al=="mid" then	cx1=xx-wi/2*scx		cx2=xx+wi/2*scx end
+	    if v_al=="top" then	cy1=yy			cy2=yy+he*scy end
+	    if v_al=="bottom" then	cy1=yy-he*scy		cy2=yy end
+	    if v_al=="mid" then	cy1=yy-he/2*scy		cy2=yy+he/2*scy end
+	    cx1=math.floor(cx1-bord)   cx2=math.ceil(cx2+bord)
+	    cy1=math.floor(cy1-bord)   cy2=math.ceil(cy2+bord)
+	    text=addtag("\\clip(m "..cx1.." "..cy1.." l "..cx2.." "..cy1.." "..cx2.." "..cy2.." "..cx1.." "..cy2..")",text)
+	end
+	-- get outermost clip points even if it's irregular (though it should be fucking regular)
+	exes={} wais={}
+	klip=text:match("\\clip%(m [%d%-]+ [%d%-]+ l [%d%-]+ [%d%-]+ [%d%-]+ [%d%-]+ [%d%-]+ [%d%-]+")
+	for ex,wai in klip:gmatch("([%d%-]+) ([%d%-]+)") do
+		table.insert(exes,tonumber(ex))
+		table.insert(wais,tonumber(wai))
+	end
+	table.sort(exes)	  table.sort(wais)
+	x1=exes[1]-2	  x2=exes[4]+2	  y1=wais[1]-2	  y2=wais[4]+2
+	width=x2-x1	height=y2-y1
+	h_dist=2*v_dist
+	if shape=="hexagon" then h_dist=math.floor(h_dist*2) end
+	rows=math.ceil(height/v_dist)
+	rows2=math.ceil(height/v_dist/2)
+	points=math.ceil(width/h_dist)+1
+	if shape=="horizontal lines" then vert=2*v_dist rows=math.ceil(rows/2)+1 else vert=v_dist end
+	if shape:match("triangle") or shape=="wave/hexagram" then rows=rows+1 end
+	  
+	xpoints={}
+	for w=1,points do point=x1+h_dist*(w-1) table.insert(xpoints,point) end
+	ypoints={}
+	for w=1,rows do point=y1+vert*(w-1) table.insert(ypoints,point) end
+	ypoints2={}
+	for w=1,rows2 do point=y1+2*v_dist*(w-1) table.insert(ypoints2,point) end
+	  
+	-- this is all centers of individual iclip shapes
+	allpoints1={}
+	for w=1,#ypoints do
+	    for z=1,#xpoints do
+		u=0
+		if alternate and w%2==0 then u=h_dist/2 else u=0 end	-- every even row is shifted by half of h_dist from odd rows
+		rnum=math.random(2000,6000)
+		if dir==5 then rindex=rnum end
+		if dir==8 then rindex=rnum*ypoints[w]^2 end
+		if dir==4 then rindex=rnum*xpoints[z]^2 end
+		if dir==2 then rindex=0-rnum*ypoints[w]^2 end
+		if dir==6 then rindex=0-rnum*xpoints[z]^2 end
+		point={xpoints[z]+u,ypoints[w],rindex}
+		table.insert(allpoints1,point)
+	    end
+	end
+	  
+	allpoints2={}
+	for w=1,#ypoints2 do
+	    for z=1,#xpoints do
+		u=0
+		if alternate and w%2==0 then u=h_dist/2 else u=0 end	-- every even row is shifted by half of h_dist from odd rows
+		rnum=math.random(2000,6000)
+		if dir==5 then rindex=rnum end
+		if dir==8 then rindex=rnum*ypoints2[w]^2 end
+		if dir==4 then rindex=rnum*xpoints[z]^2 end
+		if dir==2 then rindex=0-rnum*ypoints2[w]^2 end
+		if dir==6 then rindex=0-rnum*xpoints[z]^2 end
+		point={xpoints[z]+u,ypoints2[w],rindex}
+		table.insert(allpoints2,point)
+	    end
+	end
+	
+	if dis2 and shape=="square" or shape=="square 2" or shape=="hexagon" then allpoints=allpoints2 else allpoints=allpoints1 end
+	if dis2 and shape=="vertical lines" then allpoints={}
+	    for w=1,#xpoints do
+		rnum=math.random(2000,6000)
+		if dir==4 then rindex=rnum*xpoints[w]^2
+		elseif dir==6 then rindex=0-rnum*xpoints[w]^2
+		else rindex=rnum end
+		table.insert(allpoints,{xpoints[w],0,rindex})
+	    end
+	end
+	if dis2 then table.sort(allpoints,function(a,b) return a[3]<b[3] end) end
+	
+	-- DISSOLVE v2 Calculations ------------------------------------------
+	if dis2 then d2c=0 fullclip="" dis2tab={} rnd=1 ppl=#allpoints/linez
+	    for w=1,#allpoints do
+	      pt=allpoints[w]
+	      vd=v_dist
+	      
+	      if shape=="square" then
+	      krip="m "..pt[1]-vd.." "..pt[2]-vd.." l "..pt[1]+vd.." "..pt[2]-vd.." "..pt[1]+vd.." "..pt[2]+vd.." "..pt[1]-vd.." "..pt[2]+vd.." "
+	      end
+	      
+	      if shape=="diamond" then
+		krip="m "..pt[1].." "..pt[2]-vd.." l "..pt[1]+vd.." "..pt[2].." "..pt[1].." "..pt[2]+vd.." "..pt[1]-vd.." "..pt[2].." "
+	      end
+	      
+	      if shape=="vertical lines" then
+		krip="m "..pt[1]-v_dist.." "..y1.." l "..pt[1]+v_dist.." "..y1.." "..pt[1]+v_dist.." "..y2.." "..pt[1]-v_dist.." "..y2.." "
+	      end
+	      
+	      fullclip=fullclip..krip
+	      d2c=d2c+1
+	      if d2c>=math.floor(ppl) and w>=ppl*rnd then d2c=0 rnd=rnd+1 table.insert(dis2tab,fullclip) end
+	  end
+	end
+    -- DISSOLVE END --------------------------------------------------------------------
+    end
+    
+    if res.stuff:match("replacer") then table.sort(sel,function(a,b) return a>b end) end
+    
     for i=#sel,1,-1 do
         line=subs[sel[i]]
         text=line.text
+	style=line.style
 	
 	if res.stuff=="save/load" and i==1 then
 	    if savedata==nil then savedata="" end
@@ -488,31 +821,44 @@ function stuff(subs, sel)
 	if res.stuff=="lua replacer" then
 	    lim=sub3:match("^%d+")
 	    if lim==nil then limit=1 else limit=tonumber(lim) end
-	    replicant1=sub1:gsub("\\","\\")
-	    replicant2=sub2:gsub("\\","\\")
-	    replicant1=sub1:gsub("\\\\","\\")
-	    replicant2=sub2:gsub("\\\\","\\")
+	    replicant1=sub1:gsub("\\","\\"):gsub("\\\\","\\")
+	    replicant2=sub2:gsub("\\","\\"):gsub("\\\\","\\")
 	    tk=text
 	    count=0
 	    repeat 
 	    text=text:gsub(replicant1,replicant2) count=count+1
 	    until count==limit
-	    if text~=tk then repl=repl+1 end
+	    if text~=tk then repl=repl+1
+	      if res.log then 
+		r1=replicant1:gsub("%%%(","_L_"):gsub("%%%)","_R_"):gsub("%(",""):gsub("%)",""):gsub("_L_","%%%("):gsub("_R_","%%%)")
+		for l1 in tk:gmatch(r1) do
+		  aegisub.log("\nOrig: "..l1)
+		  l2=l1:gsub(replicant1,replicant2)
+		  aegisub.log("\nMod: "..l2)
+		end
+	      end
+	    end
 	end
 	
 	if res.stuff=="perl replacer" then
 	    lim=sub3:match("^%d+")
 	    if lim==nil then limit=1 else limit=tonumber(lim) end
-	    replicant1=sub1:gsub("\\","\\")
-	    replicant2=sub2:gsub("\\","\\")
-	    replicant1=sub1:gsub("\\\\","\\")
-	    replicant2=sub2:gsub("\\\\","\\")
+	    replicant1=sub1:gsub("\\","\\"):gsub("\\\\","\\")
+	    replicant2=sub2:gsub("\\","\\"):gsub("\\\\","\\")
 	    tk=text
 	    count=0
 	    repeat
 	    text=re.sub(text,replicant1,replicant2) count=count+1
 	    until count==limit
-	    if text~=tk then repl=repl+1 end
+	    if text~=tk then repl=repl+1 
+	      if res.log then 
+		for r1 in re.gfind(tk,replicant1) do
+		  aegisub.log("\nOrig: "..r1)
+		  r2=re.sub(r1,replicant1,replicant2)
+		  aegisub.log("\nMod: "..r2)
+		end
+	      end
+	    end
 	end
 	
 	if res.stuff=="lua calc" then
@@ -585,6 +931,23 @@ function stuff(subs, sel)
 		:gsub("_br_","\\N")
 	end
 	
+	if res.stuff=="reverse text" then
+	    tags=text:match("^{\\[^}]-}") if tags==nil then tags="" end
+	    text=text:gsub("{[^}]-}","")
+	    nt=""
+	    for l in text:gmatch(".") do nt=l..nt end
+	    text=tags..nt
+	end
+	
+	if res.stuff=="reverse words" then
+	    tags=text:match("^{\\[^}]-}") if tags==nil then tags="" end
+	    text=text:gsub("{[^}]-}","")
+	    nt=""
+	    for l in text:gmatch("[^%s]+") do nt=" "..l..nt end
+	    nt=nt:gsub("^ ","")
+	    text=tags..nt
+	end
+	
 	if res.stuff=="fake capitals" then
 	    tags=text:match("^{\\[^}]-}") if tags==nil then tags="" end
 	    text=text:gsub("^{\\[^}]-}","")
@@ -644,16 +1007,207 @@ function stuff(subs, sel)
 	    end
 	end
 	
-
+	-- SPLIT and EXPLODE -------------------------------------------
+	if res.stuff=="split into letters" or res.stuff=="explode" then
+	    l2=line
+	    tags=text:match("^{\\[^}]-}") if tags==nil then tags="" end
+	    vis=text:gsub("{[^}]-}","")
+	    af="{\\alpha&HFF&}"
+	    a0="{\\alpha&H00&}"
+	    letters={}
+	    ltrmatches=re.find(vis,".")
+	    for l=1,#ltrmatches do
+		table.insert(letters,ltrmatches[l].str)
+	    end
+	    if savetab==nil then savetab={} end
+	    -- create texts for all resulting lines
+	    for l=#letters,1,-1 do
+	    tx=af
+		ltr=a0..letters[l]..af
+		for t=1,#letters do
+		    ltr2=letters[t]
+		    if t==l then ltr2=ltr end
+		    tx=tx..ltr2
+		end
+		tx=textmod(text,tx)
+		txt2=tags..tx
+		if not txt2:match("\\pos") then txt2=getpos(subs,txt2) end
+		txt2=txt2:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
+		txt2=txt2:gsub("({%*?\\[^}]-})",function(tg) return duplikill(tg) end)
+		  -- Explode
+		  if res.stuff=="explode" then
+		    dur=line.end_time-line.start_time
+		    if cfade then FO=exfad else FO=dur end
+		    if implode then expfad="\\fad("..FO..",0)" else expfad="\\fad(0,"..FO..")" end
+		    if FO==0 then EFO="" else EFO=expfad end
+		    if ex_hor=="all" then 		ex1a=0-expl_dist_x	ex1b=expl_dist_x end
+		    if ex_hor=="only left" then 	ex1a=0-expl_dist_x	ex1b=0 end
+		    if ex_hor=="only right" then 	ex1a=0			ex1b=expl_dist_x end
+		    if ex_hor=="mostly left" then 	ex1a=0-expl_dist_x	ex1b=expl_dist_x/3 end
+		    if ex_hor=="mostly right" then 	ex1a=0-expl_dist_x/3	ex1b=expl_dist_x end
+		    if ex_ver=="all" then 		ex2a=0-expl_dist_y	ex2b=expl_dist_y end
+		    if ex_ver=="only up" then 		ex2a=0-expl_dist_y	ex2b=0 end
+		    if ex_ver=="only down" then 	ex2a=0			ex2b=expl_dist_y end
+		    if ex_ver=="mostly up" then 	ex2a=0-expl_dist_y	ex2b=expl_dist_y/3 end
+		    if ex_ver=="mostly down" then 	ex2a=0-expl_dist_y/3	ex2b=expl_dist_y end
+		    rvrs=#letters-l+1
+		    if xinv then xind=rvrs else xind=l end
+		    if yinv then yind=rvrs else yind=l end
+		    if invseq then seqt=rvrs else seqt=l end
+		    if implode then seqt=#letters-seqt+1 end
+		    if exremember and i<#sel then
+			tab=savetab[rvrs]
+			ex1=tab.x1 ex2=tab.x2
+		    else
+		      if xprop then
+			xhdist=(ex1b-ex1a)/#letters
+			ex1=round(ex1a+xhdist*xind)
+		      else
+			ex1=math.ceil(math.random(ex1a,ex1b))
+		      end
+		      if yprop then
+			xvdist=(ex2b-ex2a)/#letters
+			ex2=round(ex2a+xvdist*yind)
+		      else
+			ex2=math.ceil(math.random(ex2a,ex2b))
+		      end
+		    end
+		    if exremember and i==#sel then table.insert(savetab,{x1=ex1,x2=ex2}) end
+		    
+		    -- move sequence
+		    if exseq then
+		        tfrag=round(dur/#letters/(100/seqpc))
+			xt1=tfrag*seqt-tfrag
+		    else
+		        xt1=0
+		    end
+		    xt2=dur
+		    if implode and exseq then xt2=dur-xt1 xt1=0 end
+		    txt2=txt2:gsub("\\move%(([%d%.%-]+),([%d%.%-]+).-%)","\\pos(%1,%2)")
+		    txt2=txt2:gsub("\\fad%(.-%)","")
+		    if implode then
+			txt2=txt2:gsub("\\pos%(([%d%.%-]+),([%d%.%-]+)%)",
+		        function(a,b) return EFO.."\\move("..a+ex1..","..b+ex2..","..a..","..b..","..xt1..","..xt2..")" end)
+		    else
+			txt2=txt2:gsub("\\pos%(([%d%.%-]+),([%d%.%-]+)%)",
+		        function(a,b) return EFO.."\\move("..a..","..b..","..a+ex1..","..b+ex2..","..xt1..","..xt2..")" end)
+		    end
+		  end
+		l2.text=txt2
+		if letters[l]~=" " then subs.insert(sel[i]+1,l2) end
+	    end
+	    line.comment=true
+	end
+	
+	-- Clone Clip
+	if res.stuff=="clone clip" and text:match("\\clip%((.-)%)") then
+	    text=text:gsub("\\clip%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)%)",function(a,b,c,d) 
+		a=math.floor(a) b=math.floor(b) c=math.ceil(c) d=math.ceil(d) 
+		return string.format("\\clip(m %d %d l %d %d %d %d %d %d)",a,b,c,b,c,d,a,d) end)
+	    clip=text:match("\\clip%((.-)%)")
+	    clip=clip.." "
+	    h_clip=clip
+	    for h=1,clone_h-1 do
+		hc=clip:gsub("([%d%-]+) ([%d%-]+)",function(a,b) return a+dist_h*h.." "..b end)
+		h_clip=h_clip..hc
+	    end
+	    fullclip=h_clip
+	    for v=1,clone_v-1 do
+		vc=h_clip:gsub("([%d%-]+) ([%d%-]+)",function(a,b) return a.." "..b+dist_v*v end)
+		fullclip=fullclip..vc
+	    end
+	    fullclip=fullclip:gsub(" $","")
+	    text=text:gsub("\\clip%((.-)%)","\\clip("..fullclip..")")
+	end
+	
+	-- DISSOLVE Individual Lines --------------------------------------------------------------------------------------
+	if res.stuff=="dissolve text" then
+	  
+	  fullklip=""
+	  -- radius of clips based on # of sel. lines and shapes
+	  r=math.ceil(i*linez/#sel-1) 
+	  if shape=="diamond" and not alternate then r=math.floor(r*1.5) end
+	  if shape:match("triangle") and alternate then r=math.floor(r*1.4) end
+	  if shape:match("triangle") and not alternate then r=math.floor(r*1.5) end
+	  if shape=="wave/hexagram" then r=math.floor(r*1.55) end
+	  xpt=0		sw=0	osq=0
+	  
+	  if not dis2 and not shape:match("lines") and r>0 then
+	    for w=1,#allpoints do
+	      pt=allpoints[w]
+	      
+	      if shape=="square" or shape=="square 2" then
+		krip="m "..pt[1]-r.." "..pt[2]-r.." l "..pt[1]+r.." "..pt[2]-r.." "..pt[1]+r.." "..pt[2]+r.." "..pt[1]-r.." "..pt[2]+r.." "
+	      end
+	      
+	      if shape=="diamond" then
+		krip="m "..pt[1].." "..pt[2]-r.." l "..pt[1]+r.." "..pt[2].." "..pt[1].." "..pt[2]+r.." "..pt[1]-r.." "..pt[2].." "
+	      end
+	      
+	      if shape=="triangle 1" then
+		krip="m "..pt[1].." "..pt[2]-r.." l "..pt[1]+r.." "..pt[2]+r.." "..pt[1]-r.." "..pt[2]+r.." "
+	      end
+	      
+	      if shape=="triangle 2" then
+		krip="m "..pt[1]-r.." "..pt[2]-r.." l "..pt[1]+r.." "..pt[2]-r.." "..pt[1].." "..pt[2]+r.." "
+	      end
+	      
+	      if shape=="hexagon" then
+		krip="m "..pt[1].." "..pt[2]-2*r.." l "..pt[1]+2*r.." "..pt[2]-r.." "..pt[1]+2*r.." "..pt[2]+r.." "..pt[1].." "..pt[2]+2*r.." "..pt[1]-2*r.." "..pt[2]+r.." "..pt[1]-2*r.." "..pt[2]-r.." "
+	      end
+	      
+	      if shape=="wave/hexagram" then
+		if sw==0 then
+		krip="m "..pt[1].." "..pt[2]-r+1 .." l "..pt[1]+r.." "..pt[2]+r+1 .." "..pt[1]-r.." "..pt[2]+r+1 .." "
+		else
+		krip="m "..pt[1]-r.." "..pt[2]-r.." l "..pt[1]+r.." "..pt[2]-r.." "..pt[1].." "..pt[2]+r.." "
+		end
+		xpt=xpt+1
+		if xpt==#xpoints then xpt=0 sw=1-sw end
+	      end
+	      
+	      fullklip=fullklip..krip
+	    end
+	  end
+	  
+	  if not dis2 and shape=="vertical lines" and r>0 then
+	    for w=1,#xpoints do
+	      pt=xpoints[w]
+		krip="m "..pt-r.." "..y1.." l "..pt+r.." "..y1.." "..pt+r.." "..y2.." "..pt-r.." "..y2.." "
+	      fullklip=fullklip..krip
+	    end
+	  end
+	  
+	  if not dis2 and shape=="horizontal lines" and r>0 then
+	    for w=1,#ypoints do
+	      pt=ypoints[w]
+		krip="m "..x1-vert.." "..pt-r.." l "..x2+vert.." "..pt-r.." "..x2+vert.." "..pt+r.." "..x1-vert.." "..pt+r.." "
+	      fullklip=fullklip..krip
+	    end
+	  end
+	  
+	  if dis2 and r>0 then fullklip=dis2tab[r] end
+	  
+	  fullklip=fullklip:gsub(" $","")
+	  
+	  text=text:gsub("\\clip%(.-%)","")
+	  if r>0 then text=addtag("\\iclip("..fullklip..")",text) end
+	end
+	-- DISSOLVE END 2 ----------------------------------------------
+	
 	line.text=text
 	subs[sel[i]]=line
+	if res.stuff=="split into letters" or res.stuff=="explode" and not rez.excom then subs.delete(sel[i]) end
     end
     if res.stuff:match"replacer" then aegisub.progress.task("All stuff has been finished.")
 	if repl==1 then rp=" modified line" else rp=" modified lines" end
 	press,reslt=aegisub.dialog.display({},{repl..rp},{cancel=repl..rp})
     end
     if res.stuff=="format dates" and rez.log then aegisub.log(datelog) end
+    savetab=nil
 end
+
+
 
 --	Jump to Next	--
 function nextsel(subs, sel)
@@ -691,7 +1245,9 @@ until ch==0 or hit==nil or i+count>#subs
 return sel
 end
 
---	Alpha Shift
+
+
+--	Alpha Shift	--
 function alfashift(subs, sel)
     count=1
     for x, i in ipairs(sel) do
@@ -715,7 +1271,9 @@ function alfashift(subs, sel)
     end
 end
 
---	Merge inline tags
+
+
+--	Merge inline tags	--
 function merge(subs, sel)
     tk={}
     tg={}
@@ -728,8 +1286,9 @@ function merge(subs, sel)
 	    until not text:match("{(\\[^}]-)}{(\\[^}]-)}")
 	vis=text:gsub("{[^}]-}","")
 	if x==1 then rt=vis
-	  for c in rt:gmatch(".") do
-	    table.insert(tk,c)
+	ltrmatches=re.find(rt,".")
+	  for l=1,#ltrmatches do
+	    table.insert(tk,ltrmatches[l].str)
 	  end
 	end
 	if vis~=rt then aegisub.dialog.display({{class="label",label="Error. Inconsistent text."}},{"OK"},{close='OK'}) aegisub.cancel() end
@@ -739,10 +1298,11 @@ function merge(subs, sel)
 	count=0
 	for seq in text:gmatch("[^{]-{%*?\\[^}]-}") do
 	    chars,as,tak=seq:match("([^{]-){(%*?)(\\[^}]-)}")
-	    pos=chars:len()+count
-	    tgl={p=pos,t=tak,a=as}
+	    pos=re.find(chars,".")
+	    if pos==nil then ps=0+count else ps=#pos+count end
+	    tgl={p=ps,t=tak,a=as}
 	    table.insert(tg,tgl)
-	    count=pos
+	    count=ps
 	end
     end
     newline=""
@@ -763,7 +1323,54 @@ function merge(subs, sel)
     return sel
 end
 
---	Honorificslaughterhouse
+function textmod(orig,text)
+    tk={}
+    tg={}
+	text=text:gsub("{\\\\k0}","")
+	repeat text=text:gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
+	    until not text:match("{(\\[^}]-)}{(\\[^}]-)}")
+	vis=text:gsub("{[^}]-}","")
+	ltrmatches=re.find(vis,".")
+	  for l=1,#ltrmatches do
+	    table.insert(tk,ltrmatches[l].str)
+	  end
+	stags=text:match("^{(\\[^}]-)}")
+	if stags==nil then stags="" end
+	text=text:gsub("^{\\[^}]-}","") :gsub("{[^\\}]-}","")
+	count=0
+	for seq in orig:gmatch("[^{]-{%*?\\[^}]-}") do
+	    chars,as,tak=seq:match("([^{]-){(%*?)(\\[^}]-)}")
+	    pos=re.find(chars,".")
+	    if pos==nil then ps=0+count else ps=#pos+count end
+	    tgl={p=ps,t=tak,a=as}
+	    table.insert(tg,tgl)
+	    count=ps
+	end
+	count=0
+	for seq in text:gmatch("[^{]-{%*?\\[^}]-}") do
+	    chars,as,tak=seq:match("([^{]-){(%*?)(\\[^}]-)}")
+	    pos=re.find(chars,".")
+	    if pos==nil then ps=0+count else ps=#pos+count end
+	    tgl={p=ps,t=tak,a=as}
+	    table.insert(tg,tgl)
+	    count=ps
+	end
+    newline=""
+    for i=1,#tk do
+	newline=newline..tk[i]
+	newt=""
+	for n, t in ipairs(tg) do
+	    if t.p==i then newt=newt..t.a..t.t end
+	end
+	if newt~="" then newline=newline.."{"..as..newt.."}" end
+    end
+    newtext="{"..stags.."}"..newline
+    text=newtext
+    return text
+end
+
+
+--	Honorificslaughterhouse		--
 function honorifix(subs, sel)
     for i=#subs,1,-1 do
       if subs[i].class=="dialogue" then
@@ -802,7 +1409,7 @@ function honorifix(subs, sel)
     end
 end
 
---	framerate
+--	framerate	--
 function framerate(subs)
     f1=res.fps1
     f2=res.fps2
@@ -876,6 +1483,81 @@ function duplikill(tagz)
 	tagz=tagz:gsub("(\\pos%([^%)]+%))([^}]-)(\\pos%([^%)]+%))","%1%2")
 	tagz=tagz:gsub("({\\[^}]-)}","%1"..tf.."}")
 	return tagz
+end
+
+function stylechk(subs,stylename)
+  for i=1, #subs do
+    if subs[i].class=="style" then
+      local st=subs[i]
+      if stylename==st.name then styleref=st break end
+    end
+  end
+  return styleref
+end
+
+function getpos(subs,text)
+    for i=1, #subs do
+        if subs[i].class=="info" then
+	    local k=subs[i].key
+	    local v=subs[i].value
+	    if k=="PlayResX" then resx=v end
+	    if k=="PlayResY" then resy=v end
+        end
+	if resx==nil then resx=0 end
+	if resy==nil then resy=0 end
+        if subs[i].class=="style" then
+            local st=subs[i]
+	    if st.name==line.style then
+		acleft=st.margin_l	if line.margin_l>0 then acleft=line.margin_l end
+		acright=st.margin_r	if line.margin_r>0 then acright=line.margin_r end
+		acvert=st.margin_t	if line.margin_t>0 then acvert=line.margin_t end
+		acalign=st.align	if text:match("\\an%d") then acalign=text:match("\\an(%d)") end
+		aligntop="789" alignbot="123" aligncent="456"
+		alignleft="147" alignright="369" alignmid="258"
+		if alignleft:match(acalign) then horz=acleft h_al="left"
+		elseif alignright:match(acalign) then horz=resx-acright h_al="right"
+		elseif alignmid:match(acalign) then horz=resx/2 h_al="mid" end
+		if aligntop:match(acalign) then vert=acvert v_al="top"
+		elseif alignbot:match(acalign) then vert=resy-acvert v_al="bottom"
+		elseif aligncent:match(acalign) then vert=resy/2 v_al="mid" end
+	    break
+	    end
+        end
+    end
+    if horz>0 and vert>0 then 
+	if not text:match("^{\\") then text="{\\rel}"..text end
+	text=text:gsub("^({\\[^}]-)}","%1\\pos("..horz..","..vert..")}") :gsub("\\rel","")
+    end
+    return text
+end
+
+function readconfig()
+hconfig=aegisub.decode_path("?user").."//unimportant.conf"
+file=io.open(hconfig)
+    if file~=nil then
+	konf=file:read("*all")
+	io.close(file)
+	import=konf:match("import:\"(.-)\"")
+	k_l=konf:match("keep_line:(%a+)")
+	    if k_l=="true" then keep_line=true else keep_line=false end
+	s_r=konf:match("style_restriction:(%a+)") --
+	    if s_r=="true" then style_restriction=true else style_restriction=false end
+	script_path=konf:match("script_path:\"(.-)\"")
+	relative_path=konf:match("relative_path:\"(.-)\"")
+	absolute_path=konf:match("absolute_path:\"(.-)\"")
+	default_marker=konf:match("default_marker:\"(.-)\"")
+	default_chapter_name=konf:match("default_chapter_name:\"(.-)\"")
+	default_save_name=konf:match("default_save_name:\"(.-)\"")
+	deafault_chapter_mark=konf:match("deafault_chapter_mark:\"(.-)\"")
+	a_i=konf:match("autogenerate_intro:(%a+)")--
+	    if a_i=="true" then autogenerate_intro=true else autogenerate_intro=false end
+	ch_script_path=konf:match("ch_script_path:\"(.-)\"")
+	ch_relative_path=konf:match("ch_relative_path:\"(.-)\"")
+	ch_absolute_path=konf:match("ch_absolute_path:\"(.-)\"")
+	actor_effect=konf:match("actor_effect:\"(.-)\"")
+	numbering=konf:match("numbering:\"(.-)\"")
+	default_stuff=konf:match("default_stuff:\"(.-)\"")
+    end
 end
 
 function analyze(l)
@@ -968,28 +1650,26 @@ help_i="- IMPORT/EXPORT -\n\nThis allows you to import OP/ED or signs (or whatev
 
 help_u="UPDATE LYRICS\n\nThis is probably the most complicated part, but if your songs have some massive styling with layers and mocha tracking,\nthis will make updating lyrics, which would otherwise be a pain in the ass, really easy.\nThe only styling that will prevent this from working is inline tags - gradient by character etc.\n\nThe prerequisite here is that your OP/ED MUST have NUMBERED lines! (See NUMBERS section - might be good to read that first.)\nThe numbers must correspond to the verses, not to lines in the script.\nIf line 1 of the SONG is mocha-tracked over 200 frames, all of those frames must be numbered 01.\nIt is thus most convenient to number the lines before you start styling, when it's still simple.\n\nHow this works:\nPaste your updated lyrics into the large, top-left area of the GUI.\nUse the Left and Right fields to set the markers to detect the right lines.\nWithout markers it will just look for numbers.\nIf your OP lines are numbered with \"OP01eng\", you must set \"OP\" under Left and \"eng\" under Right.\nFor now, everything is case-sensitive (I might change that later if it gets really annoying and pointless).\nYou must also correctly set the actor/effect choice in the bottom-right part of the GUI.\nIf you pasted lyrics, selected \"update lyrics\", and set markers and actor/effect, then hit Import, and lyrics will be updated.\n\nHow it works - example: The lyrics you pasted in the data box get their lines assigned with numbers from 1 to whatever.\nLet's say your markers are \"OP01eng\" and you're using the effect field.\nThe script looks for lines with that pattern in the effect field.\nWhen it finds one, it reads the number (for example \"01\" from \"OP01eng\")\nand replaces the line's text (skipping tags) with line 1 from the pasted lyrics.\nFor every line marked \"OP##eng\" it replaces the current lyrics with line ## from your pasted updated lyrics.\n\nTo make sure this doesn't fuck up tremendously, it shows you a log with all replacements at the end.\n\nThat's pretty much all you really need to know for updating lyrics, but there are a few more things.\n\nIf the script doesn't find any lines that match the markers, it gives you a message like this:\n\"The effect field of selected lines doesn't match given pattern...\"\nThis means the lines either don't exist in your selection, or you probably forgot to set the markers.\n\n\"style restriction\" is an extra option that lets you limit the replacing to lines whose style contains given pattern.\nLet's give some examples:\nYou check the restriction and type \"OP\" in the field below.\nYou can now select the whole script instead of selecting only the OP lines, and only lines with \"OP\" in style will be updated.\nYou may have the ED numbered the same way, but the \"OP\" restriction will ignore it.\nThis can be also useful if you have lines numbered just 01, 02 etc., and you have english and romaji, all mixed together.\nIf your styles are OP-jap and OP-eng, you can type \"jap\" in the restriction field if you're updating romaji\nto make sure the script doesn't update the english lines as well (replacing them with romaji).\nIt is, however, recommended to just use different markers, like j01 / e01.\n"
 
-	
-help_c="- CHAPTERS -\n\nThis will generate chapters from the .ass file\n\nMARKER: For a line to be used for chapters, it has to be marked with \"chapter\"/\"chptr\"/\"chap\" in actor/effect field (depending on settings) or the same 3 options as a separate comment, ie. {chapter} etc.\n\nCHAPTER NAME: What will be used as chapter name. It's either the content of the effect field, or the line's FIRST comment. If the comment is {OP first frame} or {ED start}, the script will remove \" first frame\" or \" start\", so you can keep those.\n\nIf you use default settings, just put \"chapter\" in actor field and make comments like {OP} or {Part A}.\n\nSubchapters: You can make subchapters like this {Part A::Scene 5}. This will be a subchapter of \"Part A\" called \"Scene 5\"."
+help_c="- CHAPTERS -\n\nThis will generate chapters from the .ass file\n\nMARKER: For a line to be used for chapters, it has to be marked with \"chapter\"/\"chptr\"/\"chap\" in actor/effect field (depending on settings) or the same 3 options as a separate comment, ie. {chapter} etc.\n\nCHAPTER NAME: What will be used as chapter name. It's either the content of the effect field, or the line's FIRST comment. If the comment is {OP first frame} or {ED start}, the script will remove \" first frame\" or \" start\", so you can keep those.\n\nIf you use default settings, just put \"chapter\" in actor field and make comments like {OP} or {Part A}.\n\nSubchapters: You can make subchapters like this {Part A::Scene 5}. This will be a subchapter of \"Part A\" called \"Scene 5\".\n\nIf you want a different LANGUAGE than 'eng', set it in the textbox below \"chapter mark\"\n\nCHAPTER MARK: Sets the selected chapter for selected line(s). Uses marker and name. (Doesn't create xml.)\nIf you want a custom chapter name, type it in the textbox below this."
 
-help_n="- NUMBERS -\n\nThis is a tool to number lines and add various markers to actor/effect fields.\nThe dropdown with \"01\" lets you choose how many leading zeros you want.\nThe Left and Right fields will add stuff to the numbers. If Left is \"x\" and Right is \"yz\", the first marker will be \"x01yz\".\nWhat makes this function much more versatile is the \"Mod\" field.\nIf you put in one number, then that's the number from which the numbering will start, so \"5\" -> 5, 6, 7, etc.\nYou can, however, use a comma or slash to modify the numbering some more.\n\"8,3\" or \"8/3\" will start numbering from 8, repeating each number 3 times, so 8, 8, 8, 9, 9, 9, 10, 10, 10, etc.\nThis allows you to easily number lines that are typeset in layers etc.\nAdditionally, you can set a limit in [], for example 1/3[2], which will start from 1, use each number 3 times,\nand only go up to 2 and then start again, so: 1 1 1 2 2 2 1 1 1 2 2 2\n2/3[4] would give you 2 2 2 3 3 3 4 4 4 1 1 1 2 2 2 3 3 3 4 4 4 1 1 1...\nIf the first number is higher than the limit, like 5/3[4], it will subtract the limit from the starting number.\n\n\"add to marker\" uses the Left and Right fields to add stuff to the current content of actor/effect/text.\nIf you number lines for the OP, you can set \"OP-\" in Left and \"-eng\" in Right to get \"OP-01-eng\".\n(Mod does nothing when adding markers.)"
+help_n="- NUMBERS -\n\nThis is a tool to number lines and add various markers to actor/effect fields.\nThe dropdown with \"01\" lets you choose how many leading zeros you want.\nThe Left and Right fields will add stuff to the numbers. If Left is \"x\" and Right is \"yz\", the first marker will be \"x01yz\".\nWhat makes this function much more versatile is the \"Mod\" field.\nIf you put in one number, then that's the number from which the numbering will start, so \"5\" -> 5, 6, 7, etc.\nYou can, however, use a comma or slash to modify the numbering some more.\n\"8,3\" or \"8/3\" will start numbering from 8, repeating each number 3 times, so 8, 8, 8, 9, 9, 9, 10, 10, 10, etc.\nThis allows you to easily number lines that are typeset in layers etc.\nAdditionally, you can set a limit in [], for example 1/3[2], which will start from 1, use each number 3 times,\nand only go up to 2 and then start again, so: 1 1 1 2 2 2 1 1 1 2 2 2\n2/3[4] would give you 2 2 2 3 3 3 4 4 4 2 2 2 3 3 3 4 4 4 ...\n\n\"add to marker\" uses the Left and Right fields to add stuff to the current content of actor/effect/text.\nIf you number lines for the OP, you can set \"OP-\" in Left and \"-eng\" in Right to get \"OP-01-eng\".\n(Mod does nothing when adding markers.)"
 
-help_d="- DO STUFF -\n\n- Save/Load -\nYou can use this to save for example bits of text you need to paste frequently (like a multi-clipboard).\nPaste text in the data area to save it. If the data area is empty, the function will load your saved texts.\n\n- Lua Replacer -\nUse \"Left\" and \"Right\" for a lua regexp replace function.\n\n- Perl Replacer -\nUse \"Left\" and \"Right\" for a perl regexp replace function.\n\n- Lua Calc -\nUse \"Left\" and \"Right\" with lua regexp to perform calculations on captured numbers.\nCaptures will be named a, b, c... up to p (16 captures max).\nFunctions are +, -, *, /, and round(a), which rounds the number captured in a.\n> Example: (%d)(%d)(%d) -> a+1b*2c-3\nThis will match 3-digit patterns, add 1 to first digit, multiply the second by 2, and subtract 3 from the 3rd.\nIf you want to leave one of the captures as is, use .. to separate it from other letters: a+1b..c-3 \n> Example: pos%(([%d%.]+),([%d%.]+) -> pos(a+50,b-100\nThis will shift position right by 50 and up by 100. \n\n- Jump to Next -\nThis is meant to get you to the \"next sign\" in the subtitle grid.\nWhen mocha-tracking 1000+ lines, it can be a pain in the ass to find where one sign ends and another begins.\nSelect lines that belong to the current \"sign\", ie. different layers/masks/texts.\nThe script will search for the first line in the grid that doesn't match any of the selected ones, based on the \"Marker\".\n\n- Alpha Shift -\nShifts {\\alpha&HFF&} by one letter for each line. Text thus appears letter by letter.\nIt's an alternative to the script that spawns \\ko, but this works with shadow too.\nDuplicate a line with {\\alpha&HFF&} however many times you need and run the script on the whole selection.\n\n- Merge Inline Tags -\nSelect lines with the same text but different tags, and they will be merged into one line with tags from all of them. For example:\n{\\bord2}AB{\\shad3}C\nA{\\fs55}BC\n-> {\\bord2}A{\\fs55}B{\\shad3}C\n\n- Add Comment -\nText that you type here in this box will be added as a {comment} at the end of selected lines.\n\n- Make Comments Visible -\nNukes { } from comments, thus making them part of the text visible on screen.\n\n- Switch Commented/Visible -\nComments out what's visible and makes visible what's commented. Allows switching between two texts.\n\n- Honorificslaughterhouse -\nComments out honorifics.\n\n- Convert Framerate -\nConverts framerate from a to b where a is the input from \"Left\" and b is input from \"Right\".\n"
+help_d="- DO STUFF -\n\n- Save/Load -\nYou can use this to save for example bits of text you need to paste frequently (like a multi-clipboard).\nPaste text in the data area to save it. If the data area is empty, the function will load your saved texts.\n\n- Lua Replacer -\nUse \"Left\" and \"Right\" for a lua regexp replace function.\n\n- Perl Replacer -\nUse \"Left\" and \"Right\" for a perl regexp replace function.\n\n- Lua Calc -\nUse \"Left\" and \"Right\" with lua regexp to perform calculations on captured numbers.\nCaptures will be named a, b, c... up to p (16 captures max).\nFunctions are +, -, *, /, and round(a), which rounds the number captured in a.\n> Example: (%d)(%d)(%d) -> a+1b*2c-3\nThis will match 3-digit patterns, add 1 to first digit, multiply the second by 2, and subtract 3 from the 3rd.\nIf you want to leave one of the captures as is, use .. to separate it from other letters: a+1b..c-3 \n> Example: pos%(([%d%.]+),([%d%.]+) -> pos(a+50,b-100\nThis will shift position right by 50 and up by 100. \n\n- Jump to Next -\nThis is meant to get you to the \"next sign\" in the subtitle grid.\nWhen mocha-tracking 1000+ lines, it can be a pain in the ass to find where one sign ends and another begins.\nSelect lines that belong to the current \"sign\", ie. different layers/masks/texts.\nThe script will search for the first line in the grid that doesn't match any of the selected ones, based on the \"Marker\".\n\n- Alpha Shift -\nShifts {\\alpha&HFF&} by one letter for each line. Text thus appears letter by letter.\nIt's an alternative to the script that spawns \\ko, but this works with shadow too.\nDuplicate a line with {\\alpha&HFF&} however many times you need and run the script on the whole selection.\n\n- Merge Inline Tags -\nSelect lines with the same text but different tags, and they will be merged into one line with tags from all of them. For example:\n{\\bord2}AB{\\shad3}C\nA{\\fs55}BC\n-> {\\bord2}A{\\fs55}B{\\shad3}C\n\n- Add Comment -\nText that you type here in this box will be added as a {comment} at the end of selected lines.\n\n- Make Comments Visible -\nNukes { } from comments, thus making them part of the text visible on screen.\n\n- Switch Commented/Visible -\nComments out what's visible and makes visible what's commented. Allows switching between two texts.\n\n- Reverse text -\nReverses text (character by character). Nukes comments and inline tags.\n\n- Reverse Words -\nReverses text (word by word). Nukes comments and inline tags.\n\n- Fake Capitals -\nCreates fake capitals by increasing font size for first letters.\nWith all caps, for first letters of words. With mixed text, for uppercase letters.\nSet the \\fs for the capitals in the Left field.\nLooks like this: {\\fs60}F{\\fs}AKE {\\fs60}C{\\fs}APITALS\n\n- Format Dates -\nFormats dates to one of 4 options. Has its own GUI. Only converts from the other 3 options in the GUI.\n\n- Split into Letters -\nMakes a line for each letter, making the other letters invisible with alpha.\nThis lets you do things with each letter separately.\n\n- Explode -\nThis splits the line into letters and makes each of them move in a different direction and fade out.\n\n- Dissolve Text -\nVarious modes of dissolving text. Has its own Help.\n\n- Clone Clip -\nClones/replicates a clip you draw.\nSet how many rows/columns and distances between them, and you can make large patterns.\n\n- Honorificslaughterhouse -\nComments out honorifics.\n\n- Convert Framerate -\nConverts framerate from a to b where a is the input from \"Left\" and b is input from \"Right\".\n"
 
 
+--	Unimportant GUI		-------------------------------------------------------------------------------------
 function unimportant(subs, sel, act)
+readconfig()
 aegisub.progress.title("Loading Unimportant Stuff")
 aegisub.progress.task("This should take less than a second, so you won't really read this.")
---aline=subs[act]
---active=aline.text:gsub("^{\\[^}]*}","")
---anocom=aline.text:gsub("{[^}]-}","")
---actime=(aline.end_time-aline.start_time)/1000
 if datata==nil then data="" else data=datata end
 if sub1==nil then sub1="" end
 if sub2==nil then sub2="" end
 if sub3==nil then sub3=1 end
---if res.stuff~=nil then val_stuff=res.stuff else val_stuff="lua replacer" end
 msg={"If it breaks, it's your fault.","This should be doing something...","Breaking your computer. Please wait.","Unspecified operations in progress.","This may or may not work.","Trying to avoid bugs...","Zero one one zero one zero...","10110101001101101010110101101100001","I'm surprised anyone's using this","If you're seeing this for too long, it's a bad sign."}
 rm=math.random(1,#msg)	msge=msg[rm]
+dmark=deafault_chapter_mark
+if lastimp then dropstuff=lastuff logg=lastlog else dropstuff=default_stuff logg=false end
 unconfig={
 	-- Sub --
 	{x=0,y=16,width=3,height=1,class="label",label="Left                                                    "},
@@ -1016,7 +1696,9 @@ unconfig={
 	{x=11,y=9,width=1,height=1,class="dropdown",name="nam",items={"comment","effect"},value=default_chapter_name},
 	{x=9,y=10,width=2,height=1,class="label",label="filename from:"},
 	{x=11,y=10,width=1,height=1,class="dropdown",name="sav",items={"script","video"},value=default_save_name},
-	{x=9,y=11,width=3,height=1,class="edit",name="lang"},
+	{x=9,y=11,width=2,height=1,class="checkbox",name="chmark",label="chapter mark:",value=false,hint="just sets the marker. no xml."},
+	{x=11,y=11,width=1,height=1,class="dropdown",name="chap",items={"Intro","OP","Part A","Part B","Part C","ED","Preview"},value=dmark},
+	{x=9,y=12,width=3,height=1,class="edit",name="lang"},
 	
 	-- numbers
 	{x=9,y=13,width=2,height=1,class="label",label="Numbers"},
@@ -1026,7 +1708,8 @@ unconfig={
 	
 	-- stuff
 	{x=0,y=15,width=1,height=1,class="label",label="Stuff  "},
-	{x=1,y=15,width=2,height=1,class="dropdown",name="stuff",items={"save/load","lua replacer","perl replacer","lua calc","jump to next","alpha shift","merge inline tags","add comment","add comment line by line","make comments visible","switch commented/visible","fake capitals","format dates","honorificslaughterhouse","transform \\k to \\t\\alpha","convert framerate"},value="format dates"},
+	{x=1,y=15,width=2,height=1,class="dropdown",name="stuff",items={"save/load","lua replacer","perl replacer","lua calc","jump to next","alpha shift","merge inline tags","add comment","add comment line by line","make comments visible","switch commented/visible","reverse text","reverse words","fake capitals","format dates","split into letters","explode","dissolve text","clone clip","honorificslaughterhouse","transform \\k to \\t\\alpha","convert framerate"},value=dropstuff},
+	{x=3,y=15,width=1,height=1,class="checkbox",name="log",label="log",value=logg,hint="replacers"},
 	{x=8,y=15,width=1,height=1,class="label",label="Marker:"},
 	
 	-- textboxes
@@ -1035,7 +1718,7 @@ unconfig={
 	
 	-- help
 	{x=9,y=0,width=3,height=1,class="dropdown",name="help",items={"--- Help menu ---","Import/Export","Update Lyrics","Do Stuff","Numbers","Chapters"},value="--- Help menu ---"},
-	{x=10,y=17,width=2,height=1,class="label",label=" Unimportant version: "..script_version},
+	{x=9,y=17,width=3,height=1,class="label",label="   Unimportant version: "..script_version},
 }
 
 	repeat
@@ -1061,6 +1744,9 @@ unconfig={
 	if pressed=="Cancel" then    aegisub.cancel() end
 	cancelled=aegisub.progress.is_cancelled()
 	if cancelled then aegisub.cancel() end
+	lastimp=true lastuff=res.stuff lastlog=res.log
+	ms2fr=aegisub.frame_from_ms
+	fr2ms=aegisub.ms_from_frame
 	aegisub.progress.title("Doing Stuff") aegisub.progress.task(msge)
 	    sub1=res.rep1
 	    sub2=res.rep2

@@ -9,10 +9,10 @@
 -- Third function shifts linebreaks back and is disabled by default.
 -- You can bind each function to a different hotkey and combine them as needed.
 
-script_name = "Line Breaker"
-script_description = "insert/shift linebreaks"
-script_author = "unanimated"
-script_version = "2.1"
+script_name="Line Breaker"
+script_description="insert/shift linebreaks"
+script_author="unanimated"
+script_version="2.11"
 
 --	SETTINGS	--	-- options are either numbers or true/false							[default value]
 
@@ -106,7 +106,7 @@ function nnn(subs, sel)
 	    :gsub("([^%.])%.({\\[^}]-})%s","%1.%2 \\N")
 	    :gsub("([,!%?:;])%s","%1 \\N")
 	    :gsub("([,!%?:;])({\\[^}]-})%s","%1%2 \\N")
-	    :gsub(",\"%s",",\" \\N")
+	    :gsub("([%.,])\"%s","%1\" \\N")
 	    :gsub("%.%.%.%s","... \\N")
 	    :gsub("([DM]rs?%.) \\N","%1 ")
 
@@ -169,7 +169,7 @@ function nnn(subs, sel)
 	    tekstb=balance(tekst)
 	    if tekstb~=tekst then tekst=backup2 end
 	    
-	    double={"so that","no one","ought to","now that","it was","he was","she was","will be","there is","there are","there was","there were","get to","sort of","kind of","put it","each other","each other's","have to","has to","had to","having to","want to","wanted to","used to","able to","going to","supposed to","allowed to","tend to","due to","forward to","thanks to","not to","has been","have been","had been","filled with","full of","out of","into the","onto the","part with","more than","less than","even if","make sure","give up","would be","wipe out","wiped out","real life","no matter"}
+	    double={"so that","no one","ought to","now that","it was","he was","she was","will be","there is","there are","there was","there were","get to","sort of","kind of","put it","each other","each other's","have to","has to","had to","having to","want to","wanted to","used to","able to","going to","supposed to","allowed to","tend to","due to","forward to","thanks to","not to","has been","have been","had been","filled with","full of","out of","into the","onto the","part with","more than","less than","even if","make sure","give up","would be","wipe out","wiped out","real life","no matter","based on","bring up","think of","thought of"}
 	    for d=1,#double do
 		dbl=double[d]
 		d1,d2=dbl:match("([%a']+) ([%a']+)")
@@ -181,7 +181,7 @@ function nnn(subs, sel)
 		    else tekst=tekst:gsub(" "..d1.." \\N"..d2.." "," "..d1.." "..d2.." \\N") end
 		end
 	    end
-	    tekst=re.sub(tekst," (a|a[sn]|by|I|I'm|I'd|I've|I'll|the|for|that|o[nfr]|i[nf]|who) \\\\N([\\w\\-']+) "," \\\\N\\1 \\2 ")
+	    tekst=re.sub(tekst," (a|a[sn]|by|I|I'm|I'd|I've|I'll|the|for|o[nfr]|i[nf]|who) \\\\N([\\w\\-']+) "," \\\\N\\1 \\2 ")
 	    if tekst:match(" by %a+ing \\N") then
 		beforethat=tekst:match("^(.-)by %a+ing \\N")	beforethat=beforethat:gsub("{[^}]-}","")	befrlgth=beforethat:len()
 		afterthat=tekst:match("by %a+ing \\N(.-)$")	afterthat=afterthat:gsub("{[^}]-}","")		afterlgth=afterthat:len()
@@ -206,7 +206,7 @@ function nnn(subs, sel)
 	text=text:gsub(stekst,tekst)
 	
 	    -- GUI for manual breaking
-	    if disable_dialog==false and not do_not_break_1liners and not text:match("\\N") then
+	    if disable_dialog==false and not do_not_break_1liners and not text:match("\\N") or line.effect=="n" then
 		after=text:gsub("^{\\[^}]-}","")
 		dialog=
 		{
@@ -218,6 +218,7 @@ function nnn(subs, sel)
 		if pressed=="OK" then
 		res.txt=res.txt:gsub("\n","\\N") :gsub("\\N "," \\N")
 		text=tags..res.txt
+		if line.effect=="n" then line.effect="" end
 		end
 		if pressed=="All spaces" then res.txt=res.txt:gsub("%s+"," \\N") text=tags..res.txt end
 	    end
@@ -301,7 +302,7 @@ function nshift(subs, sel)
     end
     aegisub.set_undo_point(script_name)
     return sel
-end	
+end
 
 function backshift(subs, sel)
     for x, i in ipairs(sel) do
@@ -320,7 +321,7 @@ function backshift(subs, sel)
     end
     aegisub.set_undo_point(script_name)
     return sel
-end	
+end
 
 aegisub.register_macro("Line Breaker/Insert Linebreak", script_description, nnn)
 aegisub.register_macro("Line Breaker/Shift Linebreak", script_description, nshift)

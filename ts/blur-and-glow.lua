@@ -26,7 +26,7 @@
 script_name="Blur and Glow"
 script_description="Add blur and/or glow to signs"
 script_author="unanimated"
-script_version="2.12"
+script_version="2.13"
 
 --	SETTINGS	--			OPTIONS
 
@@ -282,7 +282,7 @@ function borderline2(txt)
     txt=txt:gsub("(\\r[^}]+)}","%1\\3c"..rimary.."}")
     :gsub("\\c&H%x+&([^}]-)(\\c&H%x+&)",function(a,b) if not a:match("\\t") then return a..b end end)
     :gsub("\\3c&H%x+&([^}]-)(\\3c&H%x+&)",function(a,b) if not a:match("\\t") then return a..b end end)
-    :gsub("{}","")
+    :gsub("{%*?}","")
     if res.bbl and res.double then txt=txt:gsub("\\blur[%d%.]+","\\blur"..res.bblur) end
     if res.botalpha and txt:match("\\fad%(") then txt=botalfa(txt) end
     return txt
@@ -295,7 +295,7 @@ function glowlayer(txt,kol,alf)
     :gsub("(\\r[^}]-)}","%1\\alpha&H"..al.."&}")
     if not txt:match("^{[^}]-\\alpha") then txt=txt:gsub("^({\\[^}]-)}","%1\\alpha&H"..al.."&}") end
     if res.alfa=="00" then txt=txt:gsub("^({\\[^}]-)\\alpha&H00&","%1") end
-    txt=txt:gsub("{}","")
+    txt=txt:gsub("{%*?}","")
     if res.glowcol then
 	if txt:match("^{\\[^}]-\\"..kol.."&") then txt=txt:gsub("\\"..kol.."&H%x+&","\\"..kol..glowc)
 	else txt=txt:gsub("\\"..kol.."&H%x+&","\\"..kol..glowc) txt=txt:gsub("^({\\[^}]-)}","%1\\"..kol..glowc.."}")

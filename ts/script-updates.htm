@@ -16,10 +16,69 @@ b {font-weight:bold; color:556677}
 <tr><td bgcolor=000000>
 <pre>Note: 0.01 updates are mostly bugfixes or minor changes. 0.1 updates are usually new features or bigger changes.
 
+2014-07-31   v2.2	<a href="masquerade.lua">Masquerade</a> - option to save custom masks and add them to the menu
+
+2014-07-30   v3.8	<a href="hydra.lua">HYDRA</a> - relative transforms (you have \frz30, set tf 60, get \t(\frz90) - keeps layers with different values in sync.)
+
+2014-07-29   v2.3	<a href="multicopy.lua">MultiCopy</a> - 'gbc text' paste over replicates colour gradients in full; unicode support for 'gbc text' and 'text mod.'
+
+2014-07-28   v2.9	<a href="relocator.lua">Hyperdimensional Relocator</a> - create a shadow layer instead of \shad; positron code cleanup; save config
+
+2014-07-27   v3.81	<a href="colorize.lua">Colorize</a> - fixed a bug in Match Colours
+2014-07-27   v3.7	<a href="apply_fade.lua">Apply fade</a> - support for \4c, \1a, \3a, \4a; unicode support; cleaned up old, retarded code; save config
+
+2014-07-26   v3.8	<a href="colorize.lua">Colorize</a> - several modes of gradients; option to remember last settings for checkboxes/dropdowns; save config
+
+2014-07-25   v2.0	<a href="import.lua">Unimportant</a> - split into letters; explode; optional <a href="unimportant.conf">config file</a>
+
+2014-07-24   v3.7	<a href="colorize.lua">Colorize</a> - true HSB adjustment; unicode support for inline things
+
+2014-07-23   v3.7	<a href="hydra.lua">HYDRA</a> - unicode support for inline tags; optional <a href="hydra.conf">config file</a>
+
+2014-07-22   v2.81	<a href="relocator.lua">Hyperdimensional Relocator</a> - make the unicode support actually work
+2014-07-22   v2.8	<a href="relocator.lua">Hyperdimensional Relocator</a> - clip2fax can do fax gradient and supports unicode; clip2frz can average from 2 lines
+
+2014-07-21   v2.75	<a href="relocator.lua">Hyperdimensional Relocator</a> - fix TP without \pos for margins; fix clip conversion for iclip; remove joinfbflines limit
+2014-07-21   v2.2	<a href="multicopy.lua">MultiCopy</a> - added option to paste clips as iclips
+2014-07-21   v1.9	<a href="import.lua">Unimportant</a> - added 'clone clip'
+
+2014-07-20   v1.8	<a href="import.lua">Unimportant</a> - dissolve text + logging for replacers
+2014-07-20   v2.1	<a href="multicopy.lua">MultiCopy</a> - some more useless things to copy
+
+2014-07-19   v2.11	<a href="recalculator.lua">Recalculator</a> - fixed some bugs with anchoring clips (hopefully)
+2014-07-19   v3.6	<a href="apply_fade.lua">Apply fade</a> - fade to/from current frame now works with alpha/colours/blur
+2014-07-19   v3.52	<a href="apply_fade.lua">Apply fade</a> - fix a bug where the alpha part wouldn't work with no tags present
+2014-07-19   v2.1	<a href="recalculator.lua">Recalculator</a> - added alternative 2nd value for "Y" things (fscY, Ybord, faY, Y coordinates...)
+
+2014-07-15   v2.71	<a href="script_cleanup.lua">Script Cleanup</a> - option to apply 'kill tags' only to starting or inline tags (type 'start' or 'inline' in effect)
+2014-07-15   v3.61	<a href="colorize.lua">Colorize</a> - fix a bug in merging with inline tags
+2014-07-15   v2.11	<a href="nnn.lua">Line Breaker</a> - make GUI open when line's effect is "n" + some minor adjustments
+2014-07-15   v3.51	<a href="apply_fade.lua">Apply fade</a> - fix a bug in merging letter-by-letter fades with other tags
+2014-07-15   v2.13	<a href="blur-and-glow.lua">Blur and Glow</a> - remove {*} left after gbc
+2014-07-15   v2.51	<a href="time_signs2.lua">Time signs from timecodes</a> - a bug fix that I don't really remember
+
+2014-07-14   v2.72	<a href="relocator.lua">Hyperdimensional Relocator</a> - fixed parentheses in 'transform clip'; GUI remembers main dropdown settings
+2014-07-14   v2.7	<a href="selectrix.lua">Selectricks</a> - move selection up or down
+2014-07-14   v2.11	<a href="masquerade.lua">Masquerade</a> - alfa timer splits by spaces if no line breaks or @
+
+2014-07-12   v3.61	<a href="hydra.lua">HYDRA</a> - fix 'tag at asterisk' messing up lines with different text; preset "custom pattern" now handles patterns
+
+2014-07-11   v1.7	<a href="import.lua">Unimportant</a> - reverse text, reverse words, make chapter marks (read Help for more)
+
+2014-07-10   v2.7	<a href="relocator.lua">Hyperdimensional Relocator</a> - Morph: Adjust Drawing (drawing2clip -> adjust clip -> clip2drawing)
+2014-07-10   v2.6	<a href="fax_this.lua">Copyfax This</a> - copy stuff: option to copy tags in line
+2014-07-10   v2.62	<a href="relocator.lua">Hyperdimensional Relocator</a> - Teleporter: fix bug that added \pos for lines with \move; handle \an right w/o \pos
+2014-07-10   v3.6	<a href="hydra.lua">HYDRA</a> - handle 'tag at asterisk' with inline tags; remember input data when reloading GUI
+2014-07-10   v2.7	<a href="script_cleanup.lua">Script Cleanup</a> - added 'remove inline tags'
+2014-07-10   v2.1	<a href="masquerade.lua">Masquerade</a> - shift tags: option to remove selected tags
+
+2014-07-08   v2.6	<a href="selectrix.lua">Selectricks</a> - select lines with same text as those in current selection
+
 2014-07-06   v2.6	<a href="relocator.lua">Hyperdimensional Relocator</a> - added 'clip to frz' (works similarly to 'clip to fax') + some fixes
 2014-07-06   v3.6	<a href="colorize.lua">Colorize</a> - integrated "match colours" GUI into the main GUI
 
 2014-07-04   v1.6	<a href="import.lua">Unimportant</a> - improved importing, numbering, and updating lyrics; added new functions
+
 
 2014-06-30   v2.64	<a href="script_cleanup.lua">Script Cleanup</a> - fixed deleting for tags without values, added "Delete unused styles (leave Default)"
 2014-06-30   v2.0	<a href="recalculator.lua">Recalculator</a> - ...and so I ended up adding a lot of other things
