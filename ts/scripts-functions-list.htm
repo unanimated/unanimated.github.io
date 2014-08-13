@@ -20,6 +20,7 @@ aka "Is there a script that does ......?"</b> (All scripts include detailed desc
 Add any tags
 Add inline tags
 add transforms (new transforms, add to existing transforms)
+relative transforms (transform by, rather than transform to)
 copy fscx value to fscy and vice versa
 move inline colour tags to the start (when you use the eyedropper tool but cursor isn't at the start of the editbox)
 convert between clip and iclip
@@ -38,9 +39,11 @@ split line in (2 or) 3 parts based on given timecodes/durations
 <b>Hyperdimensional Relocator - Repositioning Field</b>
 align signs along the same x or y coordinate
 mirrored image / duplicate across the screen
-calculate \fax from \org or from \clip
-calculate \frz from \clip
+calculate \fax from \org
+calculate \fax from \clip, including different values on each end + gradient in between
+calculate \frz from \clip, including averaging between two lines
 shake / randomize position (+rotation)
+create a shadow layer instead of \shad
 
 <b>Hyperdimensional Relocator - Soul Bilocator</b>
 create 1 line with \move from 2 static lines with \pos, including creating transforms (transmove)
@@ -90,8 +93,11 @@ shift pos, move, org, clip, mask by a given amount
 alternate between 2-5 colours letter by letter / word by word
 shift colours by a letter / word
 set a given mumber of colours (2-10) evenly across the line (3 = start, middle, before last character)
-adjust brightness / RGB channels
+adjust RGB channels
+adjust Hue/Saturation/Brightness
+randomize RGB/HSB (each of the 6)
 match colours between primary, outline, and shadow
+create RGB and HSB colour gradients
 
 
 <b>Blur and Glow</b>
@@ -124,6 +130,8 @@ select or sort lines by text, actor, effect, visible text, layer duration, word 
 reverse order of selection
 sort by width of text (in pixels)
 move the last line in a selection to the top of selection and vice versa
+select lines with the same text as the current one
+move selection up or down
 
 
 <b>Multi-line Editor</b>
@@ -135,11 +143,12 @@ count characters / words in a selection
 
 <b>MultiCopy</b>
 copy from / paste to selected lines:
-	initial tags, text after tags, both, clip, pos, blur, bord, colours, alpha, fscx, fscy, layer, duration, actor, effect
+	initial tags, text after tags, both, clip, pos, blur, bord, colours, alpha, fscx, fscy, layer, duration, actor, effect, comments
 export a crunchyroll script for pad
 paste over with check for errors
 paste over from irc (automatically removes timecodes and nicknames)
-paste over for lines with GBC (keeps the tag before last character so you can just rerun GBC after that)
+paste over for lines with GBC
+	(keeps the tag before last character so you can just rerun GBC after that. replicates colour gradients in full.)
 paste the same tags / text to multiple lines
 paste over of selected fields (layer, effect, text...)
 copy from one column (layer, effect, text...) to another
@@ -193,8 +202,14 @@ uncomment commented text (nuke { })
 switch commented / visible text
 reverse text character by character
 reverse text word by word
+reverse trasnforms (\bord3\t(\bord5) -> \bord5\t(\bord3); only initial tags, one transform per tag)
 fake capitalisation of uppercase text using higher \fs for the first letter of each word
 format dates to one of 4 patterns: "January 1", "January 1st", "1st of January", "1st January"
+split into letters (one line per character; other characters are alpha'd out)
+explode (split into letters + characters randomly move and fade away)
+dissolve text (make text disappear in segments in various ways)
+randomized transforms - different values for each line (includes randomized fade, duration, move)
+clone clip (replicates an existing clip given amount of times in rows/columns)
 transform kara tags (\k, \kf, \ko) into alpha transforms (FF->00)
 comment honorifics
 convert framerate
@@ -205,6 +220,7 @@ active line statistics: # in script, style, font, weight, fnot size, border, sha
 <b>Masquerade</b>
 create a mask with a predefined shape (includes 2 alignment grids)
 create a mask from clipped area
+save/load custom masks
 shift tags left or right by letters or words
 recalculate fscx / fsxy for a given \fs (mocha scale)
 make text appear letter by letter using alpha (shift alpha FF tag line by line)
@@ -214,7 +230,7 @@ transform underline/strikeout tags into alpha tags, as well as @30@ -> \\alpha&H
 
 <b>Copyfax This</b>
 set \fax
-calculate \fax from a clip
+calculate \fax from a clip, including different values on each end + gradient in between
 copy initial block of tags from line 1 to others
 copy text after initial block of tags from line 1 to others
 copy clip, shifting it by a given value line by line

@@ -20,6 +20,7 @@ pre {color:406050}
 IRC: <a href="irc://irc.rizon.net/irrational-typesetting-wizardry">#irrational-typesetting-wizardry</a><br><br>
 </td><td rowspan=2 valign=top>
 <b class=l>posts:</b><br><br>
+<a class=l href="#col.tune">col.tune </a><br>
 <a class=l href="#import">import </a><br>
 <a class=l href="#mask2">mask2 </a><br>
 <a class=l href="#hydra2">hydra2 </a><br>
@@ -33,6 +34,88 @@ IRC: <a href="irc://irc.rizon.net/irrational-typesetting-wizardry">#irrational-t
 </td></tr>
 
 <tr><td bgcolor=000000><br>
+
+
+<a name="col.tune"></a>
+<h2>Laziness Leads to Useless Creativity</h2>
+<h4>2014-08-13</h4><br>
+My latest lua functions are less and less practical because obviously the practical ones have already been written.<br>
+I still write new ones because:<br>
+1. I'm super lazy to do things by hand, to type, and to repeatedly place the cursor into a small space somewhere<br>
+2. I like the challenges<br>
+3. I can<br><br>
+
+So basically every time I'm typesetting something and I feel like this could be done with at least 10% less effort, I think about writing a script. I don't really care if the benefit is only 10% and nobody else will use it, for reasons explained above.<br><br>
+
+So here's the latest useless function, its purpose, and its reasons.<br><br>
+
+This is an eyecatch from Hanayamata. In case it's difficult to tell.<br>
+
+<br><br>
+<img src="hanayama1.png"><br><br>
+
+Obviously I re-use it from previous episodes, but as you can see, those bastards slightly change the colours every time.<br>
+
+
+<br><br>
+<img src="hanayama4.png"><br><br>
+
+And I really hate clicking somewhere in the middle of this mess for each colour to fix it.<br>
+I can't see which colour is which, and when the text is chopped into small pieces, often just one letter at a time, it's kinda hard to tell which part is what. Also, did I mention that I was lazy?<br><br>
+
+So I figured some improvement to this process is warranted...<br>
+
+<br><br>
+<img src="hanayama2.png"><br><br>
+
+...and implemented this "Tune colours" function in <a href="../ts/colorize.lua">Colorize</a> (v4.0).<br>
+Isn't that nice?! Now I can clearly see what's what!<br>
+It simply reads all the colours it finds in the line and sorts them by type.<br>
+
+<br><br>
+<img src="hanayama3.png"><br><br>
+
+There. Fixed.<br><br>
+
+Now, the real challenge was: What if the same colour appears several times and I wanna change only one?<br>
+(Because gsub simply replaces one pattern with another.)<br>
+
+So I used the Colorize-by-letters function and experimented.<br>
+
+<br><br>
+<img src="coloursss1.png"><br><br>
+
+Here's what you get when you run it on such a line...<br>
+
+<br><br>
+<img src="coloursss2.png"><br><br>
+
+Obviously I figured it out, so... here I change one letter to yellow and one to dark red.<br>
+
+<br><br>
+<img src="coloursss3.png"><br><br>
+
+And the correct parts change as they're supposed to.<br><br>
+
+If you colorize borders and shadows too, you get it all in a nice palette that you'll probably never need.<br>
+
+<br><br>
+<img src="coloursss4.png"><br><br>
+
+That's not the point though. Hanayamata was the point, and this is just side effects.<br>
+Though who knows. If you need GBC and it's not linear and it's a bit chaotic and unpredictable, maybe this will help.<br>
+Also the #1 in the corner is the number of the line, if you select more, but doing that is even more useless.<br><br><br>
+
+Since I'm already writing, I'll mention a few other recent additions.<br><br>
+
+<a href="../ts/hydra.lua">HYDRA 3.9</a> can add a transform to each block of tags, which can probably only be reasonably useful with a bunch of inline colours that all need to transform to the same one, like fade to black.<br><br>
+
+<a href="../ts/masquerade.lua">Masquerade</a> is a bit more versatile with masks. Mainly you can add your own to the menu pretty easily. Then there's also the 'remask' function that lets you replace one mask with another without changing the tags.<br>
+Speaking of masks, if you have any cool ones, hand them over so I can <a href="../ts/masks.htm">add them to the collection</a>.
+
+<br><br><br><br><br><br>
+
+
 
 
 <a name="import"></a>
