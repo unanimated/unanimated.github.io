@@ -57,7 +57,8 @@ Here's what you can do with it, if you feel like spending 5 hours on 1 frame:<br
 <br><br>
 
 Some colors of the masks are off because back then I didn't know about the issues with colorspaces and used ffmpeg in Aegisub 2.1.8 or 2.1.9.<br>
-If you're using those versions, use avisynth to load the video. If you're using Aegisub 3.0, use the BT.601 colorspace [which I think is on by default].<br><br>
+If you're using those versions, use avisynth to load the video. If you're using Aegisub 3.0, use the BT.601 colorspace [which I think is on by default].<br>
+<font class="n">2015 Note: And if you're reading this, do NOT use BT.601. (Turn it off in Options-Advanced-Video.) Yeah, shit keeps changing.</font><br><br>
 
 In case it wasn't clear to someone, all the books had Japanese titles, of course...
 
@@ -128,7 +129,8 @@ As a demonstration you can try this:<br>
 Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0000,0000,0000,,{\an5\q2\fs40\b1\bord1\blur0.1\shad0.1\1a&HFA\4aHF0\t(0,3000,3,\fs75\bord4\xbord10\shad22\blur1\1c&H00FFA9&\3c&H9B2664&\4c&H0C1A4C&\4a&90\1a&H00\fscy150\fsp15\frz15\fax-0.4)}Unlimited Eyecancer Works<br><br>
 
 This will change font size, border size, shadow distance, blur, all colors, transparency, font scaling, font spacing and rotation. Oh and CPU usage.<br>
-For even more CPU usage, add movement, \clip, the other rotations and \blur15.<br><br>
+For even more CPU usage, add movement, \clip, the other rotations and \blur15.<br>
+<font class="n">2015 Note: It would be hard to make one line lag nowadays, no matter how many transforms. But if it's many lines at the same time...</font><br><br>
 
 So this gives you the idea of how you can change the basic properties. Use your imagination to figure out how far the options go.<br><br>
 

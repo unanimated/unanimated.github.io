@@ -1,0 +1,97 @@
+﻿<html><head><title>Introduction</title>
+<meta charset="utf-8">
+<link rel="stylesheet" href="ts.css" type="text/css" />
+</head>
+
+<body text=808386 topmargin=0><center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=800>
+
+
+<tr><td>
+<center><font size=5 color=446677><b>Introduction
+</center></td></tr>
+
+<tr><td><br>
+
+This guide was written mostly in 2011-2013, with only a few updates after that, and therefore is obsolete in many ways.<br>
+I don't care about anime or fansubbing anymore, so I'm not planning on keeping it updated, aside from possibly minor additions that someone basically hands over to me and I just add them.<br>
+<br>
+Things were very different in 2011 when the first chapters were written.<br>
+There were (almost) no automation scripts, only a handful of people knew how to use mocha, nobody was using xy-vsfilter yet, and everything lagged like shit.<br>
+Much of this guide still reflects those times, so you shouldn't necessarily take every advice you find here. For example typing any tags instead of using automation would be pretty stupid today and would cost you a lot of time. There are scripts for almost everything, written by me and others.<br>
+<br>
+It should also be noted that nobody gave a shit about libass when this guide was written, so everything is written assuming that you're using vsfilter and nobody will watch it with libass.<br>
+Recently, though, libass has been evolving probably faster than vsfilter and thus become much more relevant, so typesetters may want to consider making sure their signs work the same on both renderers.<br>
+For most things, this is not a problem, but there are some issues that each renderer handles differently. I don't really know what they are, as I'm mostly out of the game, but I know some of them concern rendering fonts.<br>
+<br>
+If you want to typeset seriously and want to have up-to-date information,<br>
+I highly suggest joining <a href="irc://irc.rizon.net/irrational-typesetting-wizardry">#irrational-typesetting-wizardry</a> on rizon.<br>
+There you can talk to a lot of people who can help you with all kinds of problems, as well as directly with authors of commonly used scripts, Aegisub/vsfilter/libass developers, etc.<br>
+<br>
+You can find a lot of stuff on <a href="https://github.com/TypesettingCartel">this github link</a>.<br>
+It includes my scripts, lyger's, torque's, line0's, Youka's, etc.<br>
+You can find all these people in that irc channel I mentioned, as well as Plorkyeran and jfs who work on Aegisub, and rcombs who works on libass. At least that's the situation at the time of writing this, February 2015.<br>
+<br>
+<br>
+<b>What has changed since the guide was written?</b><br>
+<br>
+Things lag much less, so some warnings about lag may not be relevant anymore. Today you can have many transforms in one line, track several signs at once, or make huge gradients without any lag. It's usually only if you combine too many of these things that things get a bit slow. If there are two methods to do a sign, it's not always easy to tell which one will be less laggy, so sometimes you just have to try.<br>
+<br>
+Mocha tracking is a must, and if you want to typeset decently, you definitely have to learn that.<br>
+<br>
+Vector drawings have become very common for masking and other purposes, and there are tools to create them easily. Don't use stupid shit like FansubBlock.ttf.<br>
+<br>
+Some of my own examples in this guide, while they may have looked great in 2012, don't look so good now. A lot of them were made without any scripts and with incomplete understanding of all available tools, since even when I was writing the guide, I was still learning myself.<br>
+<br>
+Aegisub has evolved a lot since 2011. Some things in this guide regarding the program may be obsolete.<br>
+<br>
+It's not uncommon to do one sign in 5 layers or more. If it's relatively easy to do and makes the sign look better, go for it. It's unlikely to lag even when mocha-tracked.<br>
+<br>
+While I haven't gone in that direction myself (I only use Aegisub, ASSDraw, and Mocha), it's pretty common to use other software, like Illustrator. Check line0's and torque's stuff for tools and guidelines for that.<br>
+<br>
+Sorting by time is not needed anymore. Only old vsfilter had that bug, and both xy-vsfilter and libass have no problem with it.<br>
+<br>
+<br>
+<b>Some general notes about typesetting</b><br>
+<br>
+There is no single, universal goal of typesetting. Different typesetters have different methods and goals. So don't really let people tell you how you "should" do it.<br>
+Typesetting is largely about the ratio of time and effort you put into it and the quality of what comes out. What you want this ratio to be is up to you. You may want the best results, or you may want it done fast, or you may want something in between.<br>
+Hdr was a typesetter who usually went for the best possible quality, at the cost of endless time spent on it and often breaking people's computers with massive lag.<br>
+Examples of those who go for speed over quality are of course many.<br>
+My goal has always been to find a reasonable ratio. There were certainly times when I went for higher quality than today, but I've (almost) always refrained from spending too much time making only little improvements, especially for things that people normally watching the video (without pausing) would hardly even notice. Of course, you will always find people who will criticize you for that, but fuck them. They usually don't know shit about typesetting anyway.<br>
+<br>
+You should never listen to typesetting advice/criticism from people who don't typeset, and you should never listen to ANY advice/criticism about anything from Dark_Sage and Kristen.<br>
+<br>
+There's no rule saying that you have to typeset every single sign you can find in the video. It's really up to you and your group to decide which signs you should or want to do.<br>
+<br>
+I would also like to mention a few things about matching the original text with your TS. While you should definitely learn to do that and keep it as a general guideline, I don't think it's necessary to follow it as a rule set in stone. Sometimes a sign typeset differently from the original may look better than one that imitates the original as much as possible. This can have various reasons.<br>
+For example, there may not be enough space to do the same in the same way the original looks, and trying the same look in smaller size could look really bad (especially with borders and shadows), so making a smaller typeset in a completely different font, possibly without or with fewer borders/shadows, may be a decent solution. What really matters is whether it looks good and the viewer doesn't stop and think "WTF is that?"<br>
+If you pay attention to cases where Japanese studios add an English sign alongside the Japanese one themselves, you will find that the English one often looks very different from the Japanese. If they don't deem it necessary to match the two perfectly, you shouldn't really have to either. But it has to blend in somehow.<br>
+I have recently gone more in the direction of not matching things that much. I prefer my typesetting work to be creative rather than just tedious slavery following exact rules.<br>
+If you make a sign that looks good and someone who doesn't typeset complains that you didn't match the original and you should have, just tell them to fuck off, and don't waste your time on arguing with them.<br>
+<br>
+This may be even more relevant with episode titles. Episode titles are usually not a part of the "picture". They're added text, with little to no graphical connection to the video.<br>
+So for starters, I see little reason why you should place your typeset right under or above the original. You can place it at the opposite side of the screen, or whatever happens to be convenient or look good.<br>
+As for matching the look, it will obviously look weird in most cases if you just pick a completely different font, but that also depends on the font. English never looks like Japanese, and English text that matches the Japanese font often looks a lot more "boring". So using a font that doesn't match 100% but looks nicer can be a good solution for titles.<br>
+I also never understood why people try to acquire the actual Japanese font and use the Latin part of it for TS. This to me is mechanical, robotic stupidity. Firstly, just because it's in the same ttf file doesn't mean the English actually looks like the Japanese, and secondly, most of those I've seen could easily be replaced by hundreds of similar fonts, saving you from using a 10 MB font and/or from looking for the exact Japanese font. It's of course up to you, though, how much time you want to spend on pointless shit like that.<br>
+Then again, not everyone is creative, and some people just like to imitate and match things blindly because they don't really have a mind of their own.<br>
+<br>
+Consistency. Yeah, there's that. While it's certainly nice if you can make repeating signs consistent, the fact is that the more I typeset, the more I notice that Japanese studios are inconsistent as fuck, and making a consistent typeset may often be not only difficult but virtually impossible. So now that I don't really care so much, I just do whatever works instead of wasting time trying to do the impossible. If the studio is entitled to inconsistency, then so am I.<br><br><br>
+
+Instead of rewriting things, I have recently added some <font class="n">notes in this colour</font> reflecting on what has changed since that particular part of the guide in question was written. For some reason I originally wrote the guide using American English, but now I'm way too used to both British spelling and punctuation, so there are some inconsistencies regarding that, in case you notice and wonder about that.
+
+<br><br><br><br>
+<center><a href="index.htm"><b>« Back to Typesetting Main</a>
+<br><br><br>
+
+
+
+
+
+
+
+
+
+
+
+

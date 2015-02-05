@@ -1,0 +1,1348 @@
+﻿<html><head><title>unanimated's Aegisub scripts - Manuals</title>
+<meta charset="utf-8">
+<link rel="stylesheet" href="ts.css" type="text/css" />
+<style>
+td {color:60686E; vertical-align:top}
+pre {color:664466}
+a {color:667788}
+b {color:558866}
+h3 {font-weight:bold; font-size:13pt; color:881313}
+h4 {font-weight:bold; font-size:10pt; color:885522}
+.p {color:885522}
+.f {color:6666CC}
+</style></head>
+
+<body bgcolor=000000 topmargin=0>
+<center><br>
+<table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=900>
+<tr><td>
+<b><font size=5 color=445566>Manuals for All Reanimated Scripts</font>
+</td></tr><tr><td>
+This page contains detailed descriptions for all my scripts.<br>
+Basic descriptions are included at the top of each script, or within special "help" or similar functions.<br>
+The ones here are meant to be more detailed, in case the basic ones aren't clear enough for you.<br><br>
+
+Some global rules for all scripts:<br><br>
+
+The Esc key almost(?) always works like the 'cancel' function.<br>
+The Enter key in most cases works as whatever the default button is.<br>
+(If Enter makes line breaks inside a textbox, you can use Ctrl+Enter instead.)<br><br>
+
+Some possibly unclear terms that I use, just in case:<br><br>
+<font color=226666>tag block</font> - a set of tags between curly brackets, e.g. <font color=664466>{\blur0.6\bord2\pos(640,300)}</font><br>
+<font color=226666>start tags / initial tags</font> - the tag block at the beginning of a line<br>
+<font color=226666>inline tags</font> - tags that aren't in the first tag block but somewhere within the text of the line: like <font color=664466>{\i1}</font>these<font color=664466>{\i0}</font> italics<br>
+<font color=226666>fbf</font> - "frame by frame", referring mostly to mocha-tracked signs, or any signs that have a new line for each new frame of video<br>
+<font color=226666>mocha</font> - software used for tracking signs, in case you don't know<br>
+<font color=226666>gbc</font> - "gradient by character", i.e. text with tags for each character, with values gradually changing (original script written by lyger)<br>
+
+
+
+</td></tr><tr><td>
+
+<table cellpadding=10 cellspacing=0><tr><td>
+
+<b>No-GUI Scripts</b><br><br>
+
+<a href="#cycle">Cycle Scripts</a><br>
+<a href="#itabold">Italicize / Make Bold</a><br>
+<a href="#linebreak">Line Breaker</a><br>
+<a href="#join">Join / Split</a><br>
+<a href="#snap">Snap</a><br>
+<a href="#resplit">Re-Split</a><br>
+<a href="#next">Jump to Next</a><br>
+
+</td><td>
+
+<b>GUI Scripts</b><br><br>
+
+<a href="#cleanup">Script Cleanup</a><br>
+<a href="#blurglow">Blur and Glow</a><br>
+<a href="#hydra">HYDRA</a><br>
+<a href="#relocator">Hyperdimensional Relocator</a><br>
+<a href="#recalc">Recalculator</a><br>
+<a href="#colorize">Colorize</a><br>
+<a href="#selectrix">Selectricks</a><br>
+
+</td><td>
+
+<br><br>
+
+<a href="#multiedit">Multi-line Editor</a><br>
+<a href="#multicopy">MultiCopy</a><br>
+<a href="#fade">Apply fade</a><br>
+<a href="#shiftcut">ShiftCut</a><br>
+<a href="#import">Unimportant</a><br>
+<a href="#timesigns">Time signs from timecodes</a><br>
+<a href="#capitalize">Change Capitalization</a><br>
+
+</td><td>
+
+<br><br>
+
+<a href="#masquerade">Masquerade</a><br>
+<a href="#copyfax">Copyfax This</a><br>
+<a href="#modifytext">Modify Text</a><br>
+<a href="#enchsub">Encode - Hardsub</a><br>
+<a href="#mux">Multiplexer</a><br>
+<a href="#runemap">Runemap</a><br>
+<a href="#backup">Backup Checker</a><br>
+
+</td></tr></table>
+
+
+
+</td></tr><tr><td><a name="cycle"></a>
+<h3>Cycle Scripts</h3>
+(Blur Cycle, Border Cycle, Shadow Cycle, Alpha Cycle)<br><br>
+
+<b class="p">Purpose:</b> Quick application of blur/border/shadow/alpha<br><br>
+
+These scripts are meant to be <i>hotkeyed</i> (wouldn't really make sense otherwise) and used as the quickest way to apply blur, etc.<br>
+Each of these 4 scripts contains a sequence. For example blur contains this:<br><br>
+
+<font color=664466>sequence={"0.6","0.8","1","1.2","1.5","2","3","4","5","6","8","0.4","0.5"}</font><br><br>
+
+You can change the sequence in the script. (Edit the .lua in notepad. Make sure not to screw up the quotation marks and commas.)<br><br>
+The first value is the default. That means if the line has no blur, this value will be applied.<br>
+Pressing the hotkey again will switch the value for the next one in the sequence.<br>
+So the first run gives you blur0.6, second gives you blur0.8, and so on.<br>
+When it reaches the last value in the sequence, it goes to the start again.<br><br>
+If your current blur is not in the sequence, it will give you the first value in the sequence that is higher than the current blur.<br>
+For example, if your blur is 1.4, you will get 1.5 with the sequence above. However, if it's 0.3, you won't get 0.4 but 0.6 instead, because 0.6 is before 0.4 in the sequence. In other words, the first value, 0.6, is higher than 0.3, so it gets applied, and the process stops there. So if you wanted 0.3 to go to 0.4, then 0.4 would have to be before 0.6 in the sequence.<br><br>
+
+This doesn't mess with transforms and only applies to the first block of tags.<br><br>
+
+
+
+</td></tr><tr><td><a name="itabold"></a>
+<h3>Italicize / Make Bold</h3>
+
+<b class="p">Purpose:</b> Quick application of Italics / Bold<br><br>
+
+A script for hotkeying that applies italics to your line.*<br>
+This reads values from style and goes through all italics tags in the line.<br>
+If the style is in italics and there is no \i tag, you'll get \i0, not \i1.<br>
+For every italics tag in the line, it switches to the other one (1 vs 0).<br><br>
+
+Example:<br><br>
+
+<font color=664466>
+Before: This {\i1}is{\i0} a test<br>
+After: &nbsp; {\i1}This {\i0}is{\i1} a test<br><br>
+</font>
+
+If the style is italics, though, you will get this:<br><br>
+
+<font color=664466>{\i0}This {\i1}is{\i0} a test</font><br><br>
+
+Because the style is italics, the first tag becomes \i0.<br>
+The other tags, however, don't change in this case, because the script corrects a wrong sequence at the beginning, that is two consecutive italics tags with the same value. In other words, since the style here was italics, the first tag became \i0, and thus the second one had to be \i1.<br><br>
+
+This correction system only checks the first already existing italics tag and doesn't check \r, so not everything gets "corrected".<br><br>
+
+<i>* This explanation is for Italics, but the Bold version works exactly the same.<br><br>
+
+
+
+</td></tr><tr><td><a name="linebreak"></a>
+<h3>Line Breaker</h3>
+
+<b class="p">Purpose:</b> Use a hotkey to insert a line break at the estimated most appropriate place in the line<br><br>
+
+This is mainly targeted at editing (i.e. dialogue), but it's useful for typesetters too.<br><br>
+
+If your line has any line breaks, the script will remove them all.<br>
+If it doesn't, the script will insert a line break.<br>
+Where it gets inserted is a result of rather exptensive and complex mechanisms, so I will only explain part of them.<br><br>
+
+The primary places for line breaks are after punctuation marks, namely . ! ? , : ; ...<br><br>
+
+Example:<br><br>
+
+<font color=664466>
+Before: Beyond that sky over there, there are people waiting for you.<br>
+After: &nbsp; Beyond that sky over there, \Nthere are people waiting for you.<br><br>
+</font>
+
+This line breaks naturally after the second "there". If you care about where line breaks are, you obviously want it after that comma, and that's what you get, in this case very easily, by pressing a hotkey.<br><br>
+
+Now, let's look at another example:<br><br>
+
+<font color=664466>
+Before: However, one must exercise caution when synchronizing with the other side.<br>
+After: &nbsp; However, one must exercise caution \Nwhen synchronizing with the other side.<br><br>
+</font>
+
+You have a comma there too, but the script sees that the length of the two parts would be extremely disproportionate, so it looks for another solution. In this case, it finds a conjunction that's roughly in the middle of the line and thus is a good place to start the second "line", so the break goes before "when". (The line normally breaks after "when".)<br><br>
+
+<font color=664466>
+Before: the place you belong is the place where people are waiting for you.<br>
+After: &nbsp; the place you belong is the place \Nwhere people are waiting for you.<br><br>
+</font>
+
+This line normally breaks after "where".<br><br>
+
+So there's punctuation and conjunctions. After each attempted line break, the script checks the length of the two parts. If the length ratio is too high, it doesn't use that line break and tries something else. If it can't find a grammatically suitable place, the line break goes in the middle of the line. This, however, depends on some settings, so as a last resort, the scripts opens this GUI:<br><br>
+
+<img src="../px/lbreak1.png"><br><br>
+
+Obviously there's no logical place for a line break with just one word, so it asks you where you want that break.<br>
+Let's use a meaningful example:<br><br>
+
+<img src="../px/lbreak2.png"><br><br>
+
+What you do is simply split the line like this (with Enter), and you'll get "You fell into an old well \Nin the woods near your home,".<br><br>
+
+You can see there's also an <font color=226666>All spaces</font> button. This will insert linebreaks at all spaces, i.e. after each word.<br>
+As this can sometimes be useful for typesetting, there's a trick to bring up this GUI: type "n" in the Effect field, and the GUI will appear.<br><br>
+
+This script has a number of settings that the user can change to suit his needs better.<br>
+The setup GUI shows up when you run the script for the first time (that is, a version that has it).<br>
+<b>To change the settings later, type "setup" in Effect before running the script.<br></b>
+You'll see this:<br><br>
+
+<img src="../px/lbreak3.png"><br><br>
+
+<font color=226666>min. characters</font> - Minimum characters required to place a line break. If 50, lines with fewer than 50 characters will be ignored.<br>
+<font color=226666>min. words</font> - Minimum words required to place a line break.<br>
+<font color=226666>linebreak in the middle if all else fails</font> - This can be turned off if you only want grammatical/manual breaks.<br>
+<font color=226666>^ min. characters</font> - Minimum characters required for line breaks in the middle of a line.<br>
+<font color=226666>force breaks in the middle</font> - Force breaks in the middle of the line rather than after commas etc., if you prefer that. (It's dumb.)<br>
+<font color=226666>disable dialog for making manual breaks</font> - Disables the option to insert manual breaks.<br>
+<font color=226666>allow a break if there are only two words</font> - This overrides 'min. words' and allows a break between just 2 words. Useful for typesetting.<br>
+<font color=226666>enable balance checks</font> - Enables checking the length ratio before/after the linebreak.<br>
+<font color=226666>^ max. ratio</font> - Maximum ratio allowed.<br>
+<font color=226666>don't break 1-liners</font> - Won't place a line break if the line doesn't break naturally.<br><br>
+
+These settings can be tuned in various ways. You can for example set it up so that you can just run it on all dialogue, and it will only break lines you want to break. With the default settings, you should only run it for lines you actually want to break.<br>
+If you want it applied to all dialogue, you should disable breaking for 2 words, probably not break 1-liners, set minimum characters/words to something higher, and possibly disable manual breaking since you might have that popping up for multiple lines.<br><br>
+As for the ratio, 2 may seem like a lot, but this is ratio 2.875 counting by characters and 2.2 counting by pixels:<br><br>
+
+<img src="../px/lbreak-ratio.png"><br><br>
+
+Looks perfectly fine, in my opinion. Certainly better than breaking the line anywhere else (if you have to break it).<br>
+It could be a problem with longer lines, though, so when the length crosses a certain limit, the ratio is lowered. (This is not optionable.)<br><br>
+
+Making this work well is pretty challenging, but I've spent a lot of time testing it and changing it (there were probably 50-100 unreleased versions), and I think it works reasonably well most of the time. Teaching the script complex grammar is pretty much impossible, so there will always be cases where the break has to be changed, which gets us to the other 2 functions of the script.<br><br>
+
+The Script has 3 macros registered - 'Insert Linebreak' (that's all of the above), 'Shift Linebreak', and 'Shift Linebreak Back'.<br><br>
+
+<font color=226666>Shift Linebreak</font> - Shifts line break by one word to the right.<br>
+<font color=226666>Shift Linebreak Back</font> - Shifts line break by one word to the left.<br><br>
+
+This allows you to fix breaks that were placed weirdly by using a hotkey.<br>
+By combining these 3 functions, you can always get the line breaks where you want them pretty quickly.<br><br>
+
+
+
+
+</td></tr><tr><td><a name="join"></a>
+<h3>Join</h3>
+
+<b class="p">Purpose:</b> Join active line with the one after it<br><br>
+
+This is a combination of "Join (concatenate)" and "Join (keep first)".<br>
+My goal was to make it reasonably estimate which of the two you need, so that there can be only one hotkey.<br><br>
+
+
+If the text (without tags/comments) is the same on both lines, then it's "keep first".<br>
+If the text is different, it's "concatenate", but it nukes some redundant tags from the 2nd line (pos, move, org, clip, fad, q). If text is different but tags are exactly the same, they're nuked from line 2 as well.<br>
+If a bigger selection has the same visible text on all lines, works as "Join (keep first)" for the whole selection.<br><br>
+
+Note that if you select more than 2 lines and they don't have the same text, the script only applies to active line, whatever the selection.<br><br>
+
+The script also nukes a {join} comment at the end of line 1 and ellipses if they're at the end of line 1 and start of line 2.<br><br>
+
+
+
+
+</td></tr><tr><td><a name="split"></a>
+<h3>Split</h3>
+
+<b class="p">Purpose:</b> Split a line at the estimated most appropriate place<br><br>
+
+This is mainly for timers, as it splits both text and timing.<br>
+It's similar to Aegisub's "Split at cursor (estimate times)", but it doesn't use cursor.<br><br>
+
+Line is split at (in priority order):<br><br>
+
+1. line break (first one if there are more)<br>
+2. {split} or {SPLIT} marker (those can be thus placed where needed by the editor)<br>
+3. "- " (dash+space) This is for shitty subs with 2 speakers in one line "Hello. - Hi."<br>
+4. period<br>
+5. ! or ?<br>
+6. comma<br><br>
+
+If none of the above is found, nothing happens. In such a case, you use Line Breaker to place a line break first, and then you can split at the break.<br>
+This is supposed to be hotkeyed, and if you learn to use it right, it makes splitting lines during timing very fast.<br>
+For example if you have 2 sentences in 1 line, you just press the hotkey, it splits the line between the sentences, and you use ctrl+mouse to shift the end of line1 and start of line2 on audio if needed.<br><br>
+
+An extra function is a sort of auto-correction of crunchyroll stupidity. For some reason, they like to place extremely awkward words at the end of a line, like conjunctions and prepositions. So if a line ends with one of these words, they get automatically moved to the start of the next line:<br>
+that, and, but, so, to, when, with, the. (not when there's a comma after, mind you)<br><br>
+
+One more addition is that if the line has only one word (or rather, no space), it gets split into two lines with that same text. If you're timing text where somebody calls someone's name repeatedly, and there's more instances in the audio than in the subtitles, you can duplicate the line this way.<br><br>
+
+Of course the script gets rid of leading/trailing spaces, and it nukes the {split} tag too.<br><br>
+
+As for the timing part, there's a mechanism for estimating the times, which I won't explain because it's slightly complicated. It works a bit better than the one inbuilt in Aegisub, but there's really no way to always estimate correctly where the line should be split timing-wise.<br><br>
+
+
+
+</td></tr><tr><td><a name="snap"></a>
+<h3>Snap</h3>
+
+<b class="p">Purpose:</b> Quickly snap a line to nearby keyframes using a hotkey<br><br>
+
+This is a very simple script, the point of which is to have a hotkey for TPP's snapping to keyframes.<br>
+At the top of the script you have these settings:<br><br>
+<font color=226666>
+kfsb=6		-- starts before<br>
+kfeb=10		-- ends before<br>
+kfsa=8		-- starts after<br>
+kfea=15		-- ends after<br><br>
+</font>
+This should be self-explanatory. It's just like TPP's settings (when it was in frames, not milliseconds), or like ShiftCut's settings.<br>
+If you type "gui" in the first selected line's effect field, you'll get a GUI where you can temporarily change the settings.<br><br>
+
+You can select a number of lines, press the hotkey for this, and any line that's within the distances determined by the settings from a keyframe will get snapped to it.<br><br>
+
+If the script doesn't find suitable keyframes to snap to, it checks if it can snap to adjacent/overlapping lines, with the same settings.<br><br>
+
+
+
+</td></tr><tr><td><a name="resplit"></a>
+<h3>Re-Split</h3>
+
+<b class="p">Purpose:</b> Move last word to the start of the next line or the other way round<br><br>
+
+
+Example (two lines in script):<br><br>
+
+<font color=664466>
+Those who are exposed to lots of them often<br>
+go through what you went through.<br><br>
+</font>
+Press hotkey for 'ReSplit - Forward'.<br><br>
+<font color=664466>
+Those who are exposed to lots of them<br>
+often go through what you went through.<br><br>
+</font>
+
+So as you can see, this is for re-splitting weird lines, mainly ones produced by the infamous Crunchyroll, because they really like their awkward splits.<br><br>
+
+It applies to active line, so no use selecting more lines.<br>
+One key moves the last word to the next line, the other moves it back.<br><br>
+
+
+
+</td></tr><tr><td><a name="next"></a>
+<h3>Jump to Next</h3>
+
+<b class="p">Purpose:</b> Go to the line that comes after all the lines of your current multi-line "sign" (mocha, gradient, etc.)<br><br>
+
+This is easier to show than explain:<br><br>
+
+<img src="../px/nekst.png"><br><br>
+
+Here you have some mocha-tracked signs. Each frame has 4 lines, so you have 4 different texts.<br>
+For this example, I'm showing only a small part, but let's say the sign has 200 lines, and you're at the beginning.<br>
+What you want is to go to the next sign, in this case the one that says "Total: points". (Which it shouldn't really say, but fortunately somebody nuked that colon in time.)<br>
+So what you do is you select all the lines belonging to the current sign, i.e. all 4 different lines, and press the hotkey for the script.<br>
+What happens is that the script goes forward line by line and only stops when the text (without tags) of the line is different from all lines in your selection. So you end up with the line with 'Total points' selected.<br>
+This is very helpful with heavy typesetting when you need to find the next sign and scrolling in thousands of lines is too chaotic.<br><br>
+
+There is one option in the script (open in notepad):<br><br>
+
+<font color=664466>default_marker="text"</font><br><br>
+
+In this mode it works as described. You can change "text" to "style", "actor", or "effect", and then it searches the content of those fields instead of text.<br>
+One more thing you can do is that if you're in "text" mode and type "st" in effect of the first selected line, it will search in Style. This is a way to quickly switch to "style" mode without having to edit the script.<br><br>
+
+An alternative that gives you all options in GUI form is included in Unimportant.<br><br>
+
+
+
+</td></tr><tr><td><a name="cleanup"></a>
+<h3>Script Cleanup</h3>
+
+<img src="../px/script-cleanup.png"><br><br>
+<b class="p">Purpose:</b> Clean up your script by removing all kinds of unwanted and redundant things from lines (or whole lines)<br><br>
+
+(Almost) Everything works for selected lines.<br><br>
+
+There are two parts. The left one does more varied things; the right one just removes specified tags.<br><br>
+
+Left part:<br><br>
+
+<font color=226666>Remove TS timecodes</font> - removes comments starting with "TS", like {TS 5:36}<br>
+<font color=226666>Remove comments from lines</font> - removes all comments (Comments button is a shortcut for that)<br>
+<font color=226666>Clear Actor field</font> - obvious<br>
+<font color=226666>Clear Effect field</font> - obvious<br>
+<font color=226666>Raise dialogue layer by 5</font> - raises a dialogue line's layer by 5 if it's 4 or lower (Dial 5 button is a shortcut)<br>
+<font color=226666>Clean up tags</font> - joins neighbouring tags - {\tag1}{\tag2}; removes anything detected as redundant (duplicate tags in the same block, tags at the end of a line, \frx0\fry0 in start tags, multiple \fad tags, \fad with 0 times, {\\k0}, \r at the start of a line); rounds values of tags to 2 decimals<br>(Clean Tags button is a shortcut)<br>
+<font color=226666>Delete commented lines</font> - deletes lines that are commented out (not visible on screen)<br>
+<font color=226666>Delete empty lines</font> - deletes lines with no text<br>
+<font color=226666>Clean up & sort transforms</font> - merges transforms with no timecode and places transforms at the end of each tag block<br>
+<font color=226666>Fix start/end/double spaces</font> - removes leading, trailing, and double spaces<br>
+<font color=226666>ALL OF THE ABOVE</font> - Applies all the functions above, checked or not<br><br>
+<font color=226666>Remove all colour tags</font> - obvious<br>
+<font color=226666>Remove all alpha tags</font> - obvious<br>
+<font color=226666>Remove all rotations</font> - obvious<br>
+<font color=226666>Remove all perspective</font> - removes all rotations, fax, fay, and org<br>
+<font color=226666>Remove size/scaling</font> - removes fscx, fscy, and fs tags<br>
+<font color=226666>Remove linebreaks - \N</font> - obvious<br>
+<font color=226666>Remove linebreaks - \N (nospace)</font> - same but doesn't leave spaces<br>
+<font color=226666>Remove hard spaces - \h</font> - obvious<br>
+<font color=226666>Delete unused styles</font> - deletes styles not used on any lines (this always applies to the whole script)<br>
+<font color=226666>Delete unused styles (leave Default)</font> - same but doesn't delete styles containing "Defa" or "Alt"<br>
+<font color=226666>Try to fix alpha / colour tags</font> - fixes some malformed tags like alpha00<br>
+<font color=226666>Remove inline tags</font> - obvious<br>
+<font color=226666>Remove all {\tags} from selected lines </font> - removes all tags (Tags button is a shortcut)<br><br>
+
+<font color=226666>Run selected</font> will apply anything checked on the left side.<br><br>
+
+Right part:<br><br>
+
+<font color=226666>Kill checked tags</font> button will remove any tags you check in the list above it.<br>
+The one distinction is that you can choose <font color=226666>start</font> and/or <font color=226666>inline</font> tags.<br>
+Just in case you don't know what that means:<br><br>
+
+<font color=664466>{\blur0.6}How does {\i1}this{\i0} work?</font><br><br>
+
+The blur is a 'start' tag; the italics are 'inline' tags. The checked tags will only be removed from the checked sections.<br>
+By default, both are checked, so all tags of the checked kind get removed.<br>
+In this case here, checking 'blur' but not checking 'start' (only 'inline') would not do anything.<br><br>
+
+<font color=226666>inverse</font> - remove all except checked tags<br><br>
+
+If you press <font color=226666>Cancer</font>, you might get cancer, so don't ever do that unless you want cancer.<br><br>
+
+
+</td></tr><tr><td><a name="blurglow"></a>
+<h3>Blur and Glow</h3>
+
+<img src="../px/blurandglow.png"><br><br>
+<b class="p">Purpose:</b> Apply blur correctly to signs with border / create a 'glow' effect<br><br>
+
+<b class="f">Features:</b> double border with its own properties; adjustment for fades; add only new layer for signs that already have layers<br>
+change layer; repeat with last settings; save configuration<br><br><br>
+
+What is 'correct' blur?<br><br>
+<img src="../px/blurwrongright.png"><br><br>
+Left is wrong. Right is right. No pun intended.<br><br>
+
+
+<font color=226666>"Blur / Layers"</font> creates layers with blur, and usually doesn't require messing with the other options.<br><br>
+
+If you want double border, you have a number of options.<br><br>
+
+<img src="../px/blur-double.png"><br><br>
+If the regular border is 2, the border on the bottom layer will normally be twice that, so 4.<br>
+You can check <font color=226666>2nd b. size</font> and set the size of the 2nd border. You set what you want it to look like counting from the first border. In other words, the default would be 2. If you set it to 4, the outer border will be twice as thick as the first one, and the tag will be \bord6.<br><br>
+You can also check <font color=226666>2nd b. colour</font>, which in the case above was changed to light blue / cyan.<br><br>
+
+You should check <font color=226666>double border</font> if you want the default double border.<br>
+If you have <font color=226666>auto double</font> checked, then checking <font color=226666>2nd b. size</font> or <font color=226666>2nd b. colour</font> automatically turns the double border mode on, so you don't have to check <font color=226666>double border</font>.<br><br>
+
+<font color=226666>bottom blur</font> is for whichever layer is the bottom and not glow, so regular border with 1 border, and 2nd border with double.<br><br>
+
+<font color=226666>"Blur + Glow"</font> creates glow. This is what we call glow:<br><br>
+
+<img src="../px/bglow.jpg"><br><br>
+
+Left is no glow, middle is glow with default settings, right is with <font color=226666>glow blur</font> 8 and <font color=226666>glow alpha</font> 30.<br><br>
+<font color=226666>glow blur</font> is the size of the glow (value of \blur).<br>
+<font color=226666>glow alpha</font> is transparency - 00 is most visible, F0 would be very faint. If 00 is not as strong as you need it to be (usually with larger blur values), you can duplicate the glow layer.<br><br>
+
+Here's an example of a real sign with glow:<br><br>
+
+<img src="../px/bglow2.jpg"><br><br>
+
+It's mostly useful for signs with no border but can be used with border too, but then you have to be careful to not have too much blur compared to the border size.<br><br>
+
+Normally shadow from the original sign gets applied to bottom layer with border and to glow layer.<br>
+<font color=226666>keep shadow on top layer</font> leaves shadow on the top layer, like this:<br><br>
+<img src="../px/topshad.png"><br><br>
+<font color=226666>keep shadow on middle layer</font> does the same on middle layer if you have double border.
+If you check both, you'll have a shadow on both.<br>
+The bottom layer will still have a shadow in any case, so you have to nuke it later if you don't want it.<br>
+That's easy to do with Script Cleaner, but if there are rotations involved, you'll have to use \4a&HFF& instead of nuking the shadow.<br><br>
+
+<font color=226666>fix \1a for layers with border and fade</font> is for use with fades.<br><br>
+
+<img src="../px/blurfade.png"><br><br>
+Left is when you don't use it. Right is when you do. You can see the difference in primary colour.<br>
+What it does is that it applies \1a&HFF& during the fade and only transforms into colour when the fade ends.<br>
+<font color=226666>transition</font> is the time it takes to transform from that \1a&HFF& to full colour.<br>
+0 is instantaneous, i.e. alpha will be there for the whole fade, and the first frame after fade will have full colour.<br>
+The higher the number, the longer the transition. I use the default 99% of the time, but some cases may require tweaking.<br><br>
+
+<font color=226666>Fix fades</font> button either adds those alpha transforms if they're missing, or recalculates them based on \fad.<br>
+Recalculating is useful when you shift a sign like episode title into another episode, but while the fades are the same, the length of the sign is different, so you need different timecodes for the ending transform.<br><br>
+
+<font color=226666>only add glow</font> will only add glow to layer with border, instead of creating a layer for the border too.<br><br>
+
+<font color=226666>only add 2nd border</font> will only add second border, instead of creating a layer for the first border too.<br><br>
+
+If you add glow or borders when you already have a layered sign, you'll have to shift layers for the top lines.<br>
+For this you can use <font color=226666>Change layer</font>.<br><br>
+
+<font color=226666>repeat with last settings</font> will use whatever settings you used last time (unless you rescanned automation directory or restarted Aegisub).<br><br>
+
+<font color=226666>save configuration</font> saves the current configuration of your GUI as the default settings.<br><br>
+
+If there's no blur, <font color=664466>default_blur</font> is used. It's set to 0.6, but you can change it by editing the script. (It's near the top, under script_version.)<br><br>
+
+The script supports xbord, ybord, xshad, and yshad, and has basic support for transforms and \r.<br><br>
+
+
+
+
+</td></tr><tr><td><a name="hydra"></a>
+<h3>HYDRA</h3>
+
+<img src="../px/hydra.png"><br><br>
+<b class="p">Purpose:</b> Easily add tags to multiple lines<br><br>
+
+<b class="f">Features:</b> transforms with several modes; inline tags with several presets; a number of special functions;<br>
+options for what lines to apply things to; 3 GUI modes; repeat with last settings; save config<br><br><br>
+
+This is like the old "add tags" script, except 1. you don't have to type the tags, 2. you don't get duplicate tags, 3. you can easily do transforms, 4. you can apply the tags to specific layers, styles, etc., 5. you can make inline tags, and 6. you have a bunch of extra useful functions. In other words, anyone still using "add tags" should be ashamed.<br><br>
+
+The basic functionality is extremely simple. Let's say you want \bord3 and \shad2.<br><br>
+
+<img src="../px/hydrabs.png"><br><br>
+
+You check the checkboxes, type the values, and click <font color=226666>Apply</font>.<br><br>
+
+If you want to transform to \bord3 and \shad2, you do the same except you click on <font color=226666>Transform</font>.<br>
+That will give you \t(\bord3\shad2). If you want times, you set them in the <font color=226666>Transform t1, t2</font> fields. <font color=226666>Acceleration</font> is right below that.<br><br>
+
+That's pretty much all you need without going into specialized functions, so it's really easy.<br><br>
+
+<font color=226666>Additional tags</font> lets you type some extra tags, should there be a need to add something non-standard.<br><br>
+
+<font color=226666>Repeat Last</font> will use your last settings, so with what was said above, it would now produce that transform with \blur3 and \shad2 again.<br><br>
+
+The <font color=226666>Special</font> button applies what you select from <font color=226666>Special functions.</font> (More on that later.)<br><br>
+
+<font color=226666>Save Config</font> saves the current configuration to a file named "hydra4.conf" in your APPDATA folder.<br><br>
+
+<font color=226666>Help</font> button loads an extra part of the GUI with some basic usage instructions.<br><br>
+<br>
+
+While the basic functions are powerful enough and pretty much a must for anyone who wants to typeset without being slow as hell, HYDRA has much more to offer to advanced typesetters used to dealing with dozens of lines at a time and huge, chaotic scripts.<br><br>
+
+First let me explain some additional notes to the basic tags.<br><br>
+
+There are two ways to do \[number]a tags, or alphas for colours. One is on the right where it's pretty obvious.<br>
+The other is using the colour pickers. These have both the colour and its alpha value, and you can apply either the colour, or the alpha, or both. By default it uses only the colour. If you want the alpha too, you check <font color=226666>Include alphas</font>. If you want only the alpha and not the colour (so an alternative to those dropdown alphas that only have a limited set of values), you check the <font color=226666>only</font> checkbox next to it.<br>
+Note: on older versions of Aegisub this doesn't work. (Minimum Aegisub r7993 required.)<br><br>
+
+There's a <font color=226666>layer</font> checkbox, which obviously isn't a tag, so that changes the layer of selected lines.<br>
+It changes by the given amount, so the layer proportions of your lines will be kept. (Layers 2, 3, 5 with "+2" will become 4, 5, 7.)<br><br>
+
+There's a <font color=226666>global</font> checkbox next to fade values. This lets you apply the fade not to each line, but to the selection as a whole, so that the first selected line will have the fade in, and the last selected line will have the fade out.<br><br>
+<br>
+Transforms<br><br>
+
+Under <font color=226666>global</font>, there's a <font color=226666>Relative transform</font> checkbox.<br>
+This changes the mechanism so that tags don't transform TO the given value, but BY the given value. This means that when given frz30, you won't get \t(\frz30) unless your curernt frz is 0, but whatever is needed to rotate each line BY 30 degrees.<br>
+The point of this is that when you have several lines with different rotation values, you can rotate them in sync this way.<br>
+Or for example you may have a sign with two borders and you want both borders to grow by the same amount. (Default settings would transform both to the same value, thus basically making one of the lines invisible.) So if you have \bord3 and \bord5 and transform by 2, you'll have the first line transform to 5 and the second to 7.<br><br>
+
+<font color=226666>Transform mode - add2first</font> - This will not create a new transform, but instead will add the tags to the first existing transform in the line, assuming there is one. If there isn't, nothing happens.<br>
+<font color=226666>Transform mode - add2all</font> - This will add the tags to all transforms found in the line.<br>
+<font color=226666>Transform mode - all tag blocks</font> - This will add the transform to each tag block, i.e. this: {\tags_here}<br>
+This can be useful with gradient by character, for example if you have gradiented colour and want to transform all letters to black.<br>
+Even more fun, you can have frz gradiented by character and apply a relative transform! (This will require HYDRA 4.0.)<br><br>
+
+<font color=226666>Times from end</font> - This will count transform times from the end of the line, so values 500,200 will mean that the transform will start 500ms before the end of the line and end 200ms before the end of the line.<br><br>
+<br>
+
+<font color=226666>Tag position</font><br><br>
+
+<img src="../px/tagpos.png"><br><br>
+
+This allows you to make inline tags. In that text field, you have the clean text of your first selected line. You place an asterisk there, like you see in the example above, and the tags you select will go there, so in this case before the word "four".<br>
+It will work for any line that has such text, while lines that don't contain it will remain unchanged.<br><br>
+
+Aside from that, there are also several presets for inline tags. (<font color=226666>--- presets ---</font> dropdown menu.)<br><br>
+
+<font color=226666>before last char.</font> - This will place the tags before the last character of visible text, no matter what the text is.<br>
+This is very useful for mass gradienting lines with different text. If you want to style a song so that it's gradiented by character from green to blue, for example, you first set the green at the beginning of the line, and then set blue before the last character this way. Then you run gradient-by-character, and all lines will be gradiented whatever the text is.<br>
+<font color=226666>in the middle</font> - This will count characters and place the tags in the middle of the line. (If odd number, it goes before middle letter.)<br>
+<font color=226666>1/4 of text</font> - Similarly, this counts the characters and places tags at 1/4 of the line. (If 20 characters, it goes after the first 5.) Obviously this works in the same manner for the other presets with this pattern.<br>
+<font color=226666>custom pattern</font> - This uses an asterisk, just like the basic mode, but it can use shorter patters, as opposed to the whole text of the line.<br>
+For example you can use the pattern <font color=664466>*and</font>, and tags will be placed before the word "and" in any line that contains that word, no matter what the rest of the text is and however many times that word is in the line. Note that this doesn't recognize "words" but only patterns of characters, so you'd also get the tags before "android". It's also case-sensitive, and there can't be tags/comments inside the pattern.<br>
+<font color=226666>section</font> - This latest addition (Hydra 4) lets you put tags before a given pattern and then changes the tags back after it!<br><br>
+
+<img src="../px/pickone.png"><br><br>
+
+So as you may have seen in the screenshot in the Blur and Glow section, here the word "one" needs to be red.<br><br>
+
+<img src="../px/section.png"><br><br>
+
+So what you do is select <font color=226666>section</font> from the preset menu, and leave only the word "one" in the <font color=226666>Tag position</font> text field.<br>
+Then you select red colour from the tags and apply.<br><br>
+
+<img src="../px/picktwo.png"><br><br>
+
+The word "one" becomes red, and the tags after it return back to white.<br>
+As with the previous option, there can't be any tags/comments inside the section.<br>
+You can apply it to several words, as long as there are no {} in the pattern in the actual line.<br><br>
+<br>
+
+
+<font color=226666>Special functions</font><br><br>
+
+<img src="../px/hspecial.png"><br><br>
+
+<font color=226666>fscx -> fscy</font> - Applies the value of fscx to fscy, making them the same.<br>
+<font color=226666>fscy -> fscx</font> - Same but the other way round.<br>
+<font color=226666>move colour tag to first block</font> - If you use hotkeys for colour pickers, the colour gets sometimes applied somewhere in the middle of the line or at the end because that's where the cursor is in the textbox area.<br>
+This moves a colour tag that isn't at the start of the line to the start. If it finds more, it deletes them all and uses the last one in the line.<br>
+This is a lot more useful if hotkeyed or at least if it's set to be the default choice, but if you need to set colours to a bunch of lines and don't want to make sure the cursor is always at the beginning of the line, you can just set the colours wherever and then run this.<br>
+<font color=226666>convert clip <-> iclip</font> - Changes clips to iclips and vice versa.<br>
+<font color=226666>clean up tags</font> - This is the same as in Script Cleanup, so scroll up.<br>
+<font color=226666>sort tags in set order</font> - This sorts tags in each tag block based on the <font color=664466>order</font> in settings.<br>
+<font color=226666>clean up and sort transforms</font> - 1. Merges transforms without timecodes together. 2. places transforms after other tags.<br>
+<font color=226666>back and forth transform</font> - This will transform back and forth between the current state of the line and tags you select. <br>
+So for example, you select \bord 10 and \frz 20 and run the script. It will read the current bord and frz from the line or from style and create transforms based on given <font color=226666>interval.</font> Interval is the field above "^interval", with "500" in it by default. This means that it will take 500ms to transform to \bord10\frz20, then 500ms to transform back, another 500 forward again, etc. for the whole duration of the line.<br>
+This way you can create wobbling effects and such.<br>
+<font color=226666>select overlaps</font> - This used to be shipped with Aegisub. I don't know if it still is, but somebody wanted that included in HYDRA, so here it is. It selects lines that overlap with other lines.<br>
+<font color=226666>convert clip to drawing</font> - Uses coordinates from a clip to create a drawing.<br>
+<font color=226666>convert drawing to clip</font> - Same but the other way round.<br>
+<font color=226666>clip square grid small</font> - This creates a checkerboard clip. Not too useful, but you can convert it with the above tool to drawing. This also allows you to resize it with the scaling tool and convert back, so you can get various sizes.<br>
+<font color=226666>clip square grid large</font> - Same but larger, which, in the light of what I just said, is quite redundant.<br>
+<font color=226666>create 3D effect from shadow</font> - This is one of the more useful things in this menu.<br><br>
+<img src="../px/3dshad.png"><br><br>
+It's the difference between these two. Left is ordinary shadow. Right is the 3D effect.<br>
+You can best see it on the top part of the last letter. The space between the letter and the shadow gets "filled".<br><br>
+
+<font color=226666>split line in 3 parts</font> - Use the fields for 'Transform times' to set duration of line 1 and 3. If you set for example 200 and 300, your line will be triplicated, with the first one being 200ms long, the last one 300ms, and the middle one whatever is left of the original duration.<br>
+If you set either of the two to 0, you'll only have 2 lines.<br>
+This can be useful for song styling when you want to apply some transforms to the first or last 500ms, for example, because applying the transforms to the lines with the whole duration can be much more laggy, and lines with too many transforms can look too chaotic to work with them.<br><br>
+<br>
+
+<font color=226666>Apply to</font><br><br>
+
+<img src="../px/hydra-apply.png"><br><br>
+
+This is quite simple. You can choose to which of the selected lines you want to apply the changes based on the 4 restrictions.<br>
+When dealing with multi-layered signs, you may need different tags for different layers, so this can make it easy.<br><br>
+<br>
+
+<font color=226666>Start mode</font><br><br>
+
+You can set starting mode in the GUI itself now (Hydra 4) in the top right corner, and it gets saved into the config file.<br>
+There are 3 modes: basic, medium, full. The basic mode loads faster, and for beginners who only need basic things, the GUI can be less confusing in the basic mode.<br><br>
+
+
+
+
+</td></tr><tr><td><a name="relocator"></a>
+<h3>Hyperdimensional Relocator</h3>
+
+<img src="../px/relocator.png"><br><br>
+<b class="p">Purpose:</b> Do all kinds of things involving mainly \pos, \move, \org, \clip, rotations, and masks<br><br>
+
+Check <font color=226666>space travel guide</font> and click on <font color=226666>Positron Cannon</font>, and you'll have all the information you need.<br><br>
+
+
+
+</td></tr><tr><td><a name="recalc"></a>
+<h3>Recalculator</h3>
+
+<img src="../px/recalculator.png"><br><br>
+<b class="p">Purpose:</b> Recalculate values of tags by multiplying or adding<br><br>
+
+This mainly allows you to change the size of things proportionately, like for example scaling together with border and shadow.<br><br><br>
+
+<font color=226666>Multiply</font><br>
+<font color=226666>Change values to</font> - This will increase/lower values of selected tags based on given percentage.<br>
+With a value of 120%, you will get a 20% increase in value of checked tags, so fscx100 will become fscx120, fs60 will become fs72, etc.<br>
+With <font color=226666>multiply/add more with each line</font> and fscx100, you'll get 120, 140, 160, 180, etc. for consecutive lines.<br><br>
+
+<font color=226666>Add</font><br>
+<font color=226666>Increase values by</font> - This will increase/lower values of selected tags based on a given number.<br>
+With a value of 5, the value of checked tags will increase by 5, so fscx100 will become fscx105, fax0.05 will become fax5.05, etc.<br>
+With <font color=226666>multiply/add more with each line</font> and fscx100, you'll get 105, 110, 115, 120, etc. for consecutive lines.<br><br>
+
+<font color=226666>Alternative 2nd value</font> allows for a different value for all Y things (fscY, Ybord, Yshad, frY, faY, all Y coordinates) + fad2 and t2.<br>
+It will be used as Multiply or Add depending on the button you press.<br><br>
+
+<font color=664466>Example: Checked fscx, fscy, pos x, pos y; tags are \fscx100\fscy100\pos(300,200)<br><br>
+
+-> <font color=226666>Change values to</font> 150%; <font color=226666>Alternative 2nd value</font> 250%. <font color=226666>Multiply</font>.<br>
+-> Result: \fscx150\fscy250\pos(450,500)<br><br>
+
+-> <font color=226666>Increase values by</font> 20; <font color=226666>Alternative 2nd value</font> -10. <font color=226666>Add</font>.<br>
+-> Result: \fscx120\fscy90\pos(320,190)<br><br></font>
+<br>
+
+<font color=226666>anchor clip</font> - This makes sure that multiplying values for clip coordinates won't send your clip somewhere off the screen.<br>
+Rectangular ones are anchored in the middle, vectorial ones at the first point of the clip.<br><br>
+
+<font color=226666>all pos/move/org</font> - This is like checking all 8 pos/move/org checkboxes, so that you don't have to click on all of them.<br><br>
+
+<font color=226666>Rounding</font> - How many decimals are allowed for recalculated values.<br><br>
+<br>
+
+<font color=226666>Mirror</font> - This is intended for mirroring mocha data. Applied to fbf lines with pos going from 200 to 260, it will go from 200 to 140.<br>
+Works with position, origin, rotations, and rectangular clip. If clip changes size/shape, results will be weird.<br>
+Also works with move (though that makes pretty much no sense to use) and fax/fay.<br>
+(I'm not sure how it's useful, but Hdr wanted it.)<br><br>
+
+
+
+
+</td></tr><tr><td><a name="colorize"></a>
+<h3>Colorize</h3>
+
+<img src="../px/colorize.png"><br><br>
+<b class="p">Purpose:</b> Operations with colours<br><br>
+
+<b class="f">Features:</b> colorize by letter; match colours; gradient; adjust RGB/HSL; remember last settings; repeat with last settings; save config<br><br><br>
+
+The GUI covers all kinds of different operations, so let's break it down by buttons.<br><br><br>
+
+<font color=226666>Colorize</font><br><br>
+
+<img src="../px/colorize-colorize.png"><br><br>
+
+The blue+green area is what settings the button uses. This still covers several varied functions, though.<br><br>
+
+The default action is <font color=226666>Colorize by letter</font>, and the green area covers the relevant options.<br>
+What you do with this is pick a number of colours (2-5) and set them letter by letter to the whole line. (Spaces don't count.)<br>
+<img src="../px/colbylet.png"><br>
+<font color=226666>Colours</font> is where you select how many colours you want.<br>
+The 5 colour pickers are where you select the colours.<br>
+<font color=226666>Apply to</font> is where you select the colour type you want this applied to.<br>
+<font color=226666>Colorize by word</font> will switch colours after each word rather than character.<br>
+<img src="../px/colbywrd.png"><br>
+<font color=226666>Don't join with other tags</font> will not join the first colour tag with the initial tags. (I don't remember why this option is there, and you probably shouldn't use it.)<br>
+Note: Comments are now preserved (v4.21+), but all shifted to the end of the line.<br><br><br>
+
+
+<font color=226666>Shift</font><br><br>
+
+The <font color=226666>Shift</font> function is closely related to this. It simply shifts all the colour tags by one character. (Doesn't work by word.)<br>
+It was only made for one colour type, so it won't work if you have two types colorized. The type is determined from the tag before the last character, and the tag block must only contain the colour.<br>
+If <font color=226666>Shift base</font> is <font color=226666># of colours</font>, you have to select the number of <font color=226666>Colours</font> so that the script knows which colour the first letter should be.<br>
+This should be used for a line colorized the way described above.<br>
+If, however, you have for example a gradient and want to shift the colours of the whole line around, you set <font color=226666>Shift base</font> to <font color=226666>line</font>, and the first letter will be the colour that was previously the last letter.<br>
+<font color=226666>Continuous shift line by line</font> is what really makes this interesting. You use it on fbf lines, and the colours get shifted by another character with each line. You may have a different colour for only one letter, shift by <font color=226666>line</font>, and the effect will be that colour running across the text.<br><br>
+<br>
+
+Other <font color=226666>Colorize</font> functions<br><br>
+
+<font color=226666>Tune colours</font> - Loads all colours from a line into a GUI and lets you change them from there. For more info, <a href="http://unanimated.xtreemhost.com/itw/tsblok.htm#col.tune">check this</a>.<br><br>
+
+<font color=226666>Set colours across whole line</font> - This is like a preparation for gradient-by-character.<br>
+Select number of colours and colour type.<br>
+For 3 colours, it will place one at the start, one in the middle, and one before the last character.<br>
+Works for 2-10 colours and sets them evenly across the line. (Then you can run GBC.)<br><br>
+
+<font color=226666>Gradient</font> - Creates a gradient by character.<br><br>
+<img src="../px/colorize-grad.png"><br><br>
+There are two modes: <font color=226666>RGB</font> and <font color=226666>HSL</font>. RGB is the standard, like lyger's GBC; HSL interpolates Hue, Saturation, and Lightness separately.<br>
+Use the <font color=226666>\c, \3c, \4c, \2c</font> checkboxes on the right to choose which colour to gradient.<br>
+<font color=226666>Shortest hue</font> makes sure that hue is interpolated in the shorter direction. Unchecking it will give you a different gradient in 50% cases.<br>
+<font color=226666>Double HSL gradient</font> will make an extra round through Hue. Note that neither of these 2 options applies to RGB.<br>
+<font color=226666>Use asterisks</font> places asterisks like lyger's GBC so that you can ungradient the line with his script.<br>
+<font color=226666>Restart after each \N</font> will create the full gradient for each line if there are linebreaks.<br>
+There are several differences from lyger's GBC:<br>
+- RGB / HSL option<br>
+- You can choose which types of colour you want to gradient<br>
+- Other tags don't interfere with the colour gradients<br>
+- Asterisks are optional<br><br>
+<br>
+
+<font color=226666>Save configuration</font> - Saves current settings as defaults.<br><br>
+
+<font color=226666>Remember last</font> - Remembers last settings. (Until reloading automation directory.)<br><br><br>
+
+
+<font color=226666>Match Colours</font><br><br>
+
+<img src="../px/colorize-match.png"><br><br>
+
+<font color=226666>c->3c</font> - For each primary colour in the line, the border becomes the same colour. Same principle for the next 3 options.<br>
+<font color=226666>c<->3c</font> - Switches primary and outline colours.<br>
+<font color=226666>Invert</font> - Inverts colours.<br><br><br>
+
+<font color=226666>RGB / HSL</font><br><br>
+
+<img src="../px/colorize-rgbhsl.png"><br><br>
+
+Violet colour applies to both parts.<br><br>
+
+Rather obviously, this adjusts Red/Green/Blue or Hue/Saturation/Lightness for all colour tags of selected type in all selected lines.<br>
+As colour values are hexadecimal, one step is 1/255th of the colour scale, and thus -255/255 are the limit values.<br>
+<font color=226666>Apply to missing</font> means it will be applied to the colour in Style if there's no tag in the line.<br>
+<font color=226666>Randomize</font> - Example: if you set Lightness (or any RGB/HSL) to 20, the resulting colour will have anywhere between -20 and +20 of the original Lightness.<br><br><br>
+
+<font color=226666>Repeat with last settings</font> - Whichever button you press, the settings from the last opening of the GUI will be used.<br><br>
+
+
+
+</td></tr><tr><td><a name="selectrix"></a>
+<h3>Selectricks</h3>
+
+<img src="../px/selectrix.png"><br><br>
+<b class="p">Purpose:</b> Select or sort lines based on given criteria<br><br>
+
+This is explained in detail <a href="http://unanimated.xtreemhost.com/itw/tsblok.htm#selectrix">in this blog post</a>, so I will only address what has been added since then.<br><br>
+
+If you're selecting by <font color=226666>Numbers</font> and use <font color=226666>==</font>, you can set ranges.<br>
+This means that selecting layers with <font color=226666>==</font>, you can match 4-6, and layers 4, 5, and 6 will be selected.<br><br>
+
+<font color=226666>regexp</font> has been updated to be real regexp and not lua.<br><br>
+<br>
+
+<font color=226666>Presets</font><br><br>
+
+<font color=226666>lines w/ comments 1/2</font> - This selects lines that have comments in {these} brackets - mode 1 from all lines, mode 2 from selected lines.<br>
+<font color=226666>same text (contin.)</font> - This reads clean text (no tags/comments) of selected lines and then goes line by line checking if they have the same text as any of the selected ones, adding them to selection. It stops at a line that has a different text from all the selected ones. In other words, it selects all following, continuous lines that match the text of the selected lines. Effectively, this is mainly useful to select a whole mocha-tracked sign or a gradiented sign.<br>
+<font color=226666>same text (all lines)</font> - Same as previous, but applies to the whole script.<br>
+<font color=226666>its/id/ill/were/wont</font> - Selects lines containing these words so that you can make sure they weren't supposed to be it's/i'd/i'll/we're/won't.<br>
+<font color=226666>range of lines</font> - Selects a range of lines based on numbers you see in subtitle grid. Type something like "500-600" in the <font color=226666>Match this</font> field.<br>
+<font color=226666>move sel. up</font> - Moves your selection up by 1 line, so if lines 5-8 are selected, lines 4-7 will be selected.<br>
+<font color=226666>move sel. down</font> - Opposite of previous. For both presets, you can move by more lines if you type the number in <font color=226666>Match this</font>.<br>
+<font color=226666>move sel. to the top</font> - Moves selected lines to the top of the script. With <font color=226666>mod</font> checked, active line/selection doesn't go to the top but stays where it is.<br>
+<font color=226666>move sel. to the bottom</font> - Same as previous (including the mod part) but for bottom of the script.<br>
+<font color=226666>sel: first to bottom</font> - Shifts lines in selection, moving the first selected line to the bottom of the selection. (1-2-3-4 -> 2-3-4-1)<br>
+<font color=226666>sel: last to top</font> - Opposite of previous - last line in selection goes to the top of selection.<br><br>
+
+The <font color=226666>mod</font> checkbox works with two more things.<br>
+With <font color=226666>sort by time</font> it sorts by end time.<br>
+With <font color=226666>OP/ED in style</font> it selects not only by style name, but also all lines that appear (timing-wise) between the start of the first OP or ED line and the end of the last OP/ED line. The purpose is to also select signs that are part of OP/ED but don't have OP/ED in style name.<br><br>
+
+
+
+
+
+</td></tr><tr><td><a name="multiedit"></a>
+<h3>Multi-line Editor</h3>
+
+<img src="../px/multiedit16a.png"><br><br>
+<b class="p">Purpose:</b> Edit multiple lines like on a pad<br><br>
+
+<b class="f">Features:</b> Edit text, style, actor, and effect; replacer with regexp; remove tags/comments/linebreaks; capitalization<br><br><br>
+
+This was written so that you can edit multiple lines without having to jump between them. Also if you're editing a sentence that extends over 3 lines, you can easily see the whole sentence here and move words among all the lines.<br>
+Your selected lines get loaded in the editor, as you see above, and the GUI expands based on how much text you load, up to a certain limit.
+You can still go beyond that limit if you use the <font color=226666>Taller GUI</font> button, though.<br><br>
+
+When you edit the lines, you click on <font color=226666>Save</font>, and they get saved back to the subtitle script.<br>
+Line breaks in the editor determine what one line in the script is, so you can't change the line count - save for one exception. If you load only one line and make line breaks in the editor, these become \N when you save it. This is useful when you're typesetting for example a cell phone sign with long text and need to make line breaks manually in many places.<br><br>
+
+In the textbox on the right, you can see some useful information: duration, characters per second, and character count for each line.<br>
+The content of this box is only informative and doesn't save anywhere, so it doesn't matter what you do with it.<br><br>
+
+You have a number of tools at your disposal. There are 4 buttons to remove things: tags, comments, linebreaks, and leading dash+space. This last one is for removing this garbage from subtitles that have two speakers in one line.<br><br>
+
+The <font color=226666>Add tags</font> button adds the tags you check at the top of the GUI.<br><br>
+
+The <font color=226666>Capitalize</font> button cycles through 3 modes of capitalization for the whole text: lowercase, uppercase, and titles.<br><br>
+
+Then there is a <font color=226666>Replace</font> function that has improved a lot in the latest versions. It's quite similar to ctrl+h, but applies to the text loaded in the Editor. I generally use ctrl+h for the whole script and this one for selections.<br>
+It has a mode for <font color=226666>whole word only</font> without requiring that you know regexp. This means replacing "and" won't replace the "and" in "android".<br>
+It has both standard <font color=226666>regexp</font> and <font color=226666>lua</font> pattern matching. (If you check both, lua applies.)<br><br>
+
+A recent addition is the <font color=226666>Switch</font> button that switches to another mode.<br><br>
+
+<img src="../px/multiedit15b.png"><br><br>
+
+In this mode, you can see Style, Actor, and Effect the same way as Text, and you can edit all of them the same way.<br>
+Replacer can also be used on all of them. The checkboxes at the top determine what the Replacer will affect.<br>
+You must always maintain the original line count for each of the 4, or you won't be able to save the results.<br><br>
+
+
+
+
+
+
+</td></tr><tr><td><a name="multicopy"></a>
+<h3>MultiCopy</h3>
+
+<img src="../px/multicopy.png"><br><br>
+<b class="p">Purpose:</b> Copy specified things from selected lines / paste things to selected lines<br><br>
+
+<b class="f">Features:</b> copy any tags; copy between columns; many modes of pasting<br><br><br>
+
+The main idea is to copy something from X lines and paste it to another X lines.<br><br>
+
+<font color=226666>Copy</font><br>
+<font color=226666>tags</font> - start tags<br>
+<font color=226666>text</font> - text AFTER start tags (will include inline tags)<br>
+<font color=226666>all</font> - tags+text, i.e. everything in the Text field<br>
+<font color=226666>any tag</font> - copies whatever tag(s) you specify by typing in the textbox, like "org", "fad", "t", or "blur,c,alpha"<br>
+<font color=226666>export CR for pad</font> - copies the text of the whole script in a way suitable for pasting on a pad<br>
+signs go to top with {TS} timecodes; nukes linebreaks and other CR garbage, fixes styles, etc.<br>
+<font color=226666>colour(s) / alpha</font> - copies colours / alphas selected by checkboxes above<br><br>
+
+Other copy options should be obvious.<br><br>
+
+<font color=226666>Copy from / to</font> is a quick copy function between columns.<br>
+<font color=226666>Switch</font> switches text in the selected columns. Copying strings to number fields does nothing.<br><br>
+
+Once you get your data, click on <font color=226666>Copy to clipboard</font>, select the lines you want to paste to, load the GUI again,<br>
+and click on <font color=226666>Paste from clipboard</font>. This will load the saved text in the textbox.<br>
+You could use ctrl+c / ctrl+v instead of the buttons, but Windows has limits on the length of that, and the buttons bypass that restriction.<br>
+Now you use one of the three paste buttons, depending on what you're pasting.<br><br>
+
+
+<font color=226666>Paste tags</font> pastes start tags.<br>
+<font color=226666>Paste text</font> pastes text after start tags.<br><br>
+
+<font color=226666>Paste extra</font><br>
+<font color=226666>all</font> - This is like regular paste over from a pad, but with checks to help identify where stuff breaks if the line count is different or shifted somewhere. If you're pasting over a script that has different line splitting than it should, this will show you pretty reliably where the discrepancies are.<br>
+<font color=226666>any tag</font> - This is for pasting tags, in the "<font color=664466>\tag1\tag2</font>" format. Doesn't matter whether you copied or typed them.<br>
+<font color=226666>superpasta</font> - This allows copying columns from one selection to another.<br>
+Just copy several whole lines with ctrl+c, select new lines, paste the whole thing in the GUI, select superpasta, and you'll get this:<br><br>
+<img src="../px/superpasta.png"><br><br>
+You can paste for example Effect from some lines to Effect in other lines, but also to another field in those other lines, like Actor.<br>
+You can also apply this to the same lines you copied from and copy things between columns. As copying between columns has now been added directly to the main GUI, this is pretty much redundant, but it can do several of those operations at the same time.<br>
+Checkboxes determine which column should be copied, and dropdown menus determine where it should be copied to.<br>
+<font color=226666>text mod.</font> - This pastes over text while keeping inline tags.<br>
+If your line is <font color=664466>{\t1}a{\t2}b{\t3}c</font> and you paste "def", you will get <font color=664466>{\t1}d{\t2}e{\t3}f</font>.<br>
+This simply counts characters, so if you paste "defgh", you get <font color=664466>{\t1}d{\t2}e{\t3}fgh</font>, and for "d", you get <font color=664466>{\t1}d</font>. Comments get nuked.<br>
+<font color=226666>gbc text</font> - This is for pasting over lines with gradient by character. You get this:<br>
+<font color=664466>[start tags][pasted text without last character][tag that was before last character][last character of pasted text]</font><br>
+For colours, the gradient should be replicated in full.<br>
+<font color=226666>de-irc</font>: paste straight from irc with timecodes and nicknames, and stuff gets parsed correctly.<br>
+<font color=664466>[12:30:24] <nickname> Dialogue: 0,0:00:00.00,0:00:00.00,Default,,0,0,0,,Text</font><br>
+Timecode and nickname gets nuked, and the rest is applied like regular paste over.<br><br>
+
+If pasted data doesn't match line count of selection, you get choices for what you want to do.<br><br>
+<img src="../px/mispaste1.png"><br><br>
+If you have more lines selected than you're pasting, you can either <font color=226666>Loop paste</font> or <font color=226666>Paste only copied lines</font>.<br>
+In the case above, Loop will paste that one line into all 4 selected, while the other option only pastes that one saved line, and the remaining 3 stay the same.<br>
+If you had 3 lines copied and 8 lines selected, Loop would paste lines 1 2 3 1 2 3 1 2 into the 8 selected.<br><br>
+
+<img src="../px/mispaste2.png"><br><br>
+If you have more lines copied than selected, you can <font color=226666>Paste only</font> what you have copied, or <font color=226666>Paste all lines</font>.<br>
+The former will paste whatever fits into your current selection. The latter will keep pasting to lines after the selection until the clipboard is empty.<br><br>
+
+You can use <font color=226666>Replacer</font> on pasted data.<br>
+This applies to what you have pasted in that large textbox and allows you to modify the data you're pasting.<br>
+You can, for example, copy values from one type of tag and paste as another type of tag.<br>
+Example: copy 'bord', replace 'bord' with 'shad', and paste border values as shadow values.<br>
+Another example would be copying primary colour, replacing \c with \3c, and pasting as border colour.<br><br>
+
+
+
+
+</td></tr><tr><td><a name="fade"></a>
+<h3>Apply fade</h3>
+
+<img src="../px/apply-fade.png"><br><br>
+<b class="p">Purpose:</b> Create an ordinary fade as well as other fading effects<br><br>
+
+<b class="f">Features:</b> alpha/colour/blur fades with accel; fade letter by letter; fade across multiple lines;<br>
+fade in using \ko; fade to/from current frame; remember last settings; save config<br><br><br>
+
+For a regular fade, type only <font color=226666>Fade in</font> / <font color=226666>Fade out</font> values.<br><br>
+
+Checking alpha will use alpha transform instead, with the <font color=226666>Fade in/out</font> values and <font color=226666>accel</font>.<br>
+Checking <font color=226666>from/to</font> colours will do colour transforms (with accel). If only one checked, the other will be alpha transform.<br>
+Checking <font color=226666>blur</font> will do a blur transform with given <font color=226666>start and end blur</font> (and accel), using the current blur as the middle value.<br>
+In case of user stupidity, i.e. blur missing, 0.6 is used as default.<br><br>
+
+<font color=226666>Letter by letter</font><br>
+This fades each letter separately, in a sequence.<br>
+The dropdown menu is the fading time for each letter, while Fade in/out are for the overall fades.<br>
+So if you have 10 characters and use <font color=226666>120ms/letter</font> and <font color=226666>1200ms Fade in</font>, the fades will follow perfectly one after another.<br>
+If the Fade in is 1000 ms, they will overlap a little. If 500ms, you'll have about 3 letters fading at a time.<br>
+<font color=226666>rtl</font> fades right to left. <font color=226666>Delete</font> removes a letter-by-letter fade (by removing all transforms and alphas).<br><br>
+
+<font color=226666>Letter by letter using \ko</font> uses <font color=664466>{\ko#}</font> tags instead of transforms for fade in.<br>
+If the <font color=226666>Fade in</font> is <font color=226666>under 40</font>, it's used as <font color=664466>\ko[value]</font>; if it's <font color=226666>40+</font>, it's considered to be the overall fade, i.e. when the last letter appears.<br>
+<font color=226666>\ko by word</font> fades in by word instead of by letter.<br>
+(Inline tags are supported, but if you fade by word and have tags in the middle of a word, it won't work as you want it to.<br>
+Also, \ko actually works with decimal values, like \ko4.6.)<br><br>
+
+<font color=226666>Fade across multiple lines</font> will create a set of alpha transforms across lines.<br>
+This can be used if you want to fade out a whole part of a conversation. Like people walking away and talking, sound gets quieter...<br>
+This nukes all present alpha tags. It supports shadow alpha (\4a).<br>
+<font color=226666>Global time</font> will use times relative to video, rather than of each individual line. This makes a difference with gaps between lines.<br><br>
+  
+<font color=226666>Fade in to current frame</font> - sets fade in to current video frame.<br>
+<font color=226666>Fade out from current frame</font> - sets fade out from current video frame.<br>
+These are for setting fades very easily without requiring any numbers.<br>
+The current frame will be the first/last fully visible, so for Fade in, set to the first frame after the fade, not the last frame of the fade.<br><br>
+
+<font color=226666>Remember last settings</font> - the GUI will remember your last used values (until automation reload).<br><br>
+
+<font color=226666>[Save config]</font> - Saves your current settings as defaults.<br><br>
+
+Extra functions:<br>
+Fade between 0 and 1 gives you that fraction of the line's duration, so Fade in 0.2 with 1 second is \fad(200,0).<br>
+Fade value of 1 is the duration of the whole line.<br>
+Negative fade gives you the inverse with respect to duration, so if dur=3000 and fade in is -500, you get \fad(2500,0), i.e. 500 from end.<br><br>
+
+
+
+</td></tr><tr><td><a name="shiftcut"></a>
+<h3>ShiftCut</h3>
+
+<img src="../px/ShiftCut.png"><br><br>
+<b class="p">Purpose:</b> Timing operations<br><br>
+
+<b class="f">Features:</b> cut lead in/out; prevent overlaps; fix overlaps; apply to selected styles; custom presets for keyframe snapping; save config<br><br><br>
+
+This started with some things the TPP didn't do and ended up as a complete replacement of TPP, including functions of the shifting tool.<br><br>
+
+For clarity, let's divide this by colours again.<br><br>
+
+<img src="../px/ShiftCut-clr.png"><br><br>
+
+The top part is general settings.<br><br>
+
+<font color=226666>Apply to selected / Apply to all lines</font> - This should be obvious.<br><br>
+
+<font color=226666>Styles to apply to</font> - There are 3 presets: <font color=226666>All, All Default, Default+Alt</font>.<br>
+<font color=226666>All Default</font> applies to all styles with "Defa" in the name.<br>
+<font color=226666>Default+Alt</font> applies to styles with "Defa" or "Alt" in the name, so this will match stuff like "Default Flashback" or "Alternative".<br>
+Below that, the dropdown menu shows all styles present in your script.<br>
+The box next to it lets you type an additional style you want to include.<br>
+This may be useful if one of your dialogue styles has an odd naming pattern.<br><br>
+
+<font color=226666>Info (link/snap)</font> - For linking and keyframe snapping, this gives you information about how many lines were affected.<br>
+This can be useful when applying something to the whole script, unsure whether your settings are a good idea.<br>
+If you find no lines were changed, your settings were useless. If too many lines were changed, maybe you did something wrong, etc.<br><br>
+
+<font color=226666>Mark changed lines</font> - Same purpose as the Info above, but this marks the lines in Effect so that you can check the changes.<br><br>
+
+<font color=226666>Lead in/out</font><br>
+Simple. Check which of the two you want (or both), set values in milliseconds, go.<br>
+<font color=226666>Cut</font> overrides <font color=226666>Add</font>, so it doesn't matter whether Add is checked or not.<br>
+You can also cut by using Add and negative values.<br>
+<font color=226666>Prevent overlaps from adding leads</font> - This makes sure that applying lead in/out won't create overlaps with adjacent lines.<br>
+<font color=226666>Don't add leads on keyframes</font> - This is useful when you're fixing a script that's already snapped to keyframes.<br>
+For example if your timer makes short lead outs, you can add 150ms lead out to all dialogue lines with these 2 checkboxes checked pretty safely (and then Link Lines).<br><br>
+
+<font color=226666>Link lines</font><br>
+<font color=226666>Max gap</font> - Maximum gap between lines to be linked. If the gap is longer, no linking.<br>
+<font color=226666>Bias</font> - Where the lines will be linked. 0.5 is in the midle of the gap. 0.8 means 80% of the gap goes to the first line, 20% to the second.<br>
+<font color=226666>Fix overlaps</font> - This allows you to fix what would be unwanted overlaps. If two consecutive lines overlap by less than this number, they will be made not to, based on the Bias, which works like the one for linking.<br>
+You can for example set this to only 50 if you want to just fix accidental 1-frame overlaps. (Assuming "normal" frame rates.)<br>
+If you want to only fix overlaps, set linking gap to 0.<br><br>
+
+
+<font color=226666>Keyframes</font><br>
+This is really just like TPP, so there isn't much to explain.<br>
+Keyframe settings are in frames, not ms. Preset numbers are in the same order the GUI shows above it.<br>
+Preventing overlaps is something TPP doesn't have, afaik.<br>
+Overlaps would happen when lines are linked before a keyframe and your <font color=226666>Ends before</font> number is higher than <font color=226666>Starts before</font>, for instance.<br>
+<font color=226666>Max CPS</font> - If snapping to a keyframe would result in a CPS higher than the given value, the line won't be snapped. "0" disables this. (Or you can just set a high number.) This setting will allow bleeds if the lines would otherwise be hard to read. However, it only applies if the bleed is over 3 frames because 1/2/3-frame bleeds are just never good and hardly make much difference for readability.<br><br>
+
+<font color=226666>Shift times</font> - This is as straightforward as it gets. Shift backward or forward by milliseconds.<br><br>
+
+<font color=226666>All</font> - This button applies <font color=226666>Lead in/out</font>, <font color=226666>Link lines</font>, and <font color=226666>Keyframe snap</font>.<br><br>
+
+<font color=226666>Save config</font> - Saves your current configuration. This also lets you modify (add/remove) the keyframe presets.<br><br>
+
+
+
+
+
+</td></tr><tr><td><a name="import"></a>
+<h3>Unimportant</h3>
+
+<img src="../px/unimportant.png"><br><br>
+<b class="p">Purpose:</b> Do a shitload of things that the other scripts don't do<br><br>
+
+<b class="f">Features:</b> import/export signs; make chapters; number lines; motion blur; merge inline tags; reverse text; fake capitals;<br>
+clone clip; convert \k to \t\alpha; convert framerate; many special effects for styling; info about line; save config<br><br><br>
+
+This is by far my largest script. The only one over 100 KB, abour 20% larger than Relocator.<br>
+It has a <font color=226666>Help</font> button and <font color=226666>Help menu</font>, so use those. It's also explained in more detail <a href="http://unanimated.xtreemhost.com/itw/tsblok.htm#import">in this blog post</a>.<br>
+I might put some more descriptions for some functions here later, but writing this page is enough work as it is, so not now.<br><br>
+
+
+
+</td></tr><tr><td><a name="timesigns"></a>
+<h3>Time signs from timecodes</h3>
+
+<img src="../px/timesigns.png"><br><br>
+<b class="p">Purpose:</b> Time signs from timecodes like this one: {TS 5:36}<br><br>
+
+<b class="f">Features:</b> shift times; snap to keyframes; fill in times for lines without timecodes; use multiple timecodes; add blur; save settings<br><br><br>
+
+This checks for timecodes like <font color=664466>{TS 5:36}</font> in your line and uses them to set start and end times for the line.<br>
+It can use a bunch of different formats of the timecode, but it's best to stick to this.<br><br>
+
+<font color=226666>Shift timecodes by ... sec</font> - If your translator uses a different raw than the one you typeset to, you can use this to shift the times.<br>
+<font color=226666>For lines without timecodes...</font> - For multi-line signs where timecode is only on the first line.<br>
+<font color=226666>Automatically remove {TS ...} comments</font> - Removes coments starting with 'TS', i.e. the timecodes it used for timing.<br>
+<font color=226666>Automatically add blur</font> - You should do that for every sign anyway, so why not right away.<br>
+<font color=226666>Snapping to keyframes</font> - Snaps start/end of the sign to nearby keyframes. Set how far it should look for keyframes.<br>
+<font color=226666>Save current settings</font> - Saves a config file.<br><br>
+
+You can have multiple timecodes for the same sign, like <font color=664466>{TS 5:36, 5:47, 6:52}</font>, and the script will create a line for each sign.<br><br>
+
+
+
+
+</td></tr><tr><td><a name="capitalize"></a>
+<h3>Change Capitalization</h3>
+
+<img src="../px/change-capitalization.png"><br><br>
+<b class="p">Purpose:</b> Change capitalization of text<br><br>
+
+This is as simple as it gets, and it's all described right there in the picture.<br><br>
+
+
+
+
+
+
+</td></tr><tr><td><a name="masquerade"></a>
+<h3>Masquerade</h3>
+
+<img src="../px/masquerade.png"><br><br>
+<b class="p">Purpose:</b> Multipurpose<br><br>
+
+<b class="f">Features:</b> save/load masks; shift tags in line; apply \an or \q2 tags; alpha time signs<br><br><br>
+
+<b><font color=226666>Masquerade</font></b><br>
+Creates a mask with the selected shape.<br>
+<font color=226666>from clip</font> takes the shape of the mask from a clip in your line. <a href="http://unanimated.xtreemhost.com/itw/tsblok.htm#mask1">See here.</a><br>
+<font color=226666>create mask on a new line</font> does the obvious and raises the layer of the current line by 1.<br>
+If you select a secondary colour (\2c), this will be then used as primary colour for the mask on new layer.<br>
+<font color=226666>remask</font> only changes an existing mask for another shape without changing tags.<br>
+<font color=226666>Save/delete mask</font> lets you save a mask from active line or delete one of your custom masks.<br>
+To save a mask, type a name and the mask from your active line will be saved (appdata/masquerade.masks).<br>
+To delete a mask, type its name or type 'del' and select the name from the menu on the left.<br><br><br>
+
+<b><font color=226666>Shift Tags</font></b><br>
+Allows you to shift tags by character or by word.<br>
+For the first block, single tags can be moved right.<br>
+For inline tags, each block can be moved left or right.<br><br>
+<img src="../px/shifttags.png"><br><br>
+This mini GUI has start tags on the left and inline tags on the right. Check those you want to shift. Click on <font color=226666>Shift Left</font> or <font color=226666>Shift Right</font>.<br>
+Check <font color=226666>word</font> if you want to shift by words instead of letters, and set how many letters/words to shift by.<br>
+<font color=226666>remove selected tags</font> deletes them instead of shifting.<br>
+<font color=226666>All Inline Tags</font> checks the checkboxes above it.<br>
+You can create regular start tags quickly and use this to shift them to become inline tags.<br><br><br>
+
+
+<b><font color=226666>an8 / q2</font></b> - Applies selected tags.<br><br><br>
+
+<b><font color=226666>Mocha Scale</font></b><br>
+Recalculates fscx and fscy for a given font size.<br>
+<font color=226666>tag end</font> is an option to add the tags at the end of the line instead of beginning.<br>
+I don't think this is needed anymore, so I might replace it with something else soon.<br><br><br>
+
+<b><font color=226666>alpha shift</font></b><br>
+Makes text appear letter by letter on frame-by-frame lines using alpha&HFF& like this:<br>
+<pre>
+{alpha&HFF&}text
+t{alpha&HFF&}ext
+te{alpha&HFF&}xt
+tex{alpha&HFF&}t
+text
+</pre>
+The original lines must all have the alpha tag at the beginning.<br><br><br>
+
+<b><font color=226666>Alpha Time</font></b><br>
+Either select lines that are already timed for alpha timing and need alpha tags, or just one line that needs to be alpha timed.<br><br>
+<img src="../px/alphatime.png"><br><br>
+In the GUI, split the line by hitting Enter where you want the alpha tags.<br>
+If you make no line breaks, text will be split by spaces.<br>
+<font color=226666>Alpha Text</font> is for when you have the lines already timed and just need the tags.<br>
+<font color=226666>Alpha Time</font> is for one line. It will be split to equally long lines with alpha tags added.<br>
+If you add "@" to your line first, alpha tags will replace the @, and no GUI will pop up.<br>
+<font color=664466>Example text:	This @is @a @test.</font><br><br><br>
+
+<b><font color=226666>Strikealpha</font></b><br>
+Replaces strikeout or underline tags with <font color=664466>\alpha&H00&</font> or <font color=664466>\alpha&HFF&</font>. Also @.<br>
+<pre>
+@	->	{\alpha&HFF&}
+@0	->	{\alpha&H00&}
+{\u1}	->	{\alpha&HFF&}
+{\u0}	->	{\alpha&H00&}
+{\s0}	->	{\alpha&HFF&}
+{\s1}	->	{\alpha&H00&}
+@E3@	->	{\alpha&HE3&}
+</pre>
+
+
+
+
+</td></tr><tr><td><a name="copyfax"></a>
+<h3>CopyFax This</h3>
+
+<img src="../px/copyfax.png"><br><br>
+<b class="p">Purpose:</b> Multipurpose<br><br>
+
+<b class="f">Features:</b> apply \fax easily; copy things from one line to others; split by linebreaks<br><br><br>
+
+
+<b><font color=226666>Fax It</font></b><br>
+Adds a \fax tag. <font color=226666>to the right</font> just adds a "-" (minus). (Yes, that's pretty useless.)<br>
+<font color=226666>from clip</font> calculates the fax value from the first two points of a vector clip.<br>
+I the clip has 4 points, points 3-4 are used to calculate fax for the last character and a fax gradient by character is made.<br><br>
+
+<b><font color=226666>Copy functions</font></b><br>
+All copy functions copy things from the first selected line to the other selected lines.<br>
+If the other lines already have the thing that's being copied, it gets replaced, of course.<br><br>
+
+<b><font color=226666>Copy Stuff</font></b><br>
+This lets you copy almost anything from one line to others.<br>
+The primary use is to copy from the first line of your selection to the others.<br>
+If you need to copy to a line that's above the source line in the grid, just click Copy with the selected things
+and then use Paste Saved on the line(s) you want to copy to.<br><br>
+<img src="../px/copystuff.png"><br><br>
+The GUI always loads data from the first selected line (not active line).<br>
+Check what you want to copy from this line to the other lines in your selection.<br>
+The tags on the left are start tags; on the right are inline tags. Inline tags will only be pasted to the first tag block.<br>
+As you can see, you can also copy, Start Time, End Time, Style, and Text.<br>
+If you select only one line, check some things, and click <font color=226666>Copy</font>, this will be saved in memory. (It's the script's memory, not clipboard, so reloading automation nukes it, but you can use clipboard for other things.)<br>
+You can then select one or more other lines and click <font color=226666>Paste Saved</font>, and the things saved in memory will be applied to those lines.<br>
+You can also copy tags inside one line. This is similar to Shift Tags, but it leaves the tag in the original position too.<br>
+So you can type an asterisk (*) before "your name", check "\blur1", and the blur tag will be copied there.<br>
+<font color=226666>Copy tags after all linebreaks</font> copies selected tags after all linebreaks in all selected lines.<br>
+This is useful when you have gradient by character and linebreaks - you need the gradient for each "line" separated by linebreaks, so you copy the needed start tag after each linebreak.<br>
+<font color=226666>[Un]hide</font> lets you hide/unhide checked tags (by making them comments). If yuo check a tag, it gets hidden. If you don't check anything, whatever was hidden gets unhidden. This way you can hide something that you want to reuse later. Good for clips, for example.<br><br>
+<font color=664466>{\fad(2000,0)\an6\blur0.6\pos(980,108)}Azure Waters</font><br>
+Check "\fad(2000,0)", click <font color=226666>[Un]hide</font>:<br>
+<font color=664466>{\an6\blur0.6\pos(980,108)}Azure Waters{//fad(2000,0)}</font><br>
+The fade is now just a comment. If you run the script again, check nothing, and click <font color=226666>[Un]hide</font>, the line will return to its previous state.<br><br>
+
+<b><font color=226666>Copy Tags</font></b><br>
+Copies the first block of tags in its entirety from first selected line to the others.<br><br>
+
+<b><font color=226666>Copy Text</font></b><br>
+Copies what's after the first block of tags from first selected line to the others (including inline tags).<br><br>
+
+<b><font color=226666>Copy Clip</font></b><br>
+Copies clip from first selected line to the others.<br>
+<font color=226666>shift clip every frame</font> will shift the clip by that amount each line.<br><br>
+
+<b><font color=226666>Copy Colours</font></b><br>
+Copies checked colours from first selected line to the others.<br>
+Unlike Copy Stuff, this can read the colours from the style when tags are missing.<br>
+You can also include alpha for the checked colours.<br><br>
+
+<b><font color=226666>Split by \N</font></b><br>
+Splits a line at each linebreak.<br>
+If there's no linebreak, you can split by tags or spaces.<br><br>
+<img src="../px/splitbyspace.png"><br><br>
+Splitting by linebreak will try to keep the position of each part, but it only supports \fs, \fscy, and \an.<br><br>
+
+
+
+</td></tr><tr><td><a name="modifytext"></a>
+<h3>Modify Text</h3>
+
+<img src="../px/textmod.png"><br><br>
+<b class="p">Purpose:</b> Have things that editors might need all in one script<br><br>
+
+This is very old and I don't think anybody's using this, so I will ignore it until somebody complains.<br><br>
+
+
+</td></tr><tr><td><a name="enchsub"></a>
+<h3>Encode - Hardsub</h3>
+
+<img src="../px/enc-hs.png"><br><br>
+<b class="p">Purpose:</b> Encode a clip or the whole video with or without hardsubs, using x264 encoder<br><br>
+
+Requirements:<br>
+- x264.exe (8-bit and/or 10-bit depending on what you want to do. Mocha clips must be 8-bit.)<br>
+- vsfilter.dll / vsfiltermod.dll for hardsubbing<br>
+- avisynth (not required when encoding for mocha)<br><br>
+
+Buttons:<br>
+<font color=226666>Encode</font> - Creates scripts for encoding with settings from the GUI. It will ask if you want to encode now or later.<br>
+<font color=226666>x264</font> - Navigate to where your 8-bit x264.exe is. The path will appear in the top line of the GUI.<br>
+<font color=226666>x264 10bit</font> - Same for 10-bit x264.<br>
+<font color=226666>vsfilter</font> - Same for vsfilter.dll.<br>
+<font color=226666>vsfiltermod</font> - Same for vsfiltermod.dll.<br>
+<font color=226666>Target</font> - If <font color=226666>Target folder</font> is <font color=226666>Custom</font>, then this loads the path to the folder where you want your encode to go. The dialog only select files, so you have to select a file in that folder (or just type the path in the GUI).<br>
+<font color=226666>Secondary</font> - Select secondary subtitles.<br>
+<font color=226666>Enc. Set.</font> - Shows a list of recently used encoding settings to choose from.<br>
+<font color=226666>Save</font> - Saves settings.<br><br>
+
+Other Options:<br>
+<font color=226666>Source video</font> - The video from which you're encoding. This will automatically show the name of the video you have loaded in Aegisub.<br>
+<font color=226666>Target folder</font> - If <font color=226666>Same as source</font>, then the encode will be where your source video is. If <font color=226666>Custom</font>, then you need to specify a path.<br>
+<font color=226666>Encode name</font> - Specify which extension you want, and adjust the encode's name if needed.<br>
+<font color=226666>Primary subs</font> - Choose which filter you want to use. The file you have loaded in Aegisub should show up there.<br>
+<font color=226666>Secondary</font> - Check this if you want two subtitle files, choose filter, and use the <font color=226666>Secondary</font> button to load a file.<br>
+<font color=226666>Encoder settings</font> - Settings that will be used for encoding. Change as you wish.<br>
+<font color=226666>Settings 4 mocha</font> - Settings that will be used instead if you check <font color=226666>Encode clip for mocha</font>.<br>
+<font color=226666>Trim from / to</font> - First and last frame of the clip you want to encode. If unchecked, whole video is encoded.<br>
+<font color=226666>Encode clip for mocha</font> does automatically the following (meaning you don't have to do those manually):<br>
+- disables 10bit<br>
+- enables trimming<br>
+- disables subtitles<br>
+- sets target to .mp4<br>
+- disables avisynth use<br>
+<font color=226666>10 bit</font> - Uses the 10 bit x264 binary specified in the settings at the top.<br>
+<font color=226666>Delete batch file after encoding</font> - Deletes the encoding batch file when done.<br>
+<font color=226666>Delete avisynth script</font> - Same for the avisynth script.<br>
+<font color=226666>Keep cmd window open</font> - Keeps the cmd window open when encoding's done. This allows you to see what errors there were if encoding doesn't work.<br><br>
+
+You can encode clips for mocha with this if torque's Motion script fails to encode for some reason, or you can use it for easy hardsubbing.<br><br>
+
+
+</td></tr><tr><td><a name="mux"></a>
+<h3>Multiplexer</h3>
+
+<img src="../px/multiplexer.png"><br><br>
+<b class="p">Purpose:</b> Mux video with subtitles, suitable for muxig fansub releases<br><br>
+
+<b class="f">Features:</b> create CRC; create xdelta; automatically use group tag; two subtitle files; mux chapters<br><br><br>
+
+Half of this script is documentation, so there's really nothing to add here.<br><br>
+
+
+</td></tr><tr><td><a name="runemap"></a>
+<h3>Runemap</h3>
+
+<b class="p">Purpose:</b> Show a list of hiragana/katakana with corresponding romaji<br><br>
+
+This was mainly a fun experiment to see if I can do this. (It was very tedious.)<br>
+If you're typesetting and don't know which sign is which, this can help you identify them.<br>
+If you type hiragana/katakana/romaji words in the corresponding fields and click on <font color=226666>Transcribe</font>, you should get the other two.<br>
+It's probably buggy, and I probably won't fix anything much about it.<br><br>
+
+
+
+</td></tr><tr><td><a name="backup"></a>
+<h3>Backup Checker</h3>
+
+<img src="../px/backupchk.png"><br><br>
+<b class="p">Purpose:</b> Save a backup of your script so that you can later check the original lines after you've edited them<br><br>
+
+The GUI looks pretty much like Multi-line Editor, just with different functions.<br>
+<font color=226666>Load from Memory</font> - Loads lines from memory, which is also what gets loaded by default (if you saved it before).<br>
+<font color=226666>Load from File</font> - Loads lines from the file with the filename you see. (Type to change if you want from a different one.)<br>
+<font color=226666>Save to Memory</font> - Saves the current script to memory. (This gets erased if you reload automation scripts.)<br>
+<font color=226666>Save to File</font> - Saves it to a file with the name you see there, in the .ass script's folder. (You can make any number of these files.)<br>
+<font color=226666>Memory to File</font> - Saves the content of memory to a file.<br>
+<font color=226666>File to Memory</font> - Loads the content of a file to memory.<br>
+<font color=226666>No Comments</font> - Removes {comments}.<br>
+You can easily switch between different backups.<br>
+If you split/join lines, the backup will be off by those, but you can just select more lines to load the ones you need to see.<br><br>
+
+
+
+</td></tr></table>
+
+
+
+
+
+
+
+
+
+
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br>

@@ -6,7 +6,7 @@ script_description="Makes things appear different from before"
 script_author="reanimated"
 script_url1="http://unanimated.xtreemhost.com/ts/relocator.lua"
 script_url2="https://raw.githubusercontent.com/unanimated/luaegisub/master/relocator.lua"
-script_version="3.11"
+script_version="3.21"
 
 include("utils.lua")
 re=require'aegisub.re'
@@ -481,6 +481,11 @@ function bilocator(subs,sel)
 		function(a,b,c,d) return "\\move("..a+xx..","..b+yy..","..c..","..d end)
 	    end
 	    
+	    if res.move=="move to" then
+		text=text:gsub("\\move%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)",
+		function(a,b,c,d) return "\\move("..a..","..b..","..xx..","..yy end)
+	    end
+	    
 	    if res.move=="move clip" then
 		m1,m2,m3,m4=text:match("\\move%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)")
 		mt=text:match("\\move%([^,]+,[^,]+,[^,]+,[^,]+,([%d%.,%-]+)")
@@ -539,6 +544,80 @@ function multimove(subs,sel)
 	poscheck=0 
 end
 
+
+function randomove(subs,sel)
+    T=true
+    RMGUI={
+    {x=0,y=0,width=2,class="checkbox",name="rmt",label="Time:",value=rmt},
+    {x=2,y=0,width=4,class="intedit",name="slow",value=slowd or 50,hint="max slowdown to ... %",max=100,min=1},
+    {x=6,y=0,class="label",label="%"},
+    
+    {x=0,y=1,width=2,class="checkbox",name="rms",label="Space:",value=rms},
+    {x=2,y=1,class="checkbox",name="rm1",label="x1"},
+    {x=3,y=1,class="checkbox",name="rm2",label="y1"},
+    {x=4,y=1,class="checkbox",name="rm3",label="x2",value=T},
+    {x=5,y=1,class="checkbox",name="rm4",label="y2",value=T},
+    
+    {x=0,y=2,width=2,class="label",label="      Distance:"},
+    {x=2,y=2,width=4,class="floatedit",name="rmdist",value=rmd or 0},
+    {x=0,y=3,width=2,class="label",label="      Direction:"},
+    {x=2,y=3,width=2,class="checkbox",name="plus",label="positive",value=T},
+    {x=4,y=3,width=2,class="checkbox",name="minus",label="negative",value=T},
+    
+    {x=0,y=4,width=7,height=4,class="textbox",value="Time - \\move direction doesn't change.\n'50%' means text will move between 50 and 100% of original distance.\n\nSpace - Given coordinates change within given distance and direction.\n\nTime and Space may be combined, but it makes more sense to use just one."}
+    }
+    P,rez=ADD(RMGUI,{"OK","Cancel"},{ok='OK',close='Cancel'})
+    if P=="Cancel" then ak() end
+    
+    rmt=rez.rmt rms=rez.rms
+    slowd=rez.slow rmd=rez.rmdist
+    rmdp=rez.plus rmdm=rez.minus
+    
+    if not rmt and not rms then t_error("Neither Time nor Space selected.\nSpace-time travel failed.",true) end
+    
+    plus=0 minus=0
+    if rmdp then plus=rmd*100 end
+    if rmdm then minus=(0-rmd)*100 end
+    
+    for x, i in ipairs(sel) do
+        progress(string.format("Randomizing movement... %d/%d",x,#sel))
+	line=subs[i]
+        text=subs[i].text
+	if text:match("\\move") then
+	  if rmt then
+	    movt1,movt2=gettimes(line.start_time,line.end_time)
+	    text=text:gsub("(\\move%([%d%.%-]+,[%d%.%-]+,[%d%.%-]+,[%d%.%-]+)%)","%1,"..movt1..","..movt2..")")
+	    movt3=math.random(movt2,movt2*(100/slowd))
+	    text=text:gsub("(\\move%([%d%.%-]+,[%d%.%-]+,[%d%.%-]+,[%d%.%-]+),([%d%.,%-]+)%)","%1,"..movt1..","..movt3..")")
+	  end
+	  if rms then
+	    
+	    text=text:gsub("\\move%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)",
+	    function(a,b,c,d)
+	    if rez.rm1 then a=a+math.random(minus,plus)/100 end
+	    if rez.rm2 then b=b+math.random(minus,plus)/100 end
+	    if rez.rm3 then c=c+math.random(minus,plus)/100 end
+	    if rez.rm4 then d=d+math.random(minus,plus)/100 end
+	    return "\\move("..a..","..b..","..c..","..d end)
+	  end
+	
+	end
+	line.text=text
+	subs[i]=line
+    end
+end
+
+function gettimes(st,et)
+    	startf=ms2fr(st)
+	endf=ms2fr(et)
+	start2=fr2ms(startf)
+	endt2=fr2ms(endf-1)
+	tim=fr2ms(1)
+	movt1=start2-st+tim
+	movt2=endt2-st+tim
+	return movt1,movt2
+end
+
 function modifier(subs,sel)
     post=res.post xx=res.eks yy=res.wai
     rr=1/res.rndec
@@ -587,7 +666,7 @@ function modifier(subs,sel)
 	    end
 	    
 	    if res.mod=="killmovetimes" then
-		text=text:gsub("\\move%(([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,%)]+)","\\move(%1,%2,%3,%4")
+		text=text:gsub("\\move%(([^,]+,[^,]+,[^,]+,[^,]+),[^,]+,[^,%)]+","\\move(%1")
 	    end
 	    
 	    if res.mod=="fullmovetimes" then
@@ -596,8 +675,11 @@ function modifier(subs,sel)
 	    end
 	    
 	    if res.mod=="fulltranstimes" then
-		text=text:gsub("\\t%([%d,%.]-\\","\\t("..movt..",\\")
-		text=text:gsub("\\t%(\\","\\t("..movt..",\\")
+		text=text
+		:gsub("\\t%([%d%.%-]-,[%d%.%-]-,([%d%.]-,)\\","\\t("..movt..",%1\\")
+		:gsub("\\t%([%d%.%-]-,[%d%.%-]-,\\","\\t("..movt..",\\")
+		:gsub("\\t%(([%d%.]-,)\\","\\t("..movt..",%1\\")
+		:gsub("\\t%(\\","\\t("..movt..",\\")
 	    end
 	    
 	    if res.mod=="move v. clip" then
@@ -606,7 +688,6 @@ function modifier(subs,sel)
 		end
 		if x~=1 and text:match("\\pos") then v3,v4=text:match("\\pos%(([%d%.%-]+),([%d%.%-]+)%)")
 		  V1=v3-v1	V2=v4-v2
-		aegisub.log("\n V1 "..V1)
 		  if text:match("clip%(m [%d%a%s%-%.]+%)") then
 		    ctext=text:match("clip%(m ([%d%a%s%-%.]+)%)")
 		    ctext2=ctext:gsub("([%d%-%.]+)%s([%d%-%.]+)",function(a,b) return a+V1.." "..b+V2 end)
@@ -720,7 +801,7 @@ function modifier(subs,sel)
 	    end
 
 	    if res.mod=="vector2rect." then
-		text=text:gsub("\\(i?)clip%(m%s(%d-)%s(%d-)%sl%s(%d-)%s(%d-)%s(%d-)%s(%d-)%s(%d-)%s(%d-)%)","\\%1clip(%2,%3,%6,%7)") 
+		text=text:gsub("\\(i?)clip%(m%s([%d%.%-]+)%s([%d%.%-]+)%sl%s([%d%.%-]+)%s([%d%.%-]+)%s([%d%.%-]+)%s([%d%.%-]+)%s([%d%.%-]+)%s([%d%.%-]+)%)","\\%1clip(%2,%3,%6,%7)") 
 	    end
 
 	    if res.mod=="rect.2vector" then
@@ -814,21 +895,21 @@ function modifier(subs,sel)
 	    if res.mod=="randomize..." then
 		if x==1 then
 		  randomgui={
-		    {x=0,y=0,width=1,height=1,class="label",label="randomization value"},
-		    {x=1,y=0,width=1,height=1,class="floatedit",name="random",value=3},
-		    {x=0,y=1,width=1,height=1,class="label",label="rounding"},
-		    {x=1,y=1,width=1,height=1,class="dropdown",name="dec",items={"1","0.1","0.01","0.001"},value="0.1",},
-		    {x=1,y=2,width=1,height=1,class="edit",name="randomtag"},
-		    {x=1,y=3,width=1,height=1,class="edit",name="partag1",hint="pos, move, org, clip, (fad)"},
-		    {x=1,y=4,width=1,height=1,class="edit",name="partag2",hint="pos, move, org, clip, (fad)"},
-		    {x=0,y=2,width=1,height=1,class="checkbox",name="ntag",label="standard type tag - \\",value=true,hint="\\[tag][number]"},
-		    {x=0,y=3,width=1,height=1,class="checkbox",name="ptag1",label="parenthesis tag x - \\",value=false,hint="\\tag(X,y)"},
-		    {x=0,y=4,width=1,height=1,class="checkbox",name="ptag2",label="parenthesis tag y - \\",value=false,hint="\\tag(x,Y)"},
+		    {x=0,y=0,class="label",label="randomization value"},
+		    {x=1,y=0,class="floatedit",name="random",value=rnd or 3},
+		    {x=0,y=1,class="label",label="rounding"},
+		    {x=1,y=1,class="dropdown",name="dec",items={"1","0.1","0.01","0.001"},value=rd or "0.1",},
+		    {x=1,y=2,class="edit",name="randomtag",value=rt},
+		    {x=1,y=3,class="edit",name="partag1",hint="pos, move, org, clip, (fad)",value=rtx},
+		    {x=1,y=4,class="edit",name="partag2",hint="pos, move, org, clip, (fad)",value=rty},
+		    {x=0,y=2,class="checkbox",name="ntag",label="standard type tag - \\",value=rnt,hint="\\[tag][number]"},
+		    {x=0,y=3,class="checkbox",name="ptag1",label="parenthesis tag x - \\",value=rpt1,hint="\\tag(X,y)"},
+		    {x=0,y=4,class="checkbox",name="ptag2",label="parenthesis tag y - \\",value=rpt2,hint="\\tag(x,Y)"},
 		  }
 		  press,rez=ADD(randomgui,{"Randomize","Disintegrate"},{ok='Randomize',close='Disintegrate'})
 		  if press=="Disintegrate" then ak() end
-		  rt=rez.randomtag   rtx=rez.partag1   rty=rez.partag2
-		  deci=1/tonumber(rez.dec)    rnd=rez.random
+		  rt=rez.randomtag   rtx=rez.partag1   rty=rez.partag2	rd=rez.dec
+		  deci=1/tonumber(rez.dec)    rnd=rez.random	rnt=rez.ntag   rpt1=rez.ptag1   rpt2=rez.ptag2
 		end
 		
 		-- standard tags
@@ -860,6 +941,7 @@ function modifier(subs,sel)
 	    end
 
 	    if res.mod=="letterbreak" then
+	      text=text:gsub("%s*\\N%s*"," ")
 	      if not text:match("^({\\[^}]-})") then
 		notag1=text:match("^([^{]+)")
 		local notag2=notag1:gsub("([%a%s%d])","%1\\N")
@@ -1113,21 +1195,28 @@ end
 
 function negativerot(subs,sel)
 	negdialog={
-	{x=0,y=0,width=1,height=1,class="checkbox",name="frz",label="frz",value=true},
-	{x=1,y=0,width=1,height=1,class="checkbox",name="frx",label="frx"},
-	{x=2,y=0,width=1,height=1,class="checkbox",name="fry",label="fry"},
+	{x=0,y=0,class="checkbox",name="frz",label="frz",value=true},
+	{x=1,y=0,class="checkbox",name="frx",label="frx"},
+	{x=2,y=0,class="checkbox",name="fry",label="fry"},
+	{x=3,y=0,class="checkbox",name="only",label="only 180+"},
 	}
 	presst,rez=ADD(negdialog,{"OK","Cancel"},{ok='OK',cancel='Cancel'})
 	if presst=="Cancel" then ak() end
+	if rez.only then minimum=180 else minimum=0 end
     for x, i in ipairs(sel) do
         line=subs[i]
 	text=line.text
-	if rez.frz then text=text:gsub("\\frz([%d%.]+)",function(r) return "\\frz"..r-360 end) end
-	if rez.frx then text=text:gsub("\\frx([%d%.]+)",function(r) return "\\frx"..r-360 end) end
-	if rez.fry then text=text:gsub("\\fry([%d%.]+)",function(r) return "\\fry"..r-360 end) end
+	if rez.frz then text=negative(text,minimum,"\\frz") end
+	if rez.frx then text=negative(text,minimum,"\\frx") end
+	if rez.fry then text=negative(text,minimum,"\\fry") end
 	line.text=text
 	subs[i]=line
     end
+end
+
+function negative(text,m,rot)
+    text=text:gsub(rot.."([%d%.]+)",function(r) if tonumber(r)>m then return rot..r-360 end end)
+    return text
 end
 
 function transclip(subs,sel,act)
@@ -1192,7 +1281,7 @@ function clone(subs,sel)
         progress(string.format("Cloning... %d/%d",x,#sel))
 	line=subs[i]
         text=subs[i].text
-	if not text:match("^{\\") then text=text:gsub("^","{\\}") end
+	if not text:match("^{\\") then text=text:gsub("^","{\\clone}") end
 
 	if res.cpos then
 		if x==1 then posi=text:match("\\pos%(([^%)]-)%)") end
@@ -1267,21 +1356,14 @@ function clone(subs,sel)
 	end
 	
 	if res.ctclip then
-		if x==1 and text:match("\\t%([%d%.,]*\\i?clip") then
-		tklip=text:match("\\t%([%d%.,]*\\i?clip%(([^%)]-)%)")
-		end
-		if x>1 and text:match("\\i?clip") and tklip~=nil then
-		text=text:gsub("\\t%(([%d%.,]*)\\(i?clip)%([^%)]-%)","\\t%(%1\\%2%("..tklip.."%)")
-		end
-		if x>1 and not text:match("\\t%([%d%.,]*\\i?clip") and tklip~=nil and res.cre then
-		text=text:gsub("^({\\[^}]*)}","%1\\t%(\\clip%("..tklip.."%)%)}")
-		end
+	    if x==1 and text:match("\\t%([%d%.,]*\\i?clip") then tklip=text:match("\\t%([%d%.,]*\\i?clip%(([^%)]-)%)") end
+	    if x>1 and text:match("\\i?clip") and tklip~=nil then
+	    text=text:gsub("\\t%(([%d%.,]*)\\(i?clip)%([^%)]-%)","\\t%(%1\\%2%("..tklip.."%)") end
+	    if x>1 and not text:match("\\t%([%d%.,]*\\i?clip") and tklip~=nil and res.cre then
+	    text=text:gsub("^({\\[^}]*)}","%1\\t%(\\clip%("..tklip.."%)%)}") end
 	end
 
-	text=text
-	:gsub("\\\\","\\")
-	:gsub("\\}","}")
-	:gsub("{}","")
+	text=text:gsub("\\clone","")
 	
 	line.text=text
 	subs[i]=line
@@ -1293,9 +1375,9 @@ function teleport(subs,sel)
     tpfx=0    tpfy=0
     if res.tpmod then
 	telemod={
-	{x=2,y=0,width=2,height=1,class="label",label=" Warped Teleportation"},
-	{x=2,y=1,width=3,height=1,class="floatedit",name="eggs",hint="X"},
-	{x=2,y=2,width=3,height=1,class="floatedit",name="why",hint="Y"},
+	{x=2,y=0,class="label",label=" Warped Teleportation"},
+	{x=2,y=1,class="floatedit",name="eggs",hint="X"},
+	{x=2,y=2,class="floatedit",name="why",hint="Y"},
 	}
 	press,rez=ADD(telemod,
 	{"Warped Teleport","Disintegrate"},{close='Disintegrate'})
@@ -1467,7 +1549,7 @@ function cleantr(tags)
 	trnsfrm=trnsfrm:gsub("\\t%(\\[^%(%)]+%)","")
 	trnsfrm=trnsfrm:gsub("\\t%((\\[^%(%)]-%b()[^%)]-)%)","")
 	if cleant~="" then trnsfrm="\\t("..cleant..")"..trnsfrm end	
-	tags=tags:gsub("^({\\[^}]*)}","%1"..trnsfrm.."}")
+	tags=tags:gsub("^({[^}]*)}","%1"..trnsfrm.."}")
 	return tags
 end
 
@@ -1630,6 +1712,8 @@ Shiftstart: similarly, this only shifts the initial \move coordinates.
 
 Reverse Move: switches the coordinates, reversing the movement direction.
 
+Move to: Teleporter input sets target coordinats for \move for all selected lines.
+
 Move Clip: moves regular clip along with \move using \t\clip.]]
 
 morph=[[
@@ -1754,7 +1838,7 @@ stg_toport={x=1,y=0,width=1,height=1,class="label",label="           Teleportati
 
 stg_intro={x=0,y=1,width=2,height=9,class="textbox",name="gd",value=intro}
 stg_cannon={x=0,y=1,width=2,height=22,class="textbox",name="gd",value=cannon}
-stg_travel={x=0,y=1,width=2,height=19,class="textbox",name="gd",value=travel}
+stg_travel={x=0,y=1,width=2,height=20,class="textbox",name="gd",value=travel}
 stg_morph={x=0,y=1,width=2,height=19,class="textbox",name="gd",value=morph}
 stg_morph2fbf={x=0,y=1,width=2,height=8,class="textbox",name="gd",value=morph2fbf}
 stg_morphorg={x=0,y=1,width=2,height=8,class="textbox",name="gd",value=morphorg}
@@ -1843,7 +1927,7 @@ m1,m2,m3,m4=tk:match("\\move%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)") 
 else mlbl="" end
 
 Repositioning={"Align X","Align Y","org to fax","clip to fax","clip to frz","horizontal mirror","vertical mirror","shake","shake rotation","shadow layer","space out letters"}
-Bilocator={"transmove","horizontal","vertical","multimove","rvrs. move","shiftstart","shiftmove","move clip"}
+Bilocator={"transmove","horizontal","vertical","multimove","rvrs. move","shiftstart","shiftmove","move to","move clip","randomove"}
 Morphing={"round numbers","line2fbf","join fbf lines","killmovetimes","fullmovetimes","fulltranstimes","move v. clip","set origin","calculate origin","transform clip","FReeZe","rotate 180","flip hor.","flip vert.","negative rot","vector2rect.","rect.2vector","clip scale","find centre","extend mask","flip mask","adjust drawing","randomask","randomize...","letterbreak","wordbreak"}
 Rounding={"all","pos","move","org","clip","mask"}
 Freezing={"-frz-","30","45","60","90","120","135","150","180","-30","-45","-60","-90","-120","-135","-150"}
@@ -1854,7 +1938,7 @@ hyperconfig={
     {x=11,y=2,width=3,height=1,class="floatedit",name="wai",hint="Y"},
 
     {x=0,y=0,width=3,height=1,class="label",label="Repositioning Field",},
-    {x=0,y=1,width=2,height=1,class="dropdown",name="posi",value=posdrop,items=Repositioning},
+    {x=0,y=1,width=2,height=1,class="dropdown",name="posi",value="clip to frz",items=Repositioning},
     {x=0,y=2,width=2,height=1,class="floatedit",name="post",value=0},
     {x=0,y=3,width=1,height=1,class="checkbox",name="first",label="by first",value=true,hint="align with first line"},
     {x=1,y=3,width=1,height=1,class="checkbox",name="rota",label="rotate",value=false,hint="shake rotation / rotate mirrors"},
@@ -1865,16 +1949,16 @@ hyperconfig={
 	hint="The Typesetter's Guide to the Hyperdimensional Relocator."},
 
     {x=3,y=0,width=2,height=1,class="label",label="Soul Bilocator"},
-    {x=3,y=1,width=1,height=1,class="dropdown",name="move",value=movedrop,items=Bilocator},
+    {x=3,y=1,width=1,height=1,class="dropdown",name="move",value="transmove",items=Bilocator},
     {x=3,y=2,width=1,height=1,class="checkbox",name="keep",label="keep both",value=false,hint="keeps both lines for transmove"},
     {x=3,y=3,width=3,height=1,class="checkbox",name="rotac",label="rotation acceleration",value=true,hint="transmove option"},
     {x=3,y=4,width=3,height=1,class="label",name="moo",label=mlbl},
     
     {x=5,y=0,width=2,height=1,class="label",label="Morphing Grounds",},
-    {x=5,y=1,width=2,height=1,class="dropdown",name="mod",value=morphdrop,items=Morphing},
+    {x=5,y=1,width=2,height=1,class="dropdown",name="mod",value="round numbers",items=Morphing},
     {x=5,y=2,width=1,height=1,class="label",label="Round:",},
     {x=6,y=2,width=1,height=1,class="dropdown",name="rnd",items=Rounding,value="all"},
-    {x=6,y=3,width=1,height=1,class="dropdown",name="rndec",items={"1","0.1","0.01","0.001"},value="0"},
+    {x=6,y=3,width=1,height=1,class="dropdown",name="rndec",items={"1","0.1","0.01","0.001"},value="1"},
     {x=6,y=4,width=1,height=1,class="dropdown",name="freeze",items=Freezing,value="-frz-"},
     {x=5,y=5,width=2,height=1,class="checkbox",name="delfbf",label="delete orig. line",value=true,hint="delete original line for line2fbf / mirror functions"},
 
@@ -1918,7 +2002,9 @@ hyperconfig={
 		
 	if P=="Positron Cannon" then if res.space then guide(subs,sel) else sel=positron(subs,sel) end end
 	if P=="Hyperspace Travel" then
-	    if res.move=="multimove" then multimove (subs,sel) else bilocator(subs,sel) end
+	    if res.move=="multimove" then multimove (subs,sel)
+	    elseif res.move=="randomove" then randomove (subs,sel)
+	    else bilocator(subs,sel) end
 	end
 	if P=="Metamorphosis" then
 	    aegisub.progress.title(string.format("Morphing..."))

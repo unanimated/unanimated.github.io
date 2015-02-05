@@ -17,8 +17,9 @@ aka "Is there a script that does ......?"</b> (All scripts include detailed desc
 
 <pre>
 <b>HYDRA</b>
-Add any tags
-Add inline tags
+add any tags
+add inline tags
+apply tags to sections of text
 add transforms (new transforms, add to existing transforms)
 relative transforms (transform by, rather than transform to)
 copy fscx value to fscy and vice versa
@@ -52,7 +53,9 @@ make lines with \pos move the same as a reference line with \move (multimove)
 reverse \move
 change starting coordinates of \move by a given amount (shiftstart)
 change ending coordinates of \move by a given amount (shiftmove)
+set target coordinates for \move (move to)
 create a clip transform that follows \move (move clip)
+randomize \move, either in the same direction but different distance, or within a given radius of the start/end points
 
 <b>Hyperdimensional Relocator - Morphing Grounds</b>
 round values for pos, move, org, clip, masks
@@ -135,10 +138,11 @@ move selection up or down
 
 
 <b>Multi-line Editor</b>
-edit multiple lines at once
-replace function for selected lines
+edit multiple lines at once (text, style, actor, effect)
+replace function for selected lines, including regexp
 check duration, character count, and cps of a line
 count characters / words in a selection
+change capitalization
 
 
 <b>MultiCopy</b>
@@ -185,6 +189,7 @@ capitalize lines, sentences, or titles
 <b>Unimportant</b>
 export complex signs to a saved file (any number of lines, basically works like a template)
 import signs from a saved file
+import chapters from xml
 a complex function to update lyrics
 make chapters (includes subchapters)
 set chapter markers (like make selected line a 'Part A' chapter)
@@ -211,6 +216,7 @@ dissolve text (make text disappear in segments in various ways)
 randomized transforms - different values for each line (includes randomized fade, duration, move)
 clone clip (replicates an existing clip given amount of times in rows/columns)
 transform kara tags (\k, \kf, \ko) into alpha transforms (FF->00)
+motion blur
 comment honorifics
 convert framerate
 stats: video name, script resolution, colorspace, styles used, # of dialogue lines, # of selected lines, selection duration
@@ -236,6 +242,7 @@ copy text after initial block of tags from line 1 to others
 copy clip, shifting it by a given value line by line
 copy colours from line 1 to others
 copy anything available from one line to others
+copy tags from start tags to after linebreaks
 split by linebreaks (keeps times)
 
 
@@ -244,16 +251,13 @@ insert linebreak in a meaningful place
 shift linebreak by 1 word (right or left)
 
 
-<b>Split</b>
+<b>Join / Split</b>
+join active line with the following one (tries to handle text / tags intelligently)
 split a line at first linebreak / period / excl./quest. mark / comma, and adjust timing for each line
 
 
-<b>Join</b>
-join active line with the following one (tries to handle text / tags intelligently)
-
-
 <b>Snap</b>
-snap selected lines to keyframes based on numbers in settings (TPP snapping for hotkeying)
+snap selected lines to keyframes / adjacent lines based on numbers in settings (TPP snapping for hotkeying)
 
 
 <b>Re-Split</b>

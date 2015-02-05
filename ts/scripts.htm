@@ -14,23 +14,20 @@ A bunch of scripts that don't come with aegisub by default:<br><br>
 <a href="scripts-unanimated.htm">» All of my own scripts can be found here.</a>
 <a href="https://github.com/unanimated/luaegisub">(GitHub repository here.)</a><br><br>
 
-<a href="https://github.com/lyger/Aegisub_automation_scripts">» All of lyger's scripts can be found here.</a>
+<a href="https://github.com/TypesettingCartel">» Here you can find links to scripts from lyger, torque, line0, and others</a>
 
 
 <br><br><br><br>
 
 
 <a href="Aegisub-Motion.lua">Aegisub-Motion</a> | <a href="https://github.com/torque/Aegisub-Motion">Latest version here</a><br><br>
-Script for motion tracking with Mocha. This one is for Aegisub 3.0.<br>
-<a href="Aegisub-Motion.lua">This one</a> works with 2.1.9 but you should use 3.0 unless you have some serious compatibility issues with it.
+Script for motion tracking with Mocha.
 
 <br><br><br>
 <table><tr><td>
 This is roughly what things should look like.<br>
 Set the folders in the config (below) as implied.<br><br>
-The 'Trim' window should do stuff automatically. -><br>
-If it encodes one frame less than it should,<br>
-get the "end frame fix" from the link below.
+The 'Trim' window doesn't exist anymore. -><br><br><br>
 <br><br>
 <img src="../px/mocha-config.png">
 <br><br>
@@ -42,15 +39,6 @@ If you copy data from Mocha, they will be pasted<br>
 <img src="../px/mocha-apply.png">
 </td></tr></table>
 
-<br><br>
-<a href="http://www.mediafire.com/?74rqx9n3j9ypued">Aegisub-Motion end frame fix</a> [January 2013] - This has been now fixed in new versions.<br><br>
-
-<font color=333333>
-If you have your own version you wanna keep and want to add this fix, find<br>
-tokens.lenf, tokens.lent = tokens.endf-tokens.startf, tokens.endt-tokens.startt <br>
-and change to<br>
-tokens.lenf, tokens.lent = tokens.endf-tokens.startf+1, tokens.endt-tokens.startt+1 
-</font>
 <br><br><br><br>
 
 
@@ -71,12 +59,6 @@ Won't do shit if you don't read the instructions in the script so please...<br><
 Daiz's scripts to fix the mess he created in the first place.<br>
 (This is not needed in newer builds that do it with resample dialog.)<br><br><br><br>
 
-<a href="https://github.com/line0/TSScripts/blob/master/Aegisub/ShakeIt.lua">ShakeIt</a><br><br>
-
-Shaker by line0. Has some other options than the one in Relocator.
-
-
-<br><br><br><br><br>
 
 
 <table class="q" width=90% align=center cellspacing=18><tr><td class="q">

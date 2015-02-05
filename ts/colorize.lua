@@ -1,7 +1,7 @@
 ﻿script_name="Colorize"
 script_description="Does things with colours"
 script_author="unanimated"
-script_version="4.1"
+script_version="4.3"
 
 --[[
 
@@ -34,26 +34,26 @@ script_version="4.1"
  
 	Gradient:
  Creates a gradient by character. (Uses Colorize button.)
- There are two modes: RGB and HSB. RGB is the standard, like lyger's GBC; HSB interpolates Hue, Saturation, and Brightness separately.
+ There are two modes: RGB and HSL. RGB is the standard, like lyger's GBC; HSL interpolates Hue, Saturation, and Lightness separately.
  Use the \c, \3c, \4c, \2c checkboxes on the right to choose which colour to gradient.
  "Shortest hue" makes sure that hue is interpolated in the shorter direction. Unchecking it will give you a different gradient in 50% cases.
- "Double HSB gradient" will make an extra round through Hue. Note that neither of these 2 options applies to RGB.
+ "Double HSL gradient" will make an extra round through Hue. Note that neither of these 2 options applies to RGB.
  "Use asterisks" places asterisks like GBC so that you can ungradient the line with lyger's script.
  There are several differences from lyger's GBC:
-	- RGB / HSB option
+	- RGB / HSL option
 	- You can choose which types of colour you want to gradient
 	- Other tags don't interfere with the colour gradients
  
 	Match/switch/invert \c, \3c, 4c:
  This should be obvious from the names and should apply to all new colour tags in the line.
  
-	Adjust RGB / HSB
- Adjusting Red/Green/Blue or Hue/Saturation/Brightness
+	Adjust RGB / HSL
+ Adjusting Red/Green/Blue or Hue/Saturation/Lightness
  This works for lines with multiple same-type colour tags, including gradient by character.
  You can select from -255 to 255.
  Check types of colours you want it to apply to.
  "Apply to missing" means it will be applied to the colour set in style if there's no tag in the line.
- "Randomize" - if you set Brightness (any RGB/HSB) to 20, the resulting colour will have anywhere between -20 and +20 of the original brightness.
+ "Randomize" - if you set Lightness (any RGB/HSL) to 20, the resulting colour will have anywhere between -20 and +20 of the original Lightness.
  
    "Remember last"
  Remembers last settings of checkboxes and dropdowns.
@@ -89,6 +89,7 @@ function colors(subs,sel)
 
 	    tags=text:match("^{\\[^}]-}") or ""
 	    orig=text:gsub("^({\\[^}]*})","")
+	    comm="" for c in text:gmatch("{[^\\}]*}") do comm=comm..c end
 	    text=text:gsub("{[^}]*}","") :gsub("%s*$","")
 
 	    if res.clrs=="2" then
@@ -146,6 +147,7 @@ function colors(subs,sel)
 	text=tags..text
 	if res.join==false then text=text:gsub("}{","") end
 	if orig:match("{%*?\\") then text=textmod(orig) end
+	text=text..comm
 	line.text=text
         subs[i]=line
     end
@@ -465,7 +467,7 @@ function matchcolors(subs,sel)
 		    ctg=ctg:gsub("1","")
 		    if not tags:match(ctg) and n~=2 then text=text:gsub("^({\\[^}]-)}","%1"..ctg..stylecol[n].."}") end
 		end
-		for color in text:gmatch("\\[1234]?c&H(%x%x%x%x%x%x)&") do
+		for tg,color in text:gmatch("(\\[1234]?c&H)(%x%x%x%x%x%x)&") do
 		    icolor=""
 		    for kol in color:gmatch("(%x%x)") do
 			dkol=tonumber(kol,16)
@@ -473,13 +475,13 @@ function matchcolors(subs,sel)
 			ikol=tohex(idkol)
 			icolor=icolor..ikol
 		    end
-		    text=text:gsub("&H"..color.."&","&H"..icolor.."&")
+		    text=text:gsub(tg..color,tg..icolor)
 		end
 	    text=text:gsub("\\what","")
 	end
 
-	-- RGB / HSB
-	if pressed=="RGB" or pressed=="HSB" then
+	-- RGB / HSL
+	if pressed=="RGB" or pressed=="HSL" then
 	    lvlr=res.R lvlg=res.G lvlb=res.B
 	    hue=res.huehue
 	    sat=res.satur
@@ -506,12 +508,12 @@ function matchcolors(subs,sel)
 		    kol1n=brightness(kol1,lvlb)
 		    kol2n=brightness(kol2,lvlg)
 		    kol3n=brightness(kol3,lvlr)
-		  text=text:gsub(kol1..kol2..kol3,kol1n..kol2n..kol3n)
+		  text=text:gsub(kl.."&H"..kol1..kol2..kol3,kl.."&H"..kol1n..kol2n..kol3n)
 		  end
 		end
 		
 		-- H S B --
-		if pressed=="HSB" then
+		if pressed=="HSL" then
 		  for kol1,kol2,kol3 in text:gmatch(kl.."&H(%x%x)(%x%x)(%x%x)&") do
 		  H1,S1,L1=RGB_to_HSL(kol3,kol2,kol1)
 		  H=H1+hue/255
@@ -531,7 +533,7 @@ function matchcolors(subs,sel)
 		  kol3n=tohex(round(kol3n))
 		  kol2n=tohex(round(kol2n))
 		  kol1n=tohex(round(kol1n))
-		  text=text:gsub(kol1..kol2..kol3,kol1n..kol2n..kol3n)
+		  text=text:gsub(kl.."&H"..kol1..kol2..kol3,kl.."&H"..kol1n..kol2n..kol3n)
 		  end
 		end
 	    end
@@ -555,6 +557,7 @@ function gradient(subs,sel)
 	text=line.text
 	text=text:gsub("\\c&","\\1c&") :gsub("\\N","{\\N}") :gsub("{(\\[^}]-)}{(\\[^}]-)}","{%1%2}")
 	after=text:gsub("^{\\[^}]-}","")
+	nc=text:gsub("{[^\\}]-}","")
 	if text:match("{\\[^}]-}$") then text=text.."wtfwhywouldyoudothis" end
 	
 	-- colours from style
@@ -570,9 +573,16 @@ function gradient(subs,sel)
 	for g=1,#applycol do
 	  ac=applycol[g]
 	  sc=stylecol[ac]
-	  -- backup original text + save tags
-	  orig=text
+	  -- save tags
 	  tags=text:match("^{\\[^}]-}") or ""
+	  -- linebreak adjustment
+	  if res.gradn then
+	    startc=tags:match("\\"..ac.."c&H%x+&") or "\\"..ac.."c"..sc
+	    endc=nc:match("(\\"..ac.."c&H%x+&)[^}]-}%w+$") or ""
+	    text=text:gsub("([%w%p])%s*{\\N","{"..endc.."}%1{\\N}{"..startc)
+	  end
+	  -- back up original
+	  orig=text
 	  -- leave only releavant colour tags, nuke all other ones, add colour from style if missing at the start
 	  ctext=text:gsub("\\N","") :gsub("\\[^1234][^c][^\\}]+","") :gsub("\\[^"..ac.."]c[^\\}]+","") :gsub("{%*?}","")
 	  if not ctext:match("^{\\") then ctext="{\\kolor}"..ctext end
@@ -894,6 +904,8 @@ function detf(txt)
     return ret
 end
 
+function logg(m) aegisub.log("\n "..m) end
+
 function saveconfig()
 colconf="Colorize Configutation\n\n"
 for key,val in ipairs(GUI) do
@@ -927,76 +939,77 @@ ADP=aegisub.decode_path
 ak=aegisub.cancel
 	GUI=
 	{
-	{x=0,y=0,width=1,height=1,class="label",label="Colours"},
-	{x=1,y=0,width=2,height=1,class="dropdown",name="clrs",items={"2","3","4","5"},value="2"},
+	{x=0,y=0,class="label",label="Colours"},
+	{x=1,y=0,width=2,class="dropdown",name="clrs",items={"2","3","4","5"},value="2"},
 	
-	{x=0,y=1,width=1,height=1,class="label",label="Shift base:"},
-	{x=1,y=1,width=2,height=1,class="dropdown",name="shit",items={"# of colours","line"},value="# of colours"},
+	{x=0,y=1,class="label",label="Shift base:"},
+	{x=1,y=1,width=2,class="dropdown",name="shit",items={"# of colours","line"},value="# of colours"},
 	
-	{x=0,y=2,width=1,height=1,class="label",label="Apply to:  "},
-	{x=1,y=2,width=2,height=1,class="dropdown",name="kol",items={"primary","border","shadow","secondary"},value="primary"},
+	{x=0,y=2,class="label",label="Apply to:  "},
+	{x=1,y=2,width=2,class="dropdown",name="kol",items={"primary","border","shadow","secondary"},value="primary"},
 	    
-	{x=4,y=0,width=1,height=1,class="label",label="  1 "},
-	{x=4,y=1,width=1,height=1,class="label",label="  2 "},
-	{x=4,y=2,width=1,height=1,class="label",label="  3 "},
-	{x=4,y=3,width=1,height=1,class="label",label="  4 "},
-	{x=4,y=4,width=1,height=1,class="label",label="  5 "},
+	{x=4,y=0,class="label",label="  1 "},
+	{x=4,y=1,class="label",label="  2 "},
+	{x=4,y=2,class="label",label="  3 "},
+	{x=4,y=3,class="label",label="  4 "},
+	{x=4,y=4,class="label",label="  5 "},
 	
-	{x=5,y=0,width=1,height=1,class="color",name="c1"},
-	{x=5,y=1,width=1,height=1,class="color",name="c2"},
-	{x=5,y=2,width=1,height=1,class="color",name="c3"},
-	{x=5,y=3,width=1,height=1,class="color",name="c4"},
-	{x=5,y=4,width=1,height=1,class="color",name="c5"},
+	{x=5,y=0,class="color",name="c1"},
+	{x=5,y=1,class="color",name="c2"},
+	{x=5,y=2,class="color",name="c3"},
+	{x=5,y=3,class="color",name="c4"},
+	{x=5,y=4,class="color",name="c5"},
 	
-	{x=0,y=3,width=3,height=1,class="checkbox",name="word",label="Colorize by word",value=false },
-	{x=0,y=4,width=3,height=1,class="checkbox",name="join",label="Don't join with other tags",value=false },
-	{x=0,y=5,width=4,height=1,class="checkbox",name="cont",label="Continuous shift line by line",value=false },
-	{x=0,y=6,width=3,height=1,class="checkbox",name="tune",label="Tune colours",value=false },
-	{x=0,y=7,width=5,height=1,class="checkbox",name="gcl",label="Set colours across whole line:",value=false },
-	{x=5,y=7,width=1,height=1,class="dropdown",name="gclrs",items={"2","3","4","5","6","7","8","9","10"},value="3"},
+	{x=0,y=3,width=3,class="checkbox",name="word",label="Colorize by word"},
+	{x=0,y=4,width=3,class="checkbox",name="join",label="Don't join with other tags"},
+	{x=0,y=5,width=4,class="checkbox",name="cont",label="Continuous shift line by line"},
+	{x=0,y=6,width=3,class="checkbox",name="tune",label="Tune colours"},
+	{x=0,y=7,width=5,class="checkbox",name="gcl",label="Set colours across whole line:"},
+	{x=5,y=7,class="dropdown",name="gclrs",items={"2","3","4","5","6","7","8","9","10"},value="3"},
 		
-	{x=6,y=0,width=1,height=1,class="label",label=" "},
+	{x=6,y=0,class="label",label=" "},
 		
-	{x=7,y=2,width=1,height=1,class="label",label="Red: "},
-	{x=8,y=2,width=3,height=1,class="intedit",name="R",value=0,min=-255,max=255},
-	{x=7,y=3,width=1,height=1,class="label",label="Green: "},
-	{x=8,y=3,width=3,height=1,class="intedit",name="G",value=0,min=-255,max=255},
-	{x=7,y=4,width=1,height=1,class="label",label="Blue: "},
-	{x=8,y=4,width=3,height=1,class="intedit",name="B",value=0,min=-255,max=255},
+	{x=7,y=2,class="label",label="Red: "},
+	{x=8,y=2,width=3,class="intedit",name="R",value=0,min=-255,max=255},
+	{x=7,y=3,class="label",label="Green: "},
+	{x=8,y=3,width=3,class="intedit",name="G",value=0,min=-255,max=255},
+	{x=7,y=4,class="label",label="Blue: "},
+	{x=8,y=4,width=3,class="intedit",name="B",value=0,min=-255,max=255},
 	
-	{x=7,y=5,width=1,height=1,class="label",label="Hue:"},
-	{x=8,y=5,width=3,height=1,class="intedit",name="huehue",value=0,min=-255,max=255},
-	{x=7,y=6,width=1,height=1,class="label",label="Saturation:"},
-	{x=8,y=6,width=3,height=1,class="intedit",name="satur",value=0,min=-255,max=255},
-	{x=7,y=7,width=1,height=1,class="label",label="Brightness:"},
-	{x=8,y=7,width=3,height=1,class="intedit",name="bright",value=0,min=-255,max=255},
+	{x=7,y=5,class="label",label="Hue:"},
+	{x=8,y=5,width=3,class="intedit",name="huehue",value=0,min=-255,max=255},
+	{x=7,y=6,class="label",label="Saturation:"},
+	{x=8,y=6,width=3,class="intedit",name="satur",value=0,min=-255,max=255},
+	{x=7,y=7,class="label",label="Lightness:"},
+	{x=8,y=7,width=3,class="intedit",name="bright",value=0,min=-255,max=255},
 	
-	{x=7,y=8,width=1,height=1,class="checkbox",name="k1",label="\\c       ",value=true  },
-	{x=8,y=8,width=1,height=1,class="checkbox",name="k3",label="\\3c      ",value=false },
-	{x=9,y=8,width=1,height=1,class="checkbox",name="k4",label="\\4c      ",value=false },
-	{x=10,y=8,width=1,height=1,class="checkbox",name="k2",label="\\2c",value=false },
-	{x=7,y=9,width=2,height=1,class="checkbox",name="mktag",label="Apply to missing",hint="Apply even to colours without tags in line",value=false },
-	{x=9,y=9,width=2,height=1,class="checkbox",name="randoom",label="Randomize",hint="",value=false },
+	{x=7,y=8,class="checkbox",name="k1",label="\\c       ",value=true},
+	{x=8,y=8,class="checkbox",name="k3",label="\\3c      "},
+	{x=9,y=8,class="checkbox",name="k4",label="\\4c      "},
+	{x=10,y=8,class="checkbox",name="k2",label="\\2c"},
+	{x=7,y=9,width=2,class="checkbox",name="mktag",label="Apply to missing",hint="Apply even to colours without tags in line"},
+	{x=9,y=9,width=2,class="checkbox",name="randoom",label="Randomize",hint=""},
 	
-	{x=7,y=0,width=1,height=1,class="label",label="Match col.:"},
-	{x=8,y=0,width=1,height=1,class="checkbox",name="match13",label="c->3c  ",value=false,hint="copy primary to outline"},
-	{x=9,y=0,width=1,height=1,class="checkbox",name="match31",label="3c->c",value=false,hint="copy outline to primary"},
-	{x=7,y=1,width=1,height=1,class="checkbox",name="match14",label="c->4c",value=false,hint="copy primary to shadow"},
-	{x=8,y=1,width=1,height=1,class="checkbox",name="match34",label="3c->4c",value=false,hint="copy outline to shadow"},
-	{x=9,y=1,width=1,height=1,class="checkbox",name="match131",label="c<->3c",value=false,hint="switch primary and outline"},
-	{x=10,y=1,width=1,height=1,class="checkbox",name="invert",label="Invert",value=false,hint="invert colours"},
+	{x=7,y=0,class="label",label="Match col.:"},
+	{x=8,y=0,class="checkbox",name="match13",label="c->3c  ",hint="copy primary to outline"},
+	{x=9,y=0,class="checkbox",name="match31",label="3c->c",hint="copy outline to primary"},
+	{x=7,y=1,class="checkbox",name="match14",label="c->4c",hint="copy primary to shadow"},
+	{x=8,y=1,class="checkbox",name="match34",label="3c->4c",hint="copy outline to shadow"},
+	{x=9,y=1,class="checkbox",name="match131",label="c<->3c",hint="switch primary and outline"},
+	{x=10,y=1,class="checkbox",name="invert",label="Invert",hint="invert colours"},
 	
-	{x=10,y=0,width=1,height=1,class="label",label="[ver. "..script_version.."]"},
+	{x=10,y=0,class="label",label="[ver. "..script_version.."]"},
 	
-	{x=0,y=8,width=2,height=1,class="checkbox",name="grad",label="Gradient  ",value=false},
-	{x=2,y=8,width=3,height=1,class="checkbox",name="hueshort",label="Shortest hue",value=true},
-	{x=5,y=8,width=1,height=1,class="dropdown",name="grtype",items={"RGB","HSB"},value="HSB"},
-	{x=0,y=9,width=3,height=1,class="checkbox",name="double",label="Double HSB gradient",value=false},
-	{x=3,y=9,width=3,height=1,class="checkbox",name="ast",label="Use asterisks",value=false},
+	{x=0,y=8,width=2,class="checkbox",name="grad",label="Gradient  "},
+	{x=2,y=8,width=3,class="checkbox",name="hueshort",label="Shortest hue",value=true},
+	{x=5,y=8,class="dropdown",name="grtype",items={"RGB","HSL"},value="HSL"},
+	{x=0,y=9,width=3,class="checkbox",name="double",label="Double HSL gradient"},
+	{x=3,y=9,width=3,class="checkbox",name="ast",label="Use asterisks"},
 	
-	{x=0,y=10,width=3,height=1,class="checkbox",name="save",label="Save configuration",value=false,hint="Saves current configuration\n(for most things)"},
-	{x=3,y=10,width=3,height=1,class="checkbox",name="rem",label="Remember last",value=false,hint="remember last settings"},
-	{x=7,y=10,width=3,height=1,class="checkbox",name="rept",label="Repeat with last settings",value=false },
+	{x=0,y=10,width=3,class="checkbox",name="gradn",label="Restart after each \\N",hint="Restart gradient after each linebreak"},
+	{x=3,y=10,width=3,class="checkbox",name="rem",label="Remember last",hint="Remember last settings"},
+	{x=7,y=10,width=2,class="checkbox",name="rept",label="Repeat last",hint="Repeat with last settings"},
+	{x=9,y=10,width=2,class="checkbox",name="save",label="Save config",hint="Saves current configuration\n(for most things)"},
 	
 	}
 	loadconfig()
@@ -1006,7 +1019,7 @@ ak=aegisub.cancel
 	    if val.name=="save" then val.value=false end
 	  end
 	end
-	pressed,res=ADD(GUI,{"Colorize","Shift","Match Colours","RGB","HSB","Cancel"},{ok='Colorize',close='Cancel'})
+	pressed,res=ADD(GUI,{"Colorize","Shift","Match Colours","RGB","HSL","Cancel"},{ok='Colorize',close='Cancel'})
 	if pressed=="Cancel" then ak() end
 	randomize=res.randoom
 	if pressed=="Colorize" then repetition() 
@@ -1017,7 +1030,7 @@ ak=aegisub.cancel
 	    else colors(subs,sel) end
 	end
 	if pressed=="Shift" then repetition() shift(subs,sel) end
-	if pressed=="Match Colours" or pressed=="RGB" or pressed=="HSB" then repetition() styleget(subs) matchcolors(subs,sel) end
+	if pressed=="Match Colours" or pressed=="RGB" or pressed=="HSL" then repetition() styleget(subs) matchcolors(subs,sel) end
 	
 	colourblind=true
 	lastres=res

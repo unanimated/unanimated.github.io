@@ -10,8 +10,9 @@
 </center></td></tr>
 
 <tr><td><br>
-Creating gradients is simple in principle, but since the <a href="gradientfactory-for-3.0.lua">Gradient Factory</a> script is a bit lame, you can run into some problems.<br>
-First of all, what's even a gradient?
+Creating gradients is simple in principle, but since the <a href="gradientfactory-for-3.0.lua">Gradient Factory</a> script is a bit lame, you can run into some problems.<br><br>
+<font class="n">2015 Note: Nobody uses GradFactory anymore (I hope). Read this part only for understanding how gradients work, and ignore that shitty script. Further down the usage of lyger's 'Gradient everything' script is explained.</font><br><br>
+First of all, what <i>is</i> a gradient?
 
 
 
@@ -117,7 +118,8 @@ You can also do one with multiple colors:
 <img src="maria-grad8.jpg"><br><br>
 
 
-Yeah, this is a bit laggy but... looks pretty good.<br><br>
+Yeah, this is a bit laggy but... looks pretty good.<br>
+<font class="n">2015 Note: Probably wouldn't be laggy today.</font><br><br>
 
 
 <br><br><br><br>
@@ -157,8 +159,17 @@ Since the white is only at the top half, the yellow border needs to be larger th
 You can see the border difference on the jp sign too. So there's also a gradient for border on my sign.<br>
 By the way, you don't have to do all this with the gradient script. Do the basics and use "frame-by-frame transform" to tune the rest.
 
+<br><br><br><br>
 
+<b>Gradient by Character</b><br><br>
 
+A different version of a gradient is by character, which means you get new tags for each letter. It's a horizontal gradient with only 1-letter precision rather than by pixels, but you can keep everything in one line.<br>
+Here's an example:<br>
+<br><br>
+<img src="gbc2015.png"><br><br>
+\fax and \fs is gradiented with lyger's 'Gradient by character'; colour is gradiented with my <a href="colorize.lua">Colorize</a> script.<br>
+lyger's can do all applicable tags. Colorize only does colours, but it has some extra options, like the HSB gradient used here, instead of RGB.<br>
+Of course this could then be combined with a vertical gradient.
 
 <br><br><br><br>
 

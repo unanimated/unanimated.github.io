@@ -1,4 +1,4 @@
-<html><head><title>unanimated's Aegisub scripts - updates</title>
+﻿<html><head><title>unanimated's Aegisub scripts - updates</title>
 <meta charset="utf-8">
 <link rel="stylesheet" href="ts.css" type="text/css" />
 <style>
@@ -11,11 +11,82 @@ b {font-weight:bold; color:556677}
 <center><br>
 <table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=900>
 <tr><td bgcolor=000000>
-<b><font size=5 color=445566><a href="scripts-unanimated.htm">Script</a> Updates</a></font><br>(read info inside scripts for more details and how to use)
+<b><font size=5 color=445566><a href="scripts-unanimated.htm">Script</a> Updates</font><br>(read info inside scripts for more details and how to use)
 </td></tr>
 <tr><td bgcolor=000000>
 <pre>Note: 0.01 updates are mostly bugfixes or minor changes. 0.1 updates are usually new features or bigger changes.
 
+2015-02-05   v1.3	<a href="next.lua">Jump to Next</a> - added 'Jump to Previous'
+2015-02-05   v3.03	<a href="multicopy.lua">MultiCopy</a> - fixed "export CR for pad" to nuke tags from signs correctly
+
+2015-02-01   v2.24	<a href="nnn.lua">Line Breaker</a> - fixed somethnig that I broke before
+
+2015-01-22   v2.71	<a href="import.lua">Unimportant</a> - fixed a bug in import OP/ED
+
+2015-01-18   v2.23	<a href="nnn.lua">Line Breaker</a> - this time maybe fixed it for real
+2015-01-18   v2.22	<a href="nnn.lua">Line Breaker</a> - fixed a bug where an extra space could be introduced by mistake
+2015-01-18   v2.7	<a href="import.lua">Unimportant</a> - option to export chapters in the other format, compatible with mp4
+
+2015-01-10   v2.61	<a href="import.lua">Unimportant</a> - bugfix for 'export sign' with signs.ass not existing
+2015-01-10   v2.6	<a href="import.lua">Unimportant</a> - import chapters from xml
+
+2015-01-03   v2.7	<a href="shiftcut.lua">ShiftCut</a> - option to not make lines shorter by snapping if given CPS limit is exceeded
+
+2014-12-28   v1.2	<a href="kfsnap.lua">Snap</a> - also snaps to adjacent lines
+
+2014-12-12   v3.0	<a href="script_cleanup.lua">Script Cleanup</a> - added "inverse" option for "kill tags" - kills everything except selected
+
+2014-12-08   v1.6	<a href="multiedit.lua">Multi-line Editor</a> - added capitalization; Add tags has \an8, \i1, \b1, \q2
+2014-12-08   v1.0	<a href="join-split.lua">Join / Split</a> - merged the 2 scripts together; some minor updates and fixes
+2014-12-08   v4.3	<a href="colorize.lua">Colorize</a> - gradient after each linebreak; preserve comments for 'colorize by letter'
+2014-12-08   v3.02	<a href="multicopy.lua">MultiCopy</a> - fixed pasting beyond last line of the script; updated clipboard
+
+2014-12-05   v4.0	<a href="hydra.lua">HYDRA</a> - save proper config; apply tags to sections of text; 'all tag blocks' + 'relative transforms' works
+2014-12-05   v2.7	<a href="time_signs2.lua">Time signs from timecodes</a> - save config; options to auto remove {TS} comments + auto add blur
+2014-12-05   v1.7	<a href="cycles.lua">Cycles</a> - all 4 cycle scripts in one (4 macros). just delete the old 4 and reassign hotkeys.
+
+2014-12-01   v1.7	<a href="blur_cycle.lua">Blur Cycle</a> - fixed cases when the current value wasn't in the sequence
+2014-12-01   v1.7	<a href="border_cycle.lua">Border Cycle</a> - fixed cases when the current value wasn't in the sequence
+2014-12-01   v1.7	<a href="shadow_cycle.lua">Shadow Cycle</a> - fixed cases when the current value wasn't in the sequence
+2014-12-01   v1.7	<a href="alpha_cycle.lua">Alpha Cycle</a> - fixed cases when the current value wasn't in the sequence; made version consistent with the other 3
+
+2014-11-24   v1.5	<a href="multiedit.lua">Multi-line Editor</a> - added a mode that lets you edit style/actor/effect the same way as text
+
+2014-11-17   v2.61	<a href="shiftcut.lua">ShiftCut</a> - fixed info for kf snapping
+2014-11-17   v2.41	<a href="blur-and-glow.lua">Blur and Glow</a> - fix somethnig with x/yshad (i don't remember)
+2014-11-17   v1.21	<a href="next.lua">Jump to Next</a> - fixed a bug when last line is reached
+2014-11-17   v1.01	<a href="enc-hsub.lua">Encode - Hardsub</a> - delete ffindex
+
+2014-11-14   v2.8	<a href="fax_this.lua">Copyfax This</a> - copy stuff - copy tags after linebreaks
+2014-11-14   v3.92	<a href="hydra.lua">HYDRA</a> - don't allow 2 clips of the same type; fixed 'sort tags' for inline tags or something (idr)
+
+2014-11-07   v2.2	<a href="recalculator.lua">Recalculator</a> - Mirror function for reversing the direction of mocha/fbf data
+2014-11-07   v2.91	<a href="script_cleanup.lua">Script Cleanup</a> - fixed a bug in deleting styles
+2014-11-07   v3.01	<a href="multicopy.lua">MultiCopy</a> - fixed Export CR to pad
+
+2014-11-05   v3.8	<a href="apply_fade.lua">Apply fade</a> - got rid of some redundant tags; cleaned up the code a bit
+
+2014-10-30   v2.5	<a href="import.lua">Unimportant</a> - motion blur
+2014-10-30   v3.0	<a href="multicopy.lua">MultiCopy</a> - rewritten half of the script, fixed some bugs, added new functions
+2014-10-30   v1.2	<a href="next.lua">Jump to Next</a> - searches only after the last selected line with inconsecutive selections
+
+2014-10-26   v2.9	<a href="script_cleanup.lua">Script Cleanup</a> - added remove \q as requested (I really hoped no one would ever need this)
+
+2014-10-22   v1.1	<a href="mux.lua">Multiplexer</a> - added more options; fixed some bugs
+
+2014-10-20   v3.21	<a href="relocator.lua">Hyperdimensional Relocator</a> - fixed some GUI-related bugs
+
+2014-10-17   v2.8	<a href="script_cleanup.lua">Script Cleanup</a> - clean up transforms; remove \h; apply nuking to start/inline tags; a few other things...
+2014-10-17   v3.2	<a href="relocator.lua">Hyperdimensional Relocator</a> - new functions: "move to" and "randomove"
+2014-10-17   v1.4	<a href="multiedit.lua">Multi-line Editor</a> - improved replacer (whole word, regexp) & GUI size estimation
+
+2014-10-15   v1.1	<a href="next.lua">Jump to Next</a> - works for actor/effect too
+
+2014-10-08   v3.12	<a href="relocator.lua">Hyperdimensional Relocator</a> - bugfixes and minor improvements (vect2rect, randomize, fulltranstimes, negativerot)
+
+2014-10-07   v1.0	<a href="runemap.lua">Runemap</a> - Something fun to play with
+
+2014-09-29   v4.2	<a href="colorize.lua">Colorize</a> - Fixed a bug in RGB/HSL + a bug in Invert Colours; changed Brightness to Lightness
 2014-09-29   v2.4	<a href="import.lua">Unimportant</a> - What is the Matrix?
 
 2014-09-28   v1.0	<a href="mux.lua">Multiplexer</a> - muxes loaded script + video, chapters, alternative script, creates CRC + xdelta
@@ -23,7 +94,7 @@ b {font-weight:bold; color:556677}
 
 2014-09-26   v2.4	<a href="blur-and-glow.lua">Blur and Glow</a> - option to have shadow on top/middle layer
 
-2014-09-24   v2.3	<a href="blur-and-glow.lua">Blur and Glow</a> - change \shad0 to \4a&HFF&
+2014-09-24   v2.3	<a href="blur-and-glow.lua">Blur and Glow</a> - changed \shad0 to \4a&HFF&
 
 2014-09-20   v1.0 beta	<a href="encode.lua">Encode</a> - encodes for mocha. if torque's script fails to encode, this might help.
 2014-09-20   v1.0 beta	<a href="hardsub.lua">Hardsub</a> - script for hardsubbing. some testing would be welcome.
@@ -40,7 +111,7 @@ b {font-weight:bold; color:556677}
 2014-08-13   v3.9	<a href="hydra.lua">HYDRA</a> - add transforms to all tag blocks; fixed some bugs
 
 2014-08-10   v3.11	<a href="relocator.lua">Hyperdimensional Relocator</a> - fix a bug with transforms
-2014-08-10   v2.71	<a href="fax_this.lua">Copyfax This</a> - - fix a bug with transforms
+2014-08-10   v2.71	<a href="fax_this.lua">Copyfax This</a> - copy stuff - fix a bug with transforms
 
 2014-08-09   v2.71	<a href="selectrix.lua">Selectricks</a> - enable editor for (most) presets; update editor
 2014-08-09   v2.6	<a href="time_signs2.lua">Time signs from timecodes</a> - support for timecodes over an hour

@@ -39,7 +39,7 @@ Look at next timecode [right under the Start Time field where you're typing], ty
 This will time all signs to one frame based on the timecodes from the pad. Good enough for rough timing and it's <b>fast</b>.<br>
 Makes no difference that it's only timed to 1 frame because you need to fine time it anyway.<br><br>
 
-Update: now you can forget about that and just use <a href="time_signs2.lua"> this script</a>, which gets this round down to 2 seconds.
+Update: now you can forget about that and just use , which gets this round down to 2 seconds.
 <br><br><br>
 
 
@@ -55,7 +55,8 @@ While encoding keyframes is usually something timers do, it's useful to have key
 
 Use a <a href="scripts.htm">script</a> to add blur to all lines. You're gonna need it on all lines anyway and doing it one by one steals your time. This takes 2 seconds and makes sure you don't forget to add it to any line.<br>
 At this point you may wanna get rid of those comments with timecodes and stuff - {TS 5:35}.<br>
-For that, and other things, you can use <a href="script_cleanup.lua">this script</a>.
+For that, and other things, you can use <a href="script_cleanup.lua">this script</a>.<br>
+<font class="n">2015 Note: <a href="time_signs2.lua">Time signs</a> can now add blur and nuke the comments automatically.</font>
 
 <br><br><br>
 
@@ -63,19 +64,20 @@ For that, and other things, you can use <a href="script_cleanup.lua">this script
 <b>5. round 3 - set colors</b><br><br>
 
 Next round of going through the signs you use the eyedropper and set correct primary/outline[/shadow] colors for each line.<br>
-While you could do other tasks along with that, I recommend doing this alone as it involves just mouse clicking and no typing so it can go pretty fast like that.<br><br><br>
+While you could do other tasks along with that, I recommend doing this alone as it involves just mouse clicking and no typing so it can go pretty fast like that.<br>
+<font class="n">2015 Note: I don't really do that anymore, but it's up to you.</font><br><br><br>
 
 
 <b>6. round 4 - typesetting</b><br><br>
 
 At this point it's probably no use splitting the tasks any more. <br>
-For the easy signs you pick a style [that includes a font], set font size [or just using the scaling tool as it's faster than typing numbers], set border size, set position, use <a href="https://raw.github.com/lyger/Aegisub_automation_scripts/master/border-split.lua">Duplicate and Blur</a> or <a href="blur-and-glow.lua">Blur and Glow</a> script in most cases, and you're pretty much done. These days you can use scripts for just about any task so do it.<br>
+For the easy signs you pick a style [that includes a font], set font size [or just using the scaling tool as it's faster than typing numbers], set border size, set position, use <a href="blur-and-glow.lua">Blur and Glow</a> in most cases, and you're pretty much done. These days you can use scripts for just about any task, so do it.<br>
 You may want to do all mocha tracking in one batch or leave other specific kinds of signs last or do them first. I actually prefer to go sign by sign with each of them being different, as I get bored with too much repetition.<br><br><br>
 
 
 <b>7. round 5 - checking</b><br><br>
 
-When you're done with everything [and have sorted the script by time], you seriously need to make one more round, click on each sign, go one frame back to make sure it doesn't appear too late, right arrow to the end to make sure it doesn't end late or early and that nothing breaks in between [mocha, layers, movement start/end times, \t tags, nobody walks in front of the sign etc.].<br><br><br><br>
+When you're done with everything [and have sorted the script by time], you seriously need to make one more round, click on each sign, go one frame back to make sure it doesn't appear too late, right arrow to the end to make sure it doesn't end late or early and that nothing breaks in between [mocha, layers, movement start/end times, \t tags, nobody walks in front of the sign etc.]. <a href="next.lua">This script</a> can help you do it faster.<br><br><br><br>
 
 
 

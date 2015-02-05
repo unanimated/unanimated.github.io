@@ -28,7 +28,7 @@ This can be used for typesetting signs frame by frame by hand.<br><br>
 Many signs start/end at a keyframe so you can use the audio track for those, for others you'll need this method.<br>
 <br><br>
 When you've timed your signs, you can begin typesetting. You already know how to create styles, so you'll make one.<br>
-If you need to override anything, you'll use a few tags like \fs \bord \shad etc. You should know all the basic tags and what they do <a target="_blank"href="http://docs.aegisub.org/manual/ASS_Tags"><b>from here.</b></a><br>
+If you need to override anything, you'll use a few tags like \fs \bord \shad etc. You should know all the basic tags and what they do <a target="_blank"href="http://docs.aegisub.org/manual/ASS_Tags">from here.</a><br>
 Border is probably what you'll be changing the most often, maybe the shadow and font size, so you should remember \bord \shad \fs at least.<br>
 You may also switch between regular and bold quite a bit, but bold/italics have buttons above the typing area so no need to type those.<br>
 
@@ -53,11 +53,13 @@ Use arrow keys to go frame by frame and find the place where the fade of the jp 
 They refer to the currently visible frame, in relation to the start/end time of the line you have selected.<br>
 So this frame is 898ms after the start of your sign and 4102ms before the end of it. If this is where the fade in ends, you need about 900ms fade in.<br>
 No need to be too precise, one frame is about 40ms, so 10ms more or less won't make a difference. You will then have \fad(900,0).<br>
-If there's lead out too, you do the same but use the second number.<br><br>
+If there's lead out too, you do the same but use the second number.<br>
+<font class="n">2015 Note: <a href="apply_fade.lua">Apply fade</a> makes it much easier.</font><br><br>
 
 <br><br>
 <img src="chihatitle.jpg"><br><br>
 Another example of a title. This one uses \blur10 (for the border). Be aware that using this much blur may cause lag, so only use it on simple static signs.<br>
+<font class="n">2015 Note: That was 2011. \blur10 shouldn't be a problem anymore.</font><br>
 Notice the positioning, too. The top of the typesets is aligned with the top of the japanese sign.<br>
 Don't just throw the signs somewhere randomly, try to align them with <i>something</i>. Also for episode titles and such, try to keep the same positioning in following episodes.<br><br><br>
 
@@ -165,7 +167,8 @@ Top is sorted by time:
 Bottom is not sorted by time. You can see the border on the default style is screwed up.<br>
 This and worse things happen when you don't sort the sript by time.<br>
 Of course you don't need that when working, and it's more convenient to have different sorting while working,<br>
-but always sort the final script you're putting in a release.
+but always sort the final script you're putting in a release.<br>
+<font class="n">2015 Note: This is not an issue anymore.</font>
 <br><br><br><br>
 
 
@@ -213,6 +216,7 @@ here the kanji is actually pretty simple and orderly. The handwriting looks too 
 <br><br>
 <img src="hor-end1.jpg"><br><br>
 Next episode title. Pretty simple - get the sizes right, choose a reasonable alignment, get the border color right and use blur.<br>
+<font class="n">2015 Note: The inner part is actually lacking blur. (I sucked in 2012.) See section on Layers.</font><br>
 You can see it's pretty easy to match the original, so I don't want to see things like this:
 
 <br><br>
@@ -224,6 +228,7 @@ Using thin outline without blur = nope. Using thick sans serif font = nope. Vert
 
 Here's something more interesting. In case it wasn't clear, the smaller circles with To Ra Do Ra are typeset.<br>
 So what you need is letters <b>and</b> circles. The easiest way to make circles is to use a font with symbols, like wingdings. Find out which letter is a circle and use that.<br>
+<font class="n">2015 Note: Please no. Use vector drawings. <a href="masquerade.lua">Masquerade</a> makes circles and other shapes really easy to use.</font><br>
 Then find a font that has round edges and isn't too thick. Mine was actually too thin but i solved it by adding some outline in the same color as the primary - white.<br>
 It was also narrow so i used something like \fscx120. All of this can be set in the style so no tags needed.<br>
 To get the letters exactly in the middle of the circles, i used \an5 - align to center. That way you can use the same \pos coordinates for both the circle and letters and you know it's right in the center.<br>
@@ -269,7 +274,8 @@ White font, thick dark red border, no reason to fail on this. Clearly here you n
 <img src="chihamails.jpg"><br><br>
 Sometimes you have a bit more to typeset than one line.<br>
 Here you need a simple sans serif font. I used this one not because it was the best but because I was already using it in the episode and it was good enough.<br>
-Aside from the "49 New Messages" in white this is all done in one line.<br>
+<font class="n">2015 Note: It should be at least bold/thicker, and the colour is wrong. It should also have a "glow", but back then that would have lagged.</font><br>
+Aside from the "49 New Messages" in white, this is all done in one line.<br>
 <pre>
 Dialogue: 0,0:08:08.63,0:08:08.67,mail,Caption,0000,0000,0000,,{\blur0.8\c&HBD8B5F&\pos(126,186)}Subject             Thanks!\N\N\N\NSubject             This is Chihaya\N\N\N\NSubject
              It's getting warmer\N\N\N\NSubject             It's starting to rain\N\N\N\NSubject             Rain was leaking into our clubroom \N\N\N\NSubject             This is our 
@@ -306,6 +312,7 @@ All that would be passable for a beginner if it wasn't for one obvious problem -
 <img src="hor-map1.jpg"><br><br>
 
 Here for reference is my own typesetting. You can see the blur makes it blend in beautifully, though the slant helps a lot as well, and the font is much better than the Arial-ish thing above.<br>
+<font class="n">2015 Note: It needs "glow".</font><br>
 As a sidenote, see the hand moving "over" the Guard Ships sign? That can be done with the \clip tag. More on that later.<br>
 <br><br>
 
