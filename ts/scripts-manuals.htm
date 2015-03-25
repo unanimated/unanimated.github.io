@@ -383,20 +383,21 @@ Left part:<br><br>
 <font color=226666>Clean up tags</font> - joins neighbouring tags - {\tag1}{\tag2}; removes anything detected as redundant (duplicate tags in the same block, tags at the end of a line, \frx0\fry0 in start tags, multiple \fad tags, \fad with 0 times, {\\k0}, \r at the start of a line); rounds values of tags to 2 decimals<br>(Clean Tags button is a shortcut)<br>
 <font color=226666>Delete commented lines</font> - deletes lines that are commented out (not visible on screen)<br>
 <font color=226666>Delete empty lines</font> - deletes lines with no text<br>
-<font color=226666>Clean up & sort transforms</font> - merges transforms with no timecode and places transforms at the end of each tag block<br>
+<font color=226666>Try to fix alpha / colour tags</font> - fixes some malformed tags like alpha00<br>
 <font color=226666>Fix start/end/double spaces</font> - removes leading, trailing, and double spaces<br>
+<font color=226666>Print info</font> - tells you how many lines were changed in the Text field<br>
 <font color=226666>ALL OF THE ABOVE</font> - Applies all the functions above, checked or not<br><br>
 <font color=226666>Remove all colour tags</font> - obvious<br>
 <font color=226666>Remove all alpha tags</font> - obvious<br>
 <font color=226666>Remove all rotations</font> - obvious<br>
 <font color=226666>Remove all perspective</font> - removes all rotations, fax, fay, and org<br>
 <font color=226666>Remove size/scaling</font> - removes fscx, fscy, and fs tags<br>
-<font color=226666>Remove linebreaks - \N</font> - obvious<br>
-<font color=226666>Remove linebreaks - \N (nospace)</font> - same but doesn't leave spaces<br>
+<font color=226666>Remove linebreaks - \N</font> - removes linebreaks, leaving one space between the words before and after the \N<br>
+<font color=226666>Remove linebreaks - \N (nospace)</font> - raw linebreak removal - simply deletes "\N"<br>
 <font color=226666>Remove hard spaces - \h</font> - obvious<br>
 <font color=226666>Delete unused styles</font> - deletes styles not used on any lines (this always applies to the whole script)<br>
 <font color=226666>Delete unused styles (leave Default)</font> - same but doesn't delete styles containing "Defa" or "Alt"<br>
-<font color=226666>Try to fix alpha / colour tags</font> - fixes some malformed tags like alpha00<br>
+<font color=226666>Move transforms to end of tag block</font> - places transforms at the end of the tag block<br>
 <font color=226666>Remove inline tags</font> - obvious<br>
 <font color=226666>Remove all {\tags} from selected lines </font> - removes all tags (Tags button is a shortcut)<br><br>
 
@@ -887,7 +888,10 @@ signs go to top with {TS} timecodes; nukes linebreaks and other CR garbage, fixe
 Other copy options should be obvious.<br><br>
 
 <font color=226666>Copy from / to</font> is a quick copy function between columns.<br>
-<font color=226666>Switch</font> switches text in the selected columns. Copying strings to number fields does nothing.<br><br>
+<font color=226666>Switch</font> switches text in the selected columns. Copying strings to number fields does nothing.<br>
+<font color=226666>Attach</font> attaches data from one column to another. For example if you have "01" in effect, and "Text" in text, and use the settings below, you will get "01 - Text" in text. (Effect remains unchanged.) Checking <font color=226666>After</font> would make it "Text - 01". If effect was empty, you'd be just attaching the text you type in "Link".<br><br>
+<img src="../px/mc-attach.png"><br><br><br>
+
 
 Once you get your data, click on <font color=226666>Copy to clipboard</font>, select the lines you want to paste to, load the GUI again,<br>
 and click on <font color=226666>Paste from clipboard</font>. This will load the saved text in the textbox.<br>
