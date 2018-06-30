@@ -78,13 +78,13 @@ Here is the clip that is created which you can <a href="http://www.mediafire.com
 
 unanimated update:<br>
 Things have changed slightly so...<br><br>
-<img src="mochamenu.png"><br><br>
+<img src="img/mochamenu.png"><br><br>
 This is what the Automation menu in Aegisub looks like now.<br>
 Config is where you set the paths and stuff, Trim is where you encode the clip, Apply is where you import data from mocha.<br><br>
 
 Speaking of config...
 <br><br>
-<img src="mochaconfig.png"><br><br>
+<img src="img/mochaconfig.png"><br><br>
 ...this is what it looks like.<br><br>
 The first field will contain something like D:\fansubbing\mocha<br>
 The encoder field can be D:\fansubbing\mocha\x264.exe<br><br>
@@ -263,7 +263,7 @@ Update: Took me a while to figure out why the script for converting the mocha da
 Here's where the problem was:
 
 <br><br>
-<img src="mocha-export.png"><br><br>
+<img src="img/mocha-export.png"><br><br>
 You need to select the "After Effects Transform Data" from the Export list.<br>
 While the Taiga website works with any of these options, the script is only designed to work with this one.<br>
 Herkz has an old mocha version that only has 2 options and this one is default so he never had this problem.<br>
@@ -284,18 +284,18 @@ The first sign I tried with mocha was moving AND getting smaller, which is where
 
 
 <br><br>
-<img src="student1.jpg"><br><br>
+<img src="img/student1.jpg"><br><br>
 and ended like this:
 
 <br><br>
-<img src="student2.jpg"><br><br>
+<img src="img/student2.jpg"><br><br>
 Right there you see an example of how it didn't work. As the rectangle is getting smaller while moving down, the top of it moves a larger distance than the bottom. I tried tracking various areas till I figured out how it works, for example I tracked the whole rectangle, and this was the result.<br>
 Apparently with scaling your sign should be in the middle of the tracked area.<br>
 [update: this only happens with the taiga site; the script should have no problems with that]<br>
 In this case what I used and finally worked looked like this:<br>
 
 <br><br>
-<img src="student3.jpg"><br><br>
+<img src="img/student3.jpg"><br><br>
 
 Incidently I thought at first that I should set the points at the edge of a dark/bright area, but it actually had more of a tendency to slip away than like this. Might have been a coincidence but at any rate, this worked prefectly well.
 <br><br>
@@ -332,16 +332,16 @@ Let's say you have these letters gliding around:
 
 
 <br><br>
-<img src="maria-mocha1.jpg"><br><br>
+<img src="img/maria-mocha1.jpg"><br><br>
 
 You can just set 4 points on one letter and see if that works. If not, like if something is interfering, you can draw a more precise shape that will give you more points to track. If it still tends to wander off after a number of frames, a few things will help you fix that more easily.<br><br>
 
 To see clearly how well the tracking's going, use Zoom and Stabilize. Zoom in on what you wanna track as much as you can, using Z and X keys for zooming and moving the screen. Then you can draw a precise outline if you want, though usually something a lot more simple will do.
 
 <br><br>
-<img src="maria-mocha3.jpg"><br><br>
+<img src="img/maria-mocha3.jpg"><br><br>
 
-Then click the Stabilize button [may look different depending on your mocha version]: <img src="mochastab.png"><br><br>
+Then click the Stabilize button [may look different depending on your mocha version]: <img src="img/mochastab.png"><br><br>
 
 This will keep the tracked area in the same place on the screen instead of it jumping around, so on each frame you can clearly see whether your control points are still in place, or slowly drifting away.<br><br>
 

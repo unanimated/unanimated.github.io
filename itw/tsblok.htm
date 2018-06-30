@@ -9,7 +9,7 @@ h4 {font-size:11; color:223344}
 pre {color:406050}
 .l {font-family:Tahoma; font-size:10; color:203040}
 </style></head>
-
+<link rel="icon" href="../alita.ico">
 <body bgcolor=000000 topmargin=0>
 
 <center><br>
@@ -34,6 +34,63 @@ IRC: <a href="irc://irc.rizon.net/irrational-typesetting-wizardry">#irrational-t
 </td></tr>
 
 <tr><td bgcolor=000000><br>
+
+
+<a name="arabic"></a>
+<h2>Typesetting in Arabic</h2>
+<h4>2015-05-05</h4><br>
+
+It has come to my attention that Aegisub doesn't support right-to-left text and thus typesetting in Arabic is a huge pain in the ass.
+I have therefore decided to attempt to solve at least some of those issues.<br><br>
+
+The bulk of the work is <a href="../ts/aladin.lua">this script</a>.<br>
+It's designed to fix 3 things: the order of text with inline tags, the order of text with line breaks, and punctuation misplaced by Aegisub.
+You can read the detailed <a href="../ts/scripts-manuals.htm#aladin">description of the functions here</a>.<br><br>
+
+Another issue, apparently, is editing the text. I don't quite know what exactly is happening there, but we've been able to determine that while the Edit Box doesn't have any RTL support, the lua interface does. I don't know how good that is, but it should be better than nothing, so for editing text, you can use the <a href="../ts/multiedit.lua">Multi-Line Editor</a>.<br><br>
+
+The next issue is <b>gradients</b>.<br>
+As I understand it, gradient by character is impossible with Arabic, so the next best thing is gradient by word. There are probably no specific tools for that, since other languages just use GBC, but there are ways to do it.<br>
+It can be done in two phases.<br><i>
+1. You set the same type of tag before each word.<br>
+2. You apply a gradient to those tags.<br></i>
+So first, how to set the tag before each word.<br>
+This is rather easy with colours, since I implemented "colorize by word" in <a href="../ts/colorize.lua">Colorize</a>. Just pick any 2 colours, check "colorize by word", and press "Colorize".<br>
+For any other tag (works with colours too), you can use <a href="../ts/hydra.lua">Hydra</a>. You just need to use one of the presets for inline tags.<br>
+Use the preset "custom pattern", and the pattern is "* ", or in other words, asterisk and space, without the quotation marks.<br>
+This means that the selected tag(s) will be placed before every space, thus before every word. (Except the first one - do that one the regular way.)<br>
+So not you have {tag}word{tag}word{tag}word{tag}word.<br>
+If 2 consecutive tags are the same, they don't change anything, including the word order! So don't use "Fix inline tags" until each tag has a different value. If you use Colorize with different colours, you can fix the inline tags now, but if you use Hydra, you'll need an extra step.<br>
+Now, you have for example a \frz tag before each word, and you need to gradient them.<br>
+Set the desired value for the first and last tag, and use the Regradient function in <a href="../ts/recalculator.lua">Recalculator</a>. (v3.0+)<br>
+The function is fuly explained in the manuals.<br>
+Now, if you used Colorize and fixed the inline tags beforehand, you would be done now.<br>
+But if you used Hydra, you still need to fix inline tags with Aladin's Lamp, and your gradient will be in the opposite direction.<br>
+So use any values for the first gradient because you'll have to redo it after you fix inline tags.<br><br>
+
+So to make it clearer:<br>
+1. Add your start tag and inline tags with Hydra.<br>
+2. Apply a temporary gradient.<br>
+4. Adjust the first and last values for the gradiented tag.<br>
+5. Apply the real gradient with Recalculator.<br>
+<br>
+
+Or a slightly quicker way with Colorize:<br>
+1. Use Colorize by word with any 2 (or more but no point) colours.<br>
+2. Fix inline tags with Aladin's Lamp.<br>
+3. Adjust the first and last values for the gradiented tag.<br>
+4. Apply the real gradient with Recalculator.<br>
+<br>
+
+It is mainly important to understand how the "Fix inline tags" function works. (See the manual.)<br>
+If you want to add a gradient and you already have inline tags, you have to first use the "Fix inline tags" function to revert the state of the line into the "working" order.<br><br>
+<br>
+
+I hope this helps to make work with RTL text easier.
+
+
+
+<br><br><br><br><br><br>
 
 
 <a name="manuals"></a>

@@ -381,51 +381,62 @@ script_name="Multiplexer"
 script_description="Muxes stuff using mkvmerge"
 script_author="unanimated"
 script_version="1.1"
+script_namespace="ua.Multiplexer"
+
+local haveDepCtrl,DependencyControl,depRec=pcall(require,"l0.DependencyControl")
+if haveDepCtrl then
+  script_version="1.1.0"
+  depRec=DependencyControl{feed="https://raw.githubusercontent.com/TypesettingTools/unanimated-Aegisub-Scripts/master/DependencyControl.json"}
+end
 
 -- Here's where the actual script starts, though that's not really true because in a way it starts at the top,
 -- and from a technical point of view it starts at the last line, which then redirects here.
 -- Let's just settle on the idea that the main function starts here, though it might still be debated which function is the main one.
 function mux(subs,sel)
-    
-    -- This is where your settings are stored, assuming you saved them there.
-    -- In case you didn't know, '?user' is the folder of your Application Data, which differs based on your OS.
-    muxconfig=aegisub.decode_path("?user").."\\mux-config.conf"
-    
-    -- This is where your video is located, assuming you have one loaded. If you don't, you're doing it wrong.
-    vpath=aegisub.decode_path("?video").."\\"
-    
-    -- This is where your currently loaded subtitle file (.ass) is located.
-    -- It better be the one you want to mux because if it isn't, you're doing it even wronger.
-    spath=aegisub.decode_path("?script").."\\"
-    
-    -- This is the filename of your ass. Yes, that's a bad pun.
-    -- Somehow when dealing with Aegisub, you always get bad ass puns. That was a pun too. See what I mean?
-    scriptname=aegisub.file_name()
-    
-    -- This erases any possible videoname remaining from the last run of the script.
-    -- You see, I write terrible code (5 of 4 'experts' says so, so it's clearly true),
-    -- so I use global variables everywhere, because I don't really like the local ones.
-    -- Global ones seem so much more practical. They're supposed to be slower,
-    -- but it's not like I'm computing an intergalactic journey for a spaceship here.
-    -- So occasionally, I have to erase some of these global variables so that they don't cause confusion.
-    videoname=nil
-    
-    -- This attempts to translate the subtitle filename into the show's name and episode number.
-    -- This of course assumes you're working on an episode of a show, which easily may not be the case.
-    -- However, as this is mostly intended for people who do work on such things, it is fairly likely that this might work.
-    -- If it doesn't, well, shit happens. You'll just get bad default naming.
-    -- In the end, it's probably your fault because you had shitty filenaming in the first place.
-    show,ep=scriptname:match("^(.-)%s*(%d+)%.ass")
-    
-    -- Here, if you don't have a number in the filename, we try to check if maybe you have OVA in the name.
-    -- This would tell us that you're not working on a regular episode, but an OVA, in which case we use 'OVA' instead of the episode number.
-    -- Now, it's marginally possible that you named your file in all caps, and it ends with 'OVA', like 'ANNA KOURNIKOVA'.
-    -- In such a case we apologize for the unexpected results and politely ask, "What the fuck are you subbing?"
-    -- If 'OVA' isn't detected either, we'll just take the whole name as is (without the .ass), and to hell with the number.
-    if ep==nil then
-	show,ep=scriptname:match("^(.-)%s*(OVA)$")
-	if ep==nil then show=scriptname:gsub("%.ass","") ep="" end
-    end
+	-- This makes commonly used things shorter.
+	ADD=aegisub.dialog.display
+	ADP=aegisub.decode_path
+	ak=aegisub.cancel
+
+	-- This is where your settings are stored, assuming you saved them there.
+	-- In case you didn't know, '?user' is the folder of your Application Data, which differs based on your OS.
+	muxconfig=ADP("?user").."\\mux-config.conf"
+	
+	-- This is where your video is located, assuming you have one loaded. If you don't, you're doing it wrong.
+	vpath=ADP("?video").."\\"
+	
+	-- This is where your currently loaded subtitle file (.ass) is located.
+	-- It better be the one you want to mux because if it isn't, you're doing it even wronger.
+	spath=ADP("?script").."\\"
+	
+	-- This is the filename of your ass. Yes, that's a bad pun.
+	-- Somehow when dealing with Aegisub, you always get bad ass puns. That was a pun too. See what I mean?
+	scriptname=aegisub.file_name()
+	
+	-- This erases any possible videoname remaining from the last run of the script.
+	-- You see, I write terrible code (5 of 4 'experts' says so, so it's clearly true),
+	-- so I use global variables everywhere, because I don't really like the local ones.
+	-- Global ones seem so much more practical. They're supposed to be slower,
+	-- but it's not like I'm computing an intergalactic journey for a spaceship here.
+	-- So occasionally, I have to erase some of these global variables so that they don't cause confusion.
+	videoname=nil
+	
+	-- This attempts to translate the subtitle filename into the show's name and episode number.
+	-- This of course assumes you're working on an episode of a show, which easily may not be the case.
+	-- However, as this is mostly intended for people who do work on such things, it is fairly likely that this might work.
+	-- If it doesn't, well, shit happens. You'll just get bad default naming.
+	-- In the end, it's probably your fault because you had shitty filenaming in the first place.
+	show,ep=scriptname:match("^(.-)%s*(%d+)%.ass")
+	
+	-- Here, if you don't have a number in the filename, we try to check if maybe you have OVA in the name.
+	-- This would tell us that you're not working on a regular episode, but an OVA, in which case we use 'OVA' instead of the episode number.
+	-- Now, it's marginally possible that you named your file in all caps, and it ends with 'OVA', like 'ANNA KOURNIKOVA'.
+	-- In such a case we apologize for the unexpected results and politely ask, "What the fuck are you subbing?"
+	-- If 'OVA' isn't detected either, we'll just take the whole name as is (without the .ass), and to hell with the number.
+	if ep==nil then
+	  show,ep=scriptname:match("^(.-)%s*(OVA)$")
+	  if ep==nil then show=scriptname:gsub("%.ass","") ep="" end
+	end
 
     -- Here we try to read your saved settings, assuming you saved any.
     -- It is most likely to succeed if you did, unless you were dumb enough to fuck with the saved file and did something wrong with it.
@@ -567,28 +578,28 @@ function mux(subs,sel)
     -- It also mostly only lets you select files with the right extension, in case you're an idiot.
     -- Once you select stuff, it adds it to the appropriate place in the GUI, while keeping the other stuff unchanged.
     repeat
-    if pressed=="mkvmerge" then
+    if P=="mkvmerge" then
 	mmg_path=aegisub.dialog.open("mkvmerge.exe","",spath,"*.exe",false,true)
 	gui("mmgpath",mmg_path)
     end
-    if pressed=="fonts" then
+    if P=="fonts" then
 	ff_path=aegisub.dialog.open("Fonts folder (Select any file in it)","",spath,"",false,true)
 	if ff_path then ff_path=ff_path:gsub("\\[%w%s]+%.%w+$","\\") end
 	gui("fontspath",ff_path)
     end
-    if pressed=="Enfis" then
+    if P=="Enfis" then
 	sfv_path=aegisub.dialog.open("Enfis_SFV.exe","",spath,"*.exe",false,true)
 	gui("enfis",sfv_path)
     end
-    if pressed=="xdelta" then
+    if P=="xdelta" then
 	xd_path=aegisub.dialog.open("xdelta(3).exe","",spath,"*.exe",false,true)
 	gui("xdelta",xd_path)
     end
-    if pressed=="Subs 2" then
+    if P=="Subs 2" then
 	s2_path=aegisub.dialog.open("Secondary subtitle file","",spath,"*.ass",false,true)
 	gui("subs2",s2_path)
     end
-    if pressed=="Chapters" then
+    if P=="Chapters" then
 	ch_path=aegisub.dialog.open("Chapters","",spath,"*.xml",false,true)
 	gui("chapters",ch_path)
     end
@@ -596,7 +607,7 @@ function mux(subs,sel)
     -- This is a rather important part, because it saves your settings.
     -- Without this, you'd have to input everything every time, which would be pretty damn annoying.
     -- So thank some ancient deities that I know how to do this, because if I didn't, nobody else would probably do it.
-    if pressed=="Save settings" then
+    if P=="Save settings" then
 	
 	-- These 4 lines use a cool function that converts boolean values to text.
 	-- OK, maybe it's not really that cool. Whatever. Shut up.
@@ -620,23 +631,23 @@ function mux(subs,sel)
 	-- It's good to do this for 2 reasons:
 	-- 1. You know that something actually happened, and was successful.
 	-- 2. You know where the settings are, in case you ever need it. (But don't fuck with it if you don't know what you're doing.)
-	aegisub.dialog.display({{class="label",label="Settings saved to:\n"..muxconfig}},{"OK"},{close='OK'})
+	ADD({{class="label",label="Settings saved to:\n"..muxconfig}},{"OK"},{close='OK'})
     end
     
     -- This is the part where we actually build the GUI.
     -- You may ask, "Wait! WTF? How are we only building it now when we were messing with it for a while?"
     -- Well, that's a good question. The not-too-long answer is something like this:
     -- All we've done so far with the GUI is inside a 'repeat' loop that displays the GUI again each time a button activates a function.
-    -- So the first time, with no button pressed yet, it ran all the way here to display the GUI.
+    -- So the first time, with no button P yet, it ran all the way here to display the GUI.
     -- Then, after pressing buttons, it does the stuff above, comes back here, and displays it again.
-    pressed,res=aegisub.dialog.display(GUI,{"Mux","mkvmerge","fonts","Enfis","xdelta","Subs 2","Chapters","Save settings","Cancel"},{ok='Mux',close='Cancel'})
+    P,res=ADD(GUI,{"Mux","mkvmerge","fonts","Enfis","xdelta","Subs 2","Chapters","Save settings","Cancel"},{ok='Mux',close='Cancel'})
     
     -- This is what breaks the repeat loop. Either it's Cancel, which gives you cancer... (better not click that)
     -- or it's Mux, which says, "OK, I'm done with this fucking clicking around in this stupid GUI. Let's have some action!"
-    until pressed=="Mux" or pressed=="Cancel"
+    until P=="Mux" or P=="Cancel"
     
     -- This is where you get cancer.
-    if pressed=="Cancel" then aegisub.cancel() end
+    if P=="Cancel" then ak() end
     
     -- If you get here, it means you didn't get cancer (that's good news!) and that files for muxing are being prepared,
     -- of which, as you can see, the user is properly being informed, because if there's one thing worse than cancer, it's uninformed public.
@@ -761,7 +772,7 @@ function mux(subs,sel)
     
     -- Here we infiltrate the fonts folder and secretly plant a file there.
     -- This file will shortly be used to get the filenames of fonts.
-    list="cd /d "..quo(ffpath).."\ndir /b>files.txt\n del list.bat"
+    list="cd /d "..quo(ffpath).."\ndir /b>files.txt\ndel list.bat"
     file=io.open(ffpath.."list.bat","w")
     file:write(list)
     file:close()
@@ -873,7 +884,7 @@ function mux(subs,sel)
     -- 5. execute sfv.lua which creates patchrel.bat and xdbatch.bat
     -- 6. execute patchrel, renaming the muxed file to have the CRC in name
     -- 7. execute xdbatch, creating the xdelta file
-    -- 8. pause, i.e. keep cmd window open until the 'any' key is pressed
+    -- 8. pause, i.e. keep cmd window open until the 'any' key is P
     -- 9. delete temporary files
     BAT="cd /d "..quo(ffpath).."\ncall mux.bat\ncd /d "..quo(vpath).."\n"..bat_crc..pause..delete
     
@@ -893,7 +904,7 @@ function mux(subs,sel)
     
     -- Here we display the dialog where the user can choose to either commence operations at once,
     -- or leave that for a later time.
-    P=aegisub.dialog.display({{class="label",label=summary}},{"Yes","No"},{ok='Yes',close='No'})
+    P=ADD({{class="label",label=summary}},{"Yes","No"},{ok='Yes',close='No'})
     if P=="Yes" then
 	-- If a decision is made to proceed, the user is informed that muxing is taking place
 	-- while a cmd window should be executing all scheduled operations.
@@ -919,47 +930,35 @@ end
 
 -- This function sends an error message to the user, and if given such instructions, cancels all operations.
 function t_error(message,cancel)
-  aegisub.dialog.display({{class="label",label=message}},{"OK"},{close='OK'})
-  if cancel then aegisub.cancel() end
+  ADD({{class="label",label=message}},{"OK"},{close='OK'})
+  if cancel then ak() end
 end
 
 -- This little function takes a string and wraps it in quotation marks.
-function quo(x)
-    x="\""..x.."\""
-    return x
-end
+function quo(x)    x="\""..x.."\""    return x   end
 
 -- This converts boolean values to their corresponding text counterparts.
 function tf(val)
-    if val==true then ret="true" else ret="false" end
-    return ret
+	if val==true then ret="true"
+	elseif val==false then ret="false"
+	else ret=val end
+	return ret
 end
 
 -- This, contrary to the previous function, takes strings, converts 'true' or 'false' to boolean values,
 -- and leaves anything else as is.
 function detf(txt)
-    if txt=="true" then ret=true
-    elseif txt=="false" then ret=false
-    else ret=txt end
-    return ret
+	if txt=="true" then ret=true
+	elseif txt=="false" then ret=false
+	else ret=txt end
+	return ret
 end
 
 -- This escape function is used for gsub.
--- According to line0, it could be written better, and it's true, but fuck it. It works, and I like it this way.
-function esc(str)
-str=str
-:gsub("%%","%%%%")
-:gsub("%(","%%%(")
-:gsub("%)","%%%)")
-:gsub("%[","%%%[")
-:gsub("%]","%%%]")
-:gsub("%.","%%%.")
-:gsub("%*","%%%*")
-:gsub("%-","%%%-")
-:gsub("%+","%%%+")
-:gsub("%?","%%%?")
-return str
-end
+function esc(str) str=str:gsub("[%%%(%)%[%]%.%-%+%*%?%^%$]","%%%1") return str end
+
+function logg(m) m=m or "nil" aegisub.log("\n "..m) end
 
 -- This line, as I'm sure everyone knows, registers the mux function in Aegisub so that it appears in the menu and you can use it.
-aegisub.register_macro(script_name,script_description,mux)
+-- If you have DependencyCotrol, it registers it with DependencyCotrol.
+if haveDepCtrl then depRec:registerMacro(mux) else aegisub.register_macro(script_name,script_description,mux) end

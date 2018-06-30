@@ -25,7 +25,7 @@ Let's try a basic example. Let's say you want to put a sign on this balcony:
 
 
 <br><br>
-<img src="ts-balcony-01.jpg"><br><br>
+<img src="img/ts-balcony-01.jpg"><br><br>
 
 
 This is pretty typical for anime. You will need to make lots of signs of this type, whether it's the notorious nurse's room at school,<br>
@@ -35,7 +35,7 @@ These signs usually have a horizontal slant, but vertically they're pretty much 
 This is important to acknowledge if you don't want the sign to look like shit...
 
 <br><br>
-<img src="ts-balcony-02.jpg"><br><br>
+<img src="img/ts-balcony-02.jpg"><br><br>
 This could be the first thing to do - use \frz to rotate the sign.<br>
 Unfortunately that's where some typesetters end. If you can call them typesetters.<br>
 It's the same people who will also pick an incredibly shitty font,<br>
@@ -44,20 +44,20 @@ Anyway, we'll get to fonts later...<br>
 So if you actually want to do some real typesetting, here's the next step...
 
 <br><br>
-<img src="ts-balcony-03.jpg"><br><br>
+<img src="img/ts-balcony-03.jpg"><br><br>
 The tag you use here is \fax. When used with a negative value, like \fax-0.1, the effect is like using italics.<br>
 With positive values it leans in the other direction.<br>
 You have to use low values, usually in the range of 0.05-0.5.<br>
 It seems that many typesetters don't even know this tag, or are too lazy to use it<br>
-because unlike the rotations this one doesn't have a tool in aegisub and has to be typed out.<br>
+because unlike the rotations, this one doesn't have a tool in aegisub and has to be typed out. <font class="n">(lol typing tags)</font><br>
 It is, however, more useful than \frx\fry, because anime doesn't have much of 3D effects.<br>
 Most of the time it's really just horizontal slant while vertically it stays the same.<br><br>
 
 So now you have a sign that's fairly well aligned. Now you just need it to blend in a bit better...
 
 <br><br>
-<img src="ts-balcony-04.jpg"><br><br>
-...which you achieve by changing the color to match whatever is relevant in the picture.<br>
+<img src="img/ts-balcony-04.jpg"><br><br>
+...which you achieve by changing the colour to match whatever is relevant in the picture.<br>
 Here I don't have an original sign to imitate, so I just go with the outline of the balcony.<br>
 You will also notice that i used blur.<br>
 On signs, using at least 0.5 blur is a must if you don't want them to look obviously added and out of place.<br><br>
@@ -69,13 +69,13 @@ So what now? Since we've gone this far, we're not gonna redo it with rotations, 
 
 
 <br><br>
-<img src="ts-balcony-04.5.jpg"><br><br>
+<img src="img/ts-balcony-04.5.jpg"><br><br>
 
 Looks better, doesn't it? (By the way if you <i>don't</i> see the difference here, you should probably not be a typesetter.)<br>
 So what sorcery is this? Very simple. The original font size was 50.<br>
 If you want the end of the sign to look smaller than the beginning, instead of all kinds of rotating and skewing you can do this...<br>
-Sa{\fs49}mp{\fs48}le {\fs47}Te{\fs46}xt<br>
-As you can see, after each 2 letters i decreased the font size by 1.<br><br>
+Sa{\fs49}mp{\fs48}le {\fs47}Te{\fs46}xt <font class="n">(Did you know HYDRA can do gradient by 2 characters? No typing required.)</font><br>
+As you can see, after each 2 letters I decreased the font size by 1.<br><br>
 
 If you're learning to typeset, this should be good enough.<br>
 If you're pro, you'll notice the end of the sign is still a bit too tall, the 'p' is too close to the bottom etc.<br>
@@ -84,7 +84,7 @@ And obviously you'll want something better than Arial. Then again if you were a 
 So we have what we wanted, but let's look at other ways of doing this.
 
 <br><br>
-<img src="ts-balcony-05.jpg"><br><br>
+<img src="img/ts-balcony-05.jpg"><br><br>
 This is without using \frz and \fax, but using \fay instead.<br>
 Often this is more convenient because you don't have to use any rotation. It'll work fine for signs on/above doors much of the time.<br>
 The problem with \fay is that you can't use additional tags in the text like I did for the font size before, because of a vsfilter bug.<br><br>
@@ -100,8 +100,8 @@ We've managed to bypass it pretty well with the font size, but that may not alwa
 First let's look at what will happen if you use rotations without moving the origin point.
 
 <br><br>
-<img src="ts-balcony-07.jpg"><br><br>
-You'll see many "typesetters" create these abominations. It's possibly even worse than our first example in black color way above.<br>
+<img src="img/ts-balcony-07.jpg"><br><br>
+You'll see many "typesetters" create these abominations. It's possibly even worse than our first example in black colour way above.<br>
 What you have here is a sign where maybe 2 out of 10 letters are aligned somewhat correctly.<br>
 The rest is FUBAR. This is like "I has Aegisub so I can into typesetting yeah?"<br>
 Nope. You can't.<br><br>
@@ -110,18 +110,17 @@ So what now?<br><br>
 
 If you try playing with those rotations, you may find out that no matter how much you rotate it around, it just doesn't fit.<br>
 It will always be aligned at one end and not the other. Why?<br>
-Because if your default alignment is \an2 or \an8, it will always align to a vertical line that goes through the center of the sign.<br>
-That means both sides of the text will lean towards the center, like you see above.<br>
+Because if your default alignment is \an2 or \an8, it will always align to a vertical line that goes through the centre of the sign.<br>
+That means both sides of the text will lean towards the centre, like you see above.<br>
 Now if you use \an1, 3, 4, 6, 7 or 9, you may get slightly better results, but still pretty derp.<br><br>
 
-So what you need is to move the origin point.<br>
-The tag is \org(x,y), but you can use the rotation tool.<br>
+So what you need is to move the origin point. The tag is \org(x,y), but you can use the rotation tool.<br>
 You'll use the tool for \frx\fry and rotate slightly to the side - like \fry7.<br>
 Usually you want to use only a little of these rotations and get the rest done with \org.<br>
 If you use too much, you'll get too much difference between one side and the other.<br><br>
 
-When you adjust \fry, you grab the triangle in the center of the grid and move it.<br>
-In the tags you'll see \org appear and you'll notice the sign changes alignment as you move it.<br>
+When you adjust \fry, you grab the triangle in the centre of the grid and move it.<br>
+In the tags, you'll see \org appear and you'll notice the sign changes alignment as you move it.<br>
 Then you just have to go and find where to drag it to make it align right. It may often be off the screen.<br>
 Once you go off the screen and let go, you won't be able to grab the triangle again but you can adjust the numbers in the tag.<br>
 But since that's inconvenient, try to learn to get it right the first time by dragging.<br><br>
@@ -135,7 +134,7 @@ It may take a while to balance them out, especially if the triangle is off scree
 With a bit of practice though, you'll learn to do it more easily. More importantly, you'll get some good results...
 
 <br><br>
-<img src="ts-balcony-06.jpg"><br><br>
+<img src="img/ts-balcony-06.jpg"><br><br>
 You can see that the sign looks pretty good and the only tags creating the alignment are \fry and \org.<br>
 (\frx0 can be deleted, it's just that the tool adds both tags even if they're 0)<br>
 The script resolution is 1280x720 so you see the origin point is off the screen in this case.<br>
@@ -146,51 +145,190 @@ Of course you can still fine tune this using \fax and/or \frz.<br><br>
 You may use various approaches and combine the tags as you wish. <br><br>
 For static signs \fry\org may be the best, but if you need the sign to move, you can't use \org,<br>
 so go with \frz\fax and possibly scale down the font size for some perspective if needed.
+<br><br><br>
 
+
+<font class="n">2018 addition:<br><br>
+
+So I had this sign in this week's Hinamatsuri:<br><br>
+<img src="img/hp00a.jpg"><img src="img/hp00b.jpg"><br><br>
+<img id="right" src="img/hp03.jpg">
+You'll come across this kind of sign fairly often, and it can be a pain in the ass. This was what I did. (above)<br>
+I went with \org and \fry, but I'm not sure if that was the best idea.<br>
+There's more about how to do signs with \org in <a target=_blank href="../itw/tsblok.htm#origin">this blog post</a>, but here I'll explain the other option: \frz and \fax.<br><br>
+
+Many people would think this is not the sign to use it for, but the available tools have significantly improved,<br>
+and it can actually be done quite easily and without much hassle... as long as you know how.<br><br>
+
+I'm gonna use the alignment grid here, but it's not really needed (and is the most tedious part of this).<br>
+I'll include it because this is a guide, but skipping it would save you some time.<br><br>
+
+Below is what I start with. I use <a target=_blank href="scripts-manuals.htm#masquerade">Masquerade</a> to get an alignment grid on a separate line.<br>
+<br><br>
+<img src="img/hp01.jpg"> <img src="img/hp02.jpg"><br><br>
+<img id="left" src="img/hp04.jpg">
+On the right, you can see it being aligned with the wall<br>
+with the inbuilt rotations tool.<br>
+That's the part where you have to tinker with it a bit,<br>
+but you can see both top and bottom of the wall,<br>
+so it's not that bad.<br><br>
+Once it's aligned, I move the dark rectangle<br>
+to where I roughly want the sign. (left image)<br><br>
+The only use for the grid here<br>
+is that it can guide me for drawing the clips,<br>
+but it could be done without it.<br>
+
+
+<img src="img/hp05.jpg"> <img src="img/hp06.jpg"> <img src="img/hp07.jpg"> <img src="img/hp08.jpg"><br><br>
+So now I need to rotate the sign and set \fax. This only takes a few seconds. Draw two points with a clip for horizontal alignment, and use clip2frz from <a target=_blank href="scripts-manuals.htm#relocator">Hyperdimensional Relocator</a>.<br>
+This sets \frz. Draw another two points for vertical alignment, and use clip2fax to set \fax. (Also in <a target=_blank href="scripts-manuals.htm#necroscopy">NecrosCopy</a>)<br><br>
+<img id="left" src="img/hp09.jpg">
+<img id="right" src="img/hp10.jpg">
+The result is on the left.<br><br>
+The one issue you need to realise is that if you draw the horizontal clip<br>
+along the Japanese sign, the rotation will be slightly different.<br><br>
+To be precise, for the top of the JP sign it's \frz34.8,<br>
+and at the top of the wall it's \frz39.4 - a noticeable difference.<br>
+So you need to be somewhere in the middle, thus drawing at the grid mask.<br><br>
+But you could just draw the line in the middle between the sign and wall top<br>
+and get it accurate enough without the grid, so that's why I said<br>
+the grid wasn't necessary. Also, I had totally forgotten that clip2frz can take average<br>
+of two lines, so you can draw one at the top of the wall and the other at the JP sign,<br>
+and the script will use the "midlle line", i.e. the average.<br>
+Just remember to draw points 3 and 4 in the <b>same</b> direction as 1 and 2. (Like a "Z")<br><br>
+The vertical clip can be drawn at the edge of the wall or edge of the screen.<br><br>
+So on the right, you can see the result put in place, with the grid now removed.<br><br>
+
+The alignment is now good, but the remaining problem is that the font size is constant, while it should be larger on the right.
+<br><br>
+<img src="img/hp11.jpg"> <img src="img/hp12.jpg"> <img src="img/hp13.jpg"><br><br>
+So here we use the clip tool one more time. Draw a rectangle roughly around the sign, with the left and right sides more or less vertical and the top/bottom lines matching some edges.<br>
+The idea here is to get the difference in size between the left and right sides. The width of the clip should roughly match the width of the final sign. (Thus larger than the text here.)<br><br>
+Once you have the clip, use Relocator again, this time the "clip info" function. What you get is a bunch of measurements from the clip.<br>
+The one that interests you here is the last one, the ratio between the left and right heights. It's roughly 1.5 here, so the last letter should be about 1.5 times larger than the first.<br><br>
+This info would be enough to do the rest, but for convenience, the "fsc" button will help. It takes the starting values of \fscx\fscy, multiplies them by 1.47,<br>
+and sets \fscx\fscy tags before the last letter in the line, thus preparing it for gradienting.
+<br><br>
+<img src="img/hp14.jpg"> <img src="img/hp15.jpg"><br><br>
+As you can see, there's "fscy73" visible before the last character. (I had scaling at 50 at the start.)<br>
+You can either use lyger's GBC or, as the second image shows, use <a target=_blank href="scripts-manuals.htm#hydra-gradient">HYDRA</a>, set "fsc" to 73, and click on Gradient.
+(Make sure "by character" is selected.)
+<br><br>
+<img src="img/hp16.jpg"><br><br>
+And that's it. Now you can just make some final cosmetic changes: tweak colour, alpha, blur, shadow, or whatever makes the sign blend in better.<br><br>
+
+If you feel like the letters are too tall or too wide, you can change \fscx or \fscy. The inbuilt tool won't work because you have a gradient, so you use <a target=_blank href="scripts-manuals.htm#recalculator">Recalculator</a>.<br>
+If you only change x or y, it will throw off \fax, but you fix that in 5 seconds with clip2fax again.<br>
+(BTW, if you make 4 points for the clip, first 2 points left side, second 2 points right side, each side determines \fax for that end, and a \fax gradient is created.)<br><br>
+
+So if we skip the grid with the rotations, this is all pretty simple and no \org or messing with the rotations tool is needed.<br><br>
+To recapitulate:<br><br>
+
+1. two clip points -> clip2frz -> you have rotation<br>
+2. two clip points -> clip2fax -> you have the whole alignment done<br>
+3. rectangular clip -> clip info -> you have scaling set up<br>
+4. gradient the fscx and fscy<br><br>
+
+All 4 steps done in under a minute. (I just tried it - took about 40 seconds.) The rest is just colours and stuff.<br><br>
+
+One more thing regarding that sign. It's one of those where you think about how to do it not as much in terms of technical approach, but more in the sense of what you really want the result to look like. Should I try to fit small letters on that blue plate? Should I replicate the whole plate and make an English copy? (This is dedicated, but nobody would solve it that way in real life, so it's bound to look stupid.) The way I chose to do it, what should the colour really be? Light grey? Dark grey? Blue?<br><br>
+There's basically no way to make it look natural. If in real life they wanted added English, it would be on the blue plate but certainly larger than you can fit here. I suppose enlarging that plate for that is an option too. Enjoy the gradients.<br><br>
+
+So really, sometimes I wonder if it's better to just do something like this:<br><br>
+
+<img src="img/hpg.jpg"><br><br>
+After all, the notion that somebody just sprayed it on the wall is a lot more realistic than the sign I did before.<br>
+And you can wing all the rotations and not bother with any measurements.
+
+<br><br><br>
+Anyway, to make a final point, in the vast majority of cases, between \org\frx\fry and \frz\fax\fscx\fscy, I would recommend the latter. (And you usally don't need the scaling.)
+<br><br><br><br>
+
+
+
+Let's move on to something a bit more advanced. Another week in Hina...<br><br>
+
+<img src="img/splitbyclip00.jpg"><br><br>
+I'm sure you love when you get one of these. This episode had 40 signs (counting this as one), so I already had plenty to do, and I knew this one would take a while. And it did.<br>
+I did it all the tedious way, splitting into words, adjusting positions, rotations, \fax, colours, and making two layers for glow.<br>
+I actually did it more tediously than I had to because I guess I wasn't thinking too straight at 1 am after 3 hours already at it.<br>
+But this is what propels my script writing. This was the most annoying sign in the episode, so I figured I needed something to do it more easily.<br>
+So I thought about it, and the next day, I wrote something that was surprisingly easy and turned out to work better than I expected.<br><br>
+
+<img src="img/splitbyclip01.jpg"><br><br>
+What I'll be using here is NecrosCopy's "Split by \N", which I improved for splitting along a clip.<br>
+Now, line0 has this MoveAlongPath script that does something like that. I've never seen/used it, but afaik, it splits into letters along a curved clip.<br>
+Which is great and probably quite precise, but here I have 200 characters and 2 layers. I don't really want 400 lines for this.<br>
+So my idea was to keep the splitting to words, but somehow position and rotate each easily. You already know how to do the \fax thing.<br><br>
+
+So I take the line and put it somewhere that allows me to draw the clip. I want to draw the clip along the grid line, which will guide me.<br>
+I can move the text above it later. I set the size and rotate the text to get the closest alignment I can with a straight line.<br><br>
+
+<img src="img/splitbyclip02.jpg"><br><br>
+You need to see the text while you draw, so either duplicate the line, or convert the clip to iclip right after making the first point.<br>
+What you do then is make points at the edges of words, like you see above, going along that grid line.<br>
+(That one point above "be"[tween] is an extra last point, just so i could see the words better.)<br>
+The text should have centre alignment (\an5 or 2 or 8), so \an5 will be set no matter what you have there.<br>
+What the script will do is set position for each word to the centre between the 2 clip points around that word and also set the rotation based on that segment, like with clip2frz.
+<br><br>
+
+<img src="img/splitbyclip03.jpg"> <img src="img/splitbyclip04.jpg"><br><br>
+Now you simply run "Split by \N" and have it split by spaces, and the image above shows the result. Then you drag the text to the right position.
+<br><br>
+<img src="img/splitbyclip05.jpg"><br><br>
+Last tweak is to draw a clip line along the left edge of the grid and use clip2fax. And that's it. I don't think the alignment needs any more work.<br>
+For long words, you might split them in two or put a frz tag in the middle and rotate each half slightly differently, but in most cases, this will do.<br>
+And it's probably about 5-10 times faster than what I did originally.<br>
+The clip must have as many points as there are words, plus one. Words joined by dashes or something will be considered one word, as we're splitting by spaces.<br>
+If you have something like I had, "rock-paper-scissors", just put spaces before or after the dashes, and you will nudge the words a bit when it's split.<br>
+The inaccuracies won't be significant.
+
+</font><br><br><br><br><br><br><br><br>
+
+
+
+
+
+A few examples of signs I've found in some groups' releases... <font class="n">(These are from aroud 2011 and before. We've gone a long way.)</font>
 
 
 <br><br><br>
-
-So, that's about it. Now you know how to align signs and do it right.<br><br><br><br><br><br><br><br><br>
-
-
-
-A few examples of signs I've found in some groups' releases...
-
-
-<br><br><br>
-<img src="ts-men.jpg"><br><br>
+<img src="img/ts-men.jpg"><br><br>
 On the left is the original sign, on the right is my quick adjustment.<br>
 Clearly this looks bad and totally out of place - alignment is terrible, even the \frz isn't quite right.<br>
-You can also see the color is off. I didn't like the choice of font either but that's the least of its problems.<br>
+You can also see the colour is off. I didn't like the choice of font either but that's the least of its problems.<br>
 Even my sign doesn't look too great, but at least it doesn't look retarded.<br><br>
 
 
 <br><br>
-<img src="ts-use.jpg"><br><br>
+<img src="img/ts-use.jpg"><br><br>
 While in the previous example it was only \frz and good-bye, here some "pro" went for \frx and \fry, clearly without a clue how to use it.<br>
 It is sad, because it only takes a minute to do what I did on the right. Whoever did the one on the left should be fired.<br>
 I wanted to just quickly fix this to make an example so I went for \fay. If I actually wanted to release this,<br>
-I'd use \frz and \fax, and then change color after every 2-3 letters to match the change of color on the japanese sign.<br><br>
+I'd use \frz and \fax, and then change colour after every 2-3 letters to match the change of colour on the japanese sign.<br><br>
 
 
 <br><br>
-<img src="girlsroom.jpg"><br><br>
+<img src="img/girlsroom.jpg"><br><br>
 It just keeps happening, doesn't it. I'm not sure why groups that have been around for years have problems with this.<br><br>
 
 
 <br><br>
-<img src="ts-kami01.jpg"><br><br>
+<img src="img/ts-kami01.jpg"><br><br>
 Now this... is admittedly not an easy one, but this implementation is pretty poor, especially with each line having different (mis)alignment.<br>
 The "When would be good?" line is so bad that I'm guessing the author must have been in quite a hurry to finish this.<br><br>
 
 Here's where \fax and \fay won't be enough and you'll have to use rotations, and you'll <b>have to</b> use the \org tag, if you really want it to look good.<br>
-One other thing you'll have to use is blur. Its lack in the one above makes it even worse. And the colors are off as well.<br>
+<font class="n">2018: No, fuck you, younger me. No \org, just \frz and \fax. Scroll down...</font><br>
+One other thing you'll have to use is blur. Its lack in the one above makes it even worse. And the colours are off as well.<br>
 It will certainly take more than a minute, possibly even 10-15 minutes to get all the 4 lines right.<br>
 But hell, if you look at the one above, and the one below that I made, you'll have to admit that it's worth the time.
 
 <br><br>
-<img src="ts-kami02.jpg"><br><br>
+<img src="img/ts-kami02.jpg"><br><br>
+<font class="n">2018: So I saved the image, loaded it in Aegi, and redid the "When would be good?" part with \frz\fax. Two minutes or less.</font>
+<br><br>
+<img src="img/ts-kami02-2018.jpg"><br><br><br><br>
 <br><br><br><br>
 
 <center><a href="index.htm"><b>« Back to Typesetting Main

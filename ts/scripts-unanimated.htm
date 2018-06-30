@@ -1,90 +1,77 @@
 ﻿<html><head><title>unanimated's Aegisub scripts</title>
 <meta charset="utf-8">
 <link rel="stylesheet" href="ts.css" type="text/css" />
+<style>b {color:448866}</style>
 </head>
 
 <body topmargin=0><center><br>
 <table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=860>
 <tr><td>
-<center><font size=5 color=446677><b>unanimated's Aegisub scripts
+<center><font size=5 color=446677><strong>unanimated's Aegisub scripts
 </center></td></tr>
 <tr><td>
-Detailed descriptions are usually at the top of the script. For the GUI ones, the images should be self-explanatory.<br><br>
+<a href="script-updates.htm">[ Updates / changelog ]</a> &nbsp;·&nbsp;
+<a href="scripts-manuals.htm">[ Manuals for all scripts ]</a> &nbsp;·&nbsp;
+<a href="scripts-functions-list.htm">[ List of (almost) all functions ]</a> &nbsp;·&nbsp;
+<a href="scripts-properties.htm">[ Properties chart ]</a><br><br>
 
-You can report problems/errors in #irrational-typesetting-wizardry@irc.rizon.net<br><br>
+You can report bugs or make requests in <font color=664466>#irrational-typesetting-wizardry@irc.rizon.net</font><br>
+or send an email to <img id=mail src="../px/itwmail.png"><br><br><br>
 
-<a href="scripts-functions-list.htm">» List of (almost) all functions here</a><br>
-<a href="script-updates.htm">» Updates / changelog here</a><br>
-<a href="scripts-manuals.htm">» Manuals for all reanimated scripts</a><br><br><br>
-
-<b>"Cycle" type scripts:</b><br><br>
-<table cellpadding=0 cellspacing=0><tr><td width=160>
-<a href="blur_cycle.lua">Blur Cycle</a>		</td><td>v1.7 - Adds \blur0.6, then cycles through 0.8, 1, 1.2, 1.5, 2, 3, 4, 5, 0.4, 0.5, back to 0.6.<br></td></tr><tr><td>
-<a href="border_cycle.lua">Border Cycle</a> 	</td><td>v1.7 - Adds \bord0 to selected lines, then cycles through 1, 2, 3, 4, 5, 6, 7, 8, 9, back to 0<br></td></tr><tr><td>
-<a href="shadow_cycle.lua">Shadow Cycle</a> 	</td><td>v1.7 - Adds \shad0 to selected lines, then cycles through 1, 2, 3, 4, 5, 6, 7, 8, 9, back to 0.<br></td></tr><tr><td>
-<a href="alpha_cycle.lua">Alpha Cycle</a> 	</td><td>v1.7 - Adds \alpha&HFF& to selected lines, then cycles through 00, 30, 60, 80, A0, D0, FF<br></td></tr><tr><td>
-<br><a href="cycles.lua">Cycles</a> 		</td><td><br>v1.7 - All of the above in one. (Delete the 4, and reassign hotkeys.) Also cycles \an.<br></td></tr>
-</table><br>
-[bind them to hotkeys to make them really efficient. sequences can be modified.]
-<br><br><br>
-
-
-<b>"On/Off" type scripts:</b><br><br>
-<table cellpadding=0 cellspacing=0><tr><td width=160>
-<a href="macro-italicize.lua">Italicize</a> 	</td><td>v1.6 - italicizes or unitalicizes text [based on style and tags]<br></td></tr><tr><td>
-<a href="macro-bold.lua">Make Bold</a> 		</td><td>v1.6 - switches between bold and regular [based on style and tags]<br></td></tr>
+<b>Scripts with GUI:</b><br>
+<table cellpadding=0 cellspacing=0><tr><td width=200>
+<a href="script_cleanup.lua">Script Cleanup</a> 	</td><td>v5.0 - removes or hides unwanted stuff from selected lines, fixes some things</td></tr><tr><td>
+<a href="blur-and-glow.lua">Blur and Glow</a> 		</td><td>v2.5 - creates layers with blur and/or glow</td></tr><tr><td>
+<a href="hydra.lua">HYDRA</a> 				</td><td>v6.0 - adds tags, does transforms, gradients, plus a bunch of special functions</td></tr><tr><td>
+<a href="relocator.lua">Hyperdimensional Relocator</a> 	</td><td>v4.4 - anything you need to do with pos, move, org, clip, and more</td></tr><tr><td>
+<a href="recalculator.lua">Recalculator</a> 		</td><td>v4.0 - recalculates values of selected tags (multiply or add) and other things</td></tr><tr><td>
+<a href="colourise.lua">Colourise</a> 			</td><td>v5.0 - does all kinds of things with colours</td></tr><tr><td>
+<a href="selectrix.lua">Selectricks</a> 		</td><td>v3.3 - selects and sorts lines based on a bunch of criteria</td></tr><tr><td>
+<a href="multiedit.lua">Multi-Line Editor</a> 		</td><td>v1.8 - allows you to edit multiple lines at once easily</td></tr><tr><td>
+<a href="multicopy.lua">MultiCopy</a> 			</td><td>v3.5 - copy various things from multiple lines to other multiple lines</td></tr><tr><td>
+<a href="fadeworks.lua">FadeWorkS</a>	 		</td><td>v4.0 - does fades including alpha or colour transforms and more</td></tr><tr><td>
+<a href="signi.lua">Significance</a>		 	</td><td>v3.2 - does a shitload of things that didn't fit into other scripts</td></tr><tr><td>
+<a href="activ8.lua">Activ8 / ModiFire</a>		</td><td>v1.0 - edits complex active lines / modifies tags</td></tr><tr><td>
+<a href="shiftcut.lua">ShiftCut</a> 			</td><td>v3.0 - does things with timing, including TPP functions, shifting, and more</td></tr><tr><td>
+<a href="time_signs.lua">Time Signs</a>			</td><td>v2.8 - times signs from timecodes like {TS 5:36}</td></tr><tr><td>
+<a href="change_case.lua">Change Case</a> 		</td><td>v3.0 - lowercase, uppercase, capitalise lines or words</td></tr><tr><td>
+<a href="origami.lua">Origami</a> 			</td><td>v1.0 - easily move \org that's off screen</td></tr>
 </table><br><br>
 
-
-<b>Scripts with GUI - essential:</b><br><br>
+<b>Multifunctions:</b><br>
 <table cellpadding=0 cellspacing=0><tr><td width=200>
-<a href="script_cleanup.lua">Script Cleanup</a> 		</td><td>v3.1 - removes comments and other unneeded stuff from selected lines</td></tr><tr><td>
-<a href="blur-and-glow.lua">Blur and Glow</a> 			</td><td>v2.4 - creates layers with blur and/or glow</td></tr><tr><td>
-<a href="hydra.lua">HYDRA</a> 					</td><td>v3.9 - adds tags, does transforms, plus a bunch of special functions</td></tr><tr><td>
-<a href="relocator.lua">Hyperdimensional Relocator</a> 		</td><td>v3.2 - anything you need to do with pos, move, org, clip, and then some</td></tr><tr><td>
-<a href="recalculator.lua">Recalculator</a> 			</td><td>v2.1 - recalculates values of selected tags (multiply or add)</td></tr><tr><td>
-<a href="colorize.lua">Colorize</a> 				</td><td>v4.2 - does all kinds of things with colours</td></tr><tr><td>
-<a href="selectrix.lua">Selectricks</a> 			</td><td>v2.8 - selects and sorts lines based on a bunch of criteria</td></tr><tr><td>
-<a href="multiedit.lua">Multi-line Editor</a> 			</td><td>v1.5 - allows you to edit multiple lines at once easily</td></tr><tr><td>
-<a href="multicopy.lua">MultiCopy</a> 				</td><td>v3.1 - copy various things from multiple lines to other multiple lines</td></tr><tr><td>
-<a href="apply_fade.lua">Apply fade</a> 			</td><td>v3.8 - does fades including alpha or colour transforms and more</td></tr><tr><td>
-<a href="shiftcut.lua">ShiftCut</a> 				</td><td>v2.7 - does things with timing. TPP functions and more.</td></tr><tr><td>
-<a href="import.lua">Unimportant</a>		 		</td><td>v2.7 - does a shitload of things that didn't fit into other scripts</td></tr><tr><td>
-<a href="time_signs2.lua">Time signs from timecodes</a> 	</td><td>v2.6 - times signs from timecodes like {TS 5:36}</td></tr><tr><td>
-<a href="change_capitalization.lua">Change Capitalization</a> 	</td><td>v1.8 - lowercase, uppercase, capitalize lines or words</td></tr>
+<a href="masquerade.lua">Masquerade</a> 		</td><td>v3.0 - mask, shift tags, alignment, motion blur, merge tags, alpha shift, alpha time, strikealpha</td></tr><tr><td>
+<a href="necros.lua">NecrosCopy</a> 			</td><td>v4.1 - clip2fax, clip2frz, copy tags, text, colours & more, 3D shadow, split into letters, split by \N</td></tr>
 </table><br><br>
 
-<b>Multifunctions:</b><br><br>
+<b>Scripts without GUI:</b><br>
 <table cellpadding=0 cellspacing=0><tr><td width=200>
-<a href="masquerade.lua">Masquerade</a> 			</td><td>v2.3 - mask, shift tags, alignment, mocha scale, alpha shift, alpha time, strikealpha</td></tr><tr><td>
-<a href="fax_this.lua">Copyfax This</a> 			</td><td>v2.8 - fax, copy stuff, copy tags, copy text, copy clip, copy colours, split by \N</td></tr><tr><td>
-<a href="text_mod.lua">Modify Text</a>				</td><td>v1.1 - italicize, bold, capitalization, \an8, \q2, honorifix</td></tr>
+<a href="cycles.lua">Cycles</a> 				</td><td>v2.0 - adds tags & cycles through values for blur, bord, shad, alpha, an [hotkey for each]</td></tr><tr><td>
+<a href="iBus.lua">iBus</a> 					</td><td>v1.7 - handles italics, bold, underline, and strikeout<br></td></tr><tr><td>
+<a href="nnn.lua">Line Breaker</a> 				</td><td>v2.4 - inserts and shifts linebreaks</td></tr><tr><td>
+<a href="join-split.lua">Join / Split / Snap</a> 		</td><td>v1.2 - joins lines / split lines / snaps to keyframes like TPP</td></tr><tr><td>
+<a href="next.lua">Jump to Next</a> 				</td><td>v2.0 - jumps to the next 'sign'</td></tr><tr><td>
+<a href="aladin.lua">Aladin's Lamp</a>				</td><td>v1.1 - helps dealing with typesetting in Arabic</td></tr>
 </table><br><br>
 
-<b>Scripts without GUI:</b><br><br>
+<b>Encoding/muxing scripts:</b><br>
 <table cellpadding=0 cellspacing=0><tr><td width=200>
-<a href="nnn.lua">Line Breaker</a> 				</td><td>v2.2 - inserts and shifts linebreaks</td></tr><tr><td>
-<a href="join-split.lua">Join / Split</a> 			</td><td>v1.0 - joins lines / split lines (both text and timing)</td></tr><tr><td>
-<a href="kfsnap.lua">Snap</a> 					</td><td>v1.2 - snaps to keyframes like TPP (but you can hotkey it)</td></tr><tr><td>
-<a href="resplit.lua">Re-Split</a> 				</td><td>v1.1 - moves the last word of the line to the start of the next, or the other way round</td></tr>
-</table><br><br>
-
-<b>Encoding/muxing scripts:</b><br><br>
-<table cellpadding=0 cellspacing=0><tr><td width=200>
-<a href="enc-hsub.lua">Encode - Hardsub</a> 			</td><td>v1.0 - encodes and hardsubs, whole video or clip</td></tr><tr><td>
+<a href="enc-hsub.lua">Encode - Hardsub</a> 			</td><td>v1.2 - encodes and hardsubs, whole video or clip</td></tr><tr><td>
 <a href="mux.lua">Multiplexer</a> 				</td><td>v1.1 - muxes loaded script + video, chapters, creates CRC + xdelta</td></tr>
 </table><br><br>
 
-<b>Extras:</b><br><br>
+<b>Extras:</b><br>
 <table cellpadding=0 cellspacing=0><tr><td width=200>
-<a href="runemap.lua">Runemap</a> 				</td><td>v1.0 - A map of moonrunes</td></tr><tr><td>
+<a href="runemap.lua">Runemap</a> 				</td><td>v1.0 - a map of moonrunes</td></tr><tr><td>
 <a href="backup.lua">Backup Checker</a> 			</td><td>v1.1 - lets you to make a backup of your script and compare new lines with the backup</td></tr>
 </table><br><br>
 
-<b>Scripts with GUI - obsolete:</b><br><br>
+<b>Scripts with GUI - obsolete:</b><br>
 <table cellpadding=0 cellspacing=0><tr><td width=200>
-<a href="make_chapters.lua">Make Chapters</a> 			</td><td>v1.0 - [included in Unimportant]</td></tr><tr><td>
-<a href="convert_fps.lua">Convert Framerate</a> 		</td><td>v1.0 - [included in Unimportant]</td></tr><tr><td>
+<a href="text_mod.lua">Modify Text</a>				</td><td>v1.1 - [included in various other scripts]</td></tr><tr><td>
+<a href="make_chapters.lua">Make Chapters</a> 			</td><td>v1.0 - [included in Significance]</td></tr><tr><td>
+<a href="resplit.lua">Re-Split</a> 				</td><td>v1.1 - [included in Multi-Line Editor]</td></tr><tr><td>
+<a href="convert_fps.lua">Convert Framerate</a> 		</td><td>v1.0 - [included in Significance]</td></tr><tr><td>
 <a href="fade_to_alpha.lua">Turn fade into transform</a> 	</td><td>v1.7 - [included in Apply fade]</td></tr><tr><td>
 <a href="back_and_forth.lua">Back and Forth Transform</a> 	</td><td>v1.0 - [improved version included in HYDRA]</td></tr><tr><td>
 <a href="ko.lua">Show text letter by letter</a> 		</td><td>v1.1 - [improved version included in Apply fade]</td></tr><tr><td>
@@ -100,68 +87,58 @@ You can report problems/errors in #irrational-typesetting-wizardry@irc.rizon.net
 <a href="copy-coordinates.lua">Copy Coordinates</a> 		</td><td>v1.2 - [merged into Hyperdimensional Relocator]</td></tr><tr><td>
 <a href="pos_adjust.lua">Position Adjuster</a> 			</td><td>v1.2 - [merged into Hyperdimensional Relocator]</td></tr><tr><td>
 <a href="multicolour.lua">Multicolour</a> 			</td><td>v1.0 - [included in HYDRA]</td></tr><tr><td>
-<a href="transform_alpha.lua">Transform Alpha</a> 		</td><td>v1.2 - [covered by HYDRA and Apply fade]</td></tr><tr><td>
+<a href="transform_alpha.lua">Transform Alpha</a> 		</td><td>v1.2 - [covered by HYDRA and FadeWorkS]</td></tr><tr><td>
 <a href="transform_clip.lua">Transform clip</a> 		</td><td>v1.3 - [merged into Hyperdimensional Relocator]</td></tr><tr><td>
-<a href="add_scaling.lua">Add Scaling for Mocha</a> 		</td><td>v1.0 - [included in Masquerade]</td></tr><tr><td>
+<a href="add_scaling.lua">Add Scaling for Mocha</a> 		</td><td>v1.0 - [obsolete and useless]</td></tr><tr><td>
 <a href="glow.lua">Add glow / Raise layer</a> 			</td><td>v1.0 - [replaced by 'Blur and Glow']</td></tr><tr><td>
 <a href="xy_bordershadow.lua">XY BorderShadow</a> 		</td><td>v1.0 - [included in HYDRA]</td></tr>
 </table><br><br>
 
-<b>Without GUI</b> (These are included in the bigger ones, but if you want quick, one-hotkey solutions...)<br><br>
-
+<b>Without GUI</b> (These are included in the bigger ones, but if you want quick, one-hotkey solutions...)<br>
 <table cellpadding=0 cellspacing=0><tr><td width=200>
-<a href="next.lua">Jump to Next</a> 				</td><td>v1.2 - [included in Unimportant]</td></tr><tr><td>
-<a href="duplicate-shift.lua">Duplicate and Shift</a> 		</td><td>v1.0 - the old ctrl+D function</td></tr><tr><td>
+<a href="duplicate-shift.lua">Duplicate and Shift</a> 		</td><td>v1.0 - the old ctrl+D function [advanced version in Significance]</td></tr><tr><td>
 <a href="time_signs.lua">Time signs from timecodes</a> 		</td><td>v1.3 - [old version without GUI]</td></tr><tr><td>
 <a href="multimove.lua">Multimove</a> 				</td><td>v1.1 - [included in Hyperdimensional Relocator]</td></tr><tr><td>
-<a href="shadow3D.lua">Shadow 3D Effect</a> 			</td><td>v1.0 - [included in HYDRA]</td></tr><tr><td>
-<a href="split_by_linebreak.lua">Split by Linebreaks</a> 	</td><td>v1.5 - [included in CopyFax This]</td></tr><tr><td>
+<a href="shadow3D.lua">Shadow 3D Effect</a> 			</td><td>v1.0 - [included in NecrosCopy and HYDRA]</td></tr><tr><td>
+<a href="split_by_linebreak.lua">Split by Linebreaks</a> 	</td><td>v1.5 - [included in NecrosCopy]</td></tr><tr><td>
 <a href="strikealpha.lua">StrikeAlpha</a> 			</td><td>v1.1 - [included in Masquerade]</td></tr><tr><td>
-<a href="copy_tags.lua">Copy Tags</a> 				</td><td>v1.0 - [included in CopyFax This]</td></tr><tr><td>
-<a href="clip2drawing.lua">Convert clip to drawing</a>		</td><td>v1.2 - keeps position & other tags, works better [included in HYDRA]</td></tr><tr><td>
-<a href="clip-iclip.lua">Clip to iclip</a>			</td><td>v1.0 - [included in HYDRA]</td></tr><tr><td>
+<a href="copy_tags.lua">Copy Tags</a> 				</td><td>v1.0 - [included in NecrosCopy]</td></tr><tr><td>
 <a href="fscx-fscy.lua">Match fscy to fscx</a>			</td><td>v1.0 - [included in HYDRA]</td></tr><tr><td>
 <a href="macro-8-an8.lua">Add \an8</a> 				</td><td>v1.2 - [included in HYDRA and Masquerade]<br></td></tr><tr><td>
 <a href="macro-9-q2.lua">Add \q2</a> 				</td><td>v1.2 - [included in HYDRA and Masquerade]<br></td></tr><tr><td>
-<a href="honorifix.lua">Honorificslaughterhouse</a>		</td><td>v??? - [included in Unimportant]</td></tr><tr><td>
+<a href="honorifix.lua">Honorificslaughterhouse</a>		</td><td>v??? - [included in Significance]</td></tr><tr><td>
 <br>
-Mostly useless...<br><br></td></tr><tr><td>
 
+Mostly useless...<br></td></tr><tr><td>
 <a href="reset_style.lua">Reset Style</a> 			</td><td>v1.0 - use with \r to get a menu of styles to set</td></tr><tr><td>
 <a href="reset2tags.lua">Reset-to-tags</a> 			</td><td>v1.0 - changes \r[style] to tags with the [style]'s properties</td></tr><tr><td>
-<a href="frz2shad.lua">Rotated Shadow</a> 			</td><td>v1.0 - i don't even remember what this does</td></tr><tr><td>
-<a href="shadowyborderx.lua">ShadowyBorderx</a> 		</td><td>v1.1 - changes \bord to \xbord \ybord and same with shad</td></tr>
+<a href="frz2shad.lua">Rotated Shadow</a> 			</td><td>v1.0 - i don't even remember (probably just use 'create shadow from clip' in HYDRA)</td></tr><tr><td>
 </table><br><br>
-
-
-<b>Q: What scripts should I get?</b><br><br>
-
-<b>Editors:</b> MultiLine Editor, Line Breaker, Modify Text, MultiCopy, Selectricks, Script Cleanup - <a href="scripts-editor.zip">zipped</a><br>
-<b>Timers:</b> ShiftCut, Apply fade, Masquerade, Script Cleanup, Line Breaker, Split, Join, Snap - <a href="scripts-timer.zip">zipped</a><br>
-<b>Typesetters:</b> Cycle scripts, Scripts with GUI - essential, CopyFax This, Masquerade - <a href="scripts-ts.zip">zipped</a><br>
 <br>
-Last updated: 2014-03-02<br>
-<br><br>
 
 
 <a href="https://github.com/unanimated/unanimated.github.io/tree/master/ts/oldversions">Old Versions</a> of scripts, if for whatever reason you need one.<br>
-If you happen to have any that I don't have anymore, link me.<br><br>
+If you happen to have any that I don't have anymore, link me.<br><br><br>
+
+Fun stuff: <a href="scripts-history.htm">History</a><br><br>
 
 <br><br>
 Images for the GUIs:<br><br>
 <img src="../px/hydra.png"> <br><br>
 <img src="../px/relocator.png"><br><br>
 <img src="../px/script-cleanup.png"><br><br>
-<img src="../px/colorize.png"> &nbsp;  <img src="../px/apply-fade.png"><br><br>
-<img src="../px/recalculator.png"> &nbsp;  <img src="../px/timesigns.png"><br><br>
-<img src="../px/blurandglow.png"> &nbsp;  <img src="../px/selectrix.png"><br><br>
+<img src="../px/colourise.png"><br><br>
+<img src="../px/recalculator.png"><br><br>
+<img src="../px/fadeworks.png"> &nbsp;  <img src="../px/selectrix.png"><br><br>
+<img src="../px/blurandglow.png"> &nbsp;  <img src="../px/timesigns.png"><br><br>
 <img src="../px/ShiftCut.png"><br><br>
-<img src="../px/copyfax.png"><br><br>
+<img src="../px/necroscopy.png"><br><br>
 <img src="../px/masquerade.png"><br><br>
-<img src="../px/change-capitalization.png"><br><br>
+<img src="../px/multicopy.png"><br><br>
+<img src="../px/change-case.png"><br><br>
 <img src="../px/multieditor.png" width=760><br><br>
 <img src="../px/enc-hs.png"><br><br>
 <img src="../px/multiplexer.png"><br><br>
-<img src="../px/unimportant.png"><br><br>
+<img src="../px/significance.png"><br><br>
 <br><br><br>
 </td></tr></table>

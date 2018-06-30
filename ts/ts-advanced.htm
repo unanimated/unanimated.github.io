@@ -19,7 +19,7 @@ So what remains is clips, animation, drawing mode, and using all the things toge
 <b>\clip</b><br><br>
 
 The clip tools are under the rotation and scaling tools in Aegisub. In principle they are simple.<br>
-You have a sign, and you want only part of it to be visible. So you use the basic clip tool and draw a rectangle over the area you want visible.<br>
+You have a sign, and you want only part of it to be visible, so you use the basic clip tool and draw a rectangle over the area you want visible.<br>
 You'll get somethnig like \clip(54,25,380,110) in the tags. That's the coordinates of the visible area.<br>
 Rather than this part being visible the idea is the other part not being visible, so it doesn't matter if you expand it to empty areas.<br><br>
 
@@ -28,63 +28,60 @@ It can look something like this:
 
 
 <br><br>
-<img src="clip01.jpg"> < with / without the tool selected >
-<img src="clip02.jpg"><br><br>
+<img src="img/clip01.jpg"> < with / without the tool selected >
+<img src="img/clip02.jpg"><br><br>
 
 If it's a pixel off, you can either drag the orange dots or type in the tag. Typing without the tool selected may be better as the red lines won't be in the way.<br><br>
-Obviously, a rectangle won't always do so you have the other tool that lets you draw a more complex shape.
+Obviously, a rectangle won't always do, so you have the other tool that lets you draw a more complex shape.
 <br><br>
 
-There's also \iclip, which does the opposite - selects the area that will <b>not</b> be visible. No special tool for that so just add the <b>i</b> & adjust coordinates by typing.<br>
-\clip has more compatibility so I use that one wherever possible.<br><br><br>
+There's also \iclip, which does the opposite - selects the area that will <b>not</b> be visible. No special tool for that, so just add the <b>i</b> & adjust coordinates by typing.<br>
+\clip has more compatibility, so I use that one wherever possible. <font class="n">(Scripts handle easy conversion.)</font><br><br><br>
 
 
-That's the basics of using clips, now for the <b>drawing mode</b>. You should already know how it works from <a target="_blank"href="http://aegisub.cellosoft.com/docs/ASS_Tags"><b>ASS Tags.htm</b></a>.<br><br>
+That's the basics of using clips, so now for the <b>drawing mode</b>. You should already know how it works from <a target="_blank" href="http://docs.aegisub.org/3.1/ASS_Tags/"><b>ASS Tags</b></a>.<br><br>
 
-Drawing is useful when you need to cover some area with solid color and put a sign over that. I have briefly described that in the <a href="ts-positioning.htm"><b>Positioning Signs</a></b> section.<br>
-I rarely use any complicated shapes with this. Usually only the rectangle.<br>
-And instead of adjusting the coordinates for size, I've found it's much more convenient to use the basic version {\p1}m 0 0 l 100 0 100 100 0 100{\p0}<br>
-that I copypaste from somewhere and adjust size with \fscx \fscy. It can also be rotated etc. like regular text so that gives you some variability of shape.<br>
-If I need a circle, I'll use a font with symbols. If I needed a [static] complex shape, I might use the rectangle together with the vectorial clip.<br>
-Of course now there are scripts for everything.<br><br><br>
+Drawing is useful when you need to cover some area with solid colour and put a sign over that. I have briefly described that in the <a href="ts-positioning.htm"><b>Positioning Signs</a></b> section.<br>
+I rarely use any complicated shapes with this. Usually only square or circle. Shape can be adjusted with the scaling tool.<br>
+If I need a specific shape, I draw it with the clip tool and use a script to convert it to drawing.<br><br><br>
 
 
 
 Normally I use the drawing mode only for <b>masking.</b> Using the basic rectangle with \fscx\fscy\fax\frz i can usually get what i need.<br><br>
 Here's what you can do with it, if you feel like spending 5 hours on 1 frame:<br><br>
 
-<a target="_blank" href="Nise-books01.png"><img src="Nise-books01.jpg"></a>
+<a target="_blank" href="Nise-books01.png"><img src="img/Nise-books01.jpg"></a>
 <br><br>
 
-Some colors of the masks are off because back then I didn't know about the issues with colorspaces and used ffmpeg in Aegisub 2.1.8 or 2.1.9.<br>
-If you're using those versions, use avisynth to load the video. If you're using Aegisub 3.0, use the BT.601 colorspace [which I think is on by default].<br>
+Some colours of the masks are off because back then I didn't know about the issues with colourspaces and used ffmpeg in Aegisub 2.1.8 or 2.1.9.<br>
+If you're using those versions, use avisynth to load the video. If you're using Aegisub 3.0, use the BT.601 colourspace [which I think is on by default].<br>
 <font class="n">2015 Note: And if you're reading this, do NOT use BT.601. (Turn it off in Options-Advanced-Video.) Yeah, shit keeps changing.</font><br><br>
 
 In case it wasn't clear to someone, all the books had Japanese titles, of course...
 
 
 <br><br>
-<img src="Nise-books00.jpg"><br><br>
+<img src="img/Nise-books00.jpg"><br><br>
 
-So it really was 5 hours of pretty tedious work. I don't recommend that you ever try that.<br>
-Each book has one typeset for the title with matching color and size, and a mask in the color of the book to hide the jp title.<br>
+So it really was 5 hours of pretty tedious work. I don't recommend that you ever try that. <font class="n">Unless you like... don't need hands for the rest of your life.</font><br>
+Each book has one typeset for the title with matching colour and size, and a mask in the colour of the book to hide the JP title.<br>
 Sometimes there are additional ones for the numbers.<br>
 Here's what it looks like in working mode. I think it's almost 200 lines.
 
 
 <br><br>
-<a target="_blank" href="Nise-books02.png"><img src="Nise-books02.jpg"></a><br><br>
+<a target="_blank" href="Nise-books02.png"><img src="img/Nise-books02.jpg"></a><br><br>
 
 OK, but back to a bit more sane things...<br><br>
 
 If you need a rectangle with round edges, or even a circle, you can still do it with the basic square.<br>
-For rounded edges use border with a value as high as you need to get the right shape. \bord20 or \bord30 may be useful values.<br>
-Of course you need the exactly same color for \c and \3c.<br><br>
+For rounded edges, use border with a value as high as you need to get the right shape. \bord20 or \bord30 may be useful values.<br>
+Of course you need the exactly same colour for \c and \3c.<br><br>
 
-To get a circle you do the same but scale the original square down to 1 pixel.<br><br>
+To get a circle, you do the same but scale the original square down to 1 pixel.<br><br>
 
 You can actually use this with a regular font. For example if you use a period with \bord50, you get a pretty good circle.<br>
-You can use the letter O for an ellipse or whatever else gives you a shape you need. Just match the primary and outline color and it works.<br><br>
+You can use the letter O for an ellipse or whatever else gives you a shape you need. Just match the primary and outline colour and it works.<br><br>
 
 Speaking of that, sometimes you need a <b>mask with a slight gradient.</b><br>
 Well, you might need a strong gradient but then you'd have to use an actual gradient and have hundreds of lines...<br>
@@ -93,27 +90,56 @@ But for a mild one, you can actually use some symbols from a font with large bor
 For example in one Nise ep I had this sign:
 
 <br><br>
-<img src="nisewheel.png"><br><br>
+<img src="img/nisewheel.png"><br><br>
 The background on the left is darker than on the right. Or maybe you could say the left is more orange, right is more yellow.<br>
-So a mask in one color didn't work, because it was always too visible on one end. And you can only have one color for the drawing mode.<br>
-So what i did was use 333333333333 with \bord10 as the mask and changed color every few letters. I mean numbers.<br>
-You can use OOOO or 8888 if you need a roundish mask, or use IIIII or ||||| if the range of colors is larger.<br>
-Of course for each section the outline color must match the primary. But to make it work you need one more thing.<br><br>
+So a mask in one colour didn't work, because it was always too visible on one end. And you can only have one colour for the drawing mode.<br>
+So what i did was use 333333333333 with \bord10 as the mask and changed colour every few letters. I mean numbers.<br>
+You can use OOOO or 8888 if you need a roundish mask, or use IIIII or ||||| if the range of colours is larger.<br>
+Of course for each section the outline colour must match the primary. But to make it work you need one more thing.<br><br>
 
 That brings us to the last part about masks... <b>blurring the mask</b>.<br><br>
 
 While I start with \blur0.5 on all signs, I put \blur1 on the masks, and more if needed/possible.<br>
 The reason is that more blur helps it blend better. So if there's enough space around, you can blur it a lot, like \blur5 or more,<br>
-and then even if the sign has a slight gradient, you may get away with just one color, because with blur5 you always have 5 pixels of fade.<br>
-[Actually this doesn't really relate to pixels but you get the idea.]<br><br>
+and then even if the sign has a slight gradient, you may get away with just one colour, because with blur5 you always have 5 pixels of fade.<br>
+[Actually this doesn't really relate to pixels, but you get the idea.]<br><br>
 
-So back to this sign. We have those 333s changing color. For that to work you need that blur so that the different shades can blend into each other smoothly.<br>
+So back to this sign. We have those 333s changing colour. For that to work you need that blur so that the different shades can blend into each other smoothly.<br>
 I used \blur3 here. Couldn't afford more, because it would either start showing the kanji under it, or grow outside of the orange area.<br>
 If you look hard, you may still find some barely visible discrepancies, but basically here you have a mask with a gradient.<br>
-For reference the colors are &H3D8FE9 on the left and &H4094EF on the right.
+For reference the colours are &H3D8FE9 on the left and &H4094EF on the right.<br><br><br>
 
 
+<font class="n">2018: This week on Hinamatsuri...<br><br>
+
+<img src="img/cloneclip0.jpg"><br><br>
+
+When I saw this, I thought, Oh, cool, I'm gonna try some fun stuff here.<br>
+So clearly this has to be masked. I suppose you might want to mask the whole thing and redo the grid somehow,<br>
+which probably wouldn't be too hard either, but I had something else in mind. I started by drawing a clip in the first field.
 <br><br>
+<img src="img/cloneclip1.jpg"><br><br>
+Of course we don't wanna do that shit 32 times, which is why I write a ton of lua functions.<br>
+This was probably the first good opportunity to use Clone Clip from <i>Significance</i>.<br>
+So I tell it to make 4 horizontal and 8 vertical clones, and how wide and tall one field is, and there we go.<br>
+This is all in one line.<br>
+(BTW, you can actually draw this in one line with the clip tool, meaning you can make separate shapes.<br>
+All you have to do is, every time you set the coordinates for a new one, add "m" before the coordinates that appear in the Edit Box.<br>
+Like this: <i>m 326 166 l 324 203 473 204 473 168 <b><font color=557799><b>m</b></font></b> 486 166</i> ... and then you keep drawing.)
+<br><br>
+<img src="img/cloneclip2.jpg"><br><br>
+Now we easily convert the clip to drawing. (I was just clipping an empty line.)<br>
+I suppose I could have added one pixel to the horizontal distance, but I just used \fscx101.
+<br><br>
+<img src="img/cloneclip3.jpg"><br><br>
+You may not see it, but I actually had to gradient the mask once I set the white colour.<br>
+The bottom is a bit darker. But it's only slightly, so I made like 100-pixel strips, and there were only 4 or 5.<br>
+Then it was just adjusting spaces in the text. (It could be split, but I didn't wanna have that many lines.)<br>
+I was quit pleased with how easy this was.
+<br><br>
+<img src="img/cloneclip4.jpg"><br><br>
+
+</font>
 
 
 <br><br><br>
@@ -126,9 +152,9 @@ Now for the most fun part...<br><br><br>
 
 This is the tag with which you can do almost anything..... and make everyone's player lag.<br>
 As a demonstration you can try this:<br>
-Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0000,0000,0000,,{\an5\q2\fs40\b1\bord1\blur0.1\shad0.1\1a&HFA\4aHF0\t(0,3000,3,\fs75\bord4\xbord10\shad22\blur1\1c&H00FFA9&\3c&H9B2664&\4c&H0C1A4C&\4a&90\1a&H00\fscy150\fsp15\frz15\fax-0.4)}Unlimited Eyecancer Works<br><br>
+Dialogue: 0,0:00:00.00,0:00:06.00,Default,,0000,0000,0000,,{\an5\q2\fs40\b1\bord1\blur0.1\shad0.1\1a&HFA&\4a&HF0&\t(0,3000,3,\fs75\bord4\xbord10\shad22\blur1\1c&H00FFA9&\3c&H9B2664&\4c&H0C1A4C&\4a&H90&\1a&H00&\fscy150\fsp15\frz15\fax-0.4)}Unlimited Eyecancer Works<br><br>
 
-This will change font size, border size, shadow distance, blur, all colors, transparency, font scaling, font spacing and rotation. Oh and CPU usage.<br>
+This will change font size, border size, shadow distance, blur, all colours, transparency, font scaling, font spacing and rotation. Oh and CPU usage.<br>
 For even more CPU usage, add movement, \clip, the other rotations and \blur15.<br>
 <font class="n">2015 Note: It would be hard to make one line lag nowadays, no matter how many transforms. But if it's many lines at the same time...</font><br><br>
 
@@ -136,9 +162,9 @@ So this gives you the idea of how you can change the basic properties. Use your 
 
 Let's try something more practical though. Like text appearing bit by bit.<br>
 Type some text and place it somewhere. Now use the clip tool to make only the first letter visible.<br>
-Let's say you get \clip(50,150,100,250). Now add \t, use the same clip in the \t tag but change the second X coordinate so something after the last letter.<br>
+Let's say you get \clip(50,150,100,250). Now add \t, use the same clip in the \t tag, but change the second X coordinate to somewhere after the last letter.<br>
 If the text ends at 400, you'll use \clip(50,150,100,250)\t(\clip(50,150,<b>400</b>,250)). This will be showing static text gradually from the first letter.<br>
-See how it works out and adjust coordinates as needed if something's off.<br>
+See how it works out, and adjust coordinates as needed if something's off.<br>
 If you need the text to appear in the first 500ms and stay on screen, use \t(0,500,\clip.....)
 <br>
 
@@ -151,17 +177,17 @@ Something similar would be text that moves into a visible area, though here you 
 and the text comes out on the right. So what you do is use \move to make the text move from left to right,<br>
 and you'll use \clip to make sure the text is not visible behind that person. You'll get a sequence like this:<br><br>
 
-<img src="moveclip1.jpg"><br><br>
-<img src="moveclip2.jpg"><br><br>
-<img src="moveclip3.jpg"><br><br>
+<img src="img/moveclip1.jpg"><br><br>
+<img src="img/moveclip2.jpg"><br><br>
+<img src="img/moveclip3.jpg"><br><br>
 You'll have to use the vectorial clip for this, to follow the hairline.<br>
 You could also expand the clip to the other side of the person and just make the text scroll behind her...<br>
 ...as long as she isn't moving. If she is and you still wanna do this, change \move to \pos & go frame by frame.<br>
-If after a few hours of that you feel like screaming "Zetsubou shita!" no one will blame you.<br><br>
+If after a few hours of that you feel like screaming "Zetsubou shita!", no one will blame you.<br><br>
 
 
 <br><br>
-<img src="scrolletter.jpg"><br><br>
+<img src="img/scrolletter.jpg"><br><br>
 Here the text is scrolling bottom to top, hiding behind the bars and the guy.<br>
 Use a simple \move, tune it so that it moves precisely along with the kanji first. Then use a clip to outline the bar.<br>
 I set it up so that each of the 2 portions of the text only goes under one bar so that I wouldn't have to clip both for one line.<br>
@@ -172,28 +198,28 @@ Of course you also have to include the guy's shoulder in the clip.
 
 Here's more fun stuff:
 <br><br>
-<img src="adv-bad1.jpg"><br><br>
-Find an awesome font. Set the colors, border etc. Clip around the guy's head and his tools. Apply \move.
+<img src="img/adv-bad1.jpg"><br><br>
+Find an awesome font. Set the colours, border etc. Clip around the guy's head and his tools. Apply \move.
 
 <br><br>
-<img src="adv-bad2.jpg"><br><br>
+<img src="img/adv-bad2.jpg"><br><br>
 <br><br>
 
 This is even more tricky:
 <br><br>
-<img src="muromisan.jpg"><br><br>
-Create all signs with colors, borders, shadows, layers etc. Use ASSDraw to create parts of the yellow circle to mask parts of your signs.<br>
-Change color of the letters that are close to the yellow circle. Blur appropriate things for the glow effect.<br>
-Now mocha track over more than 100 frames as the whole thing is zooming out with random flashes of light.<br>
-(Then change the episode title and colors every episode.)
+<img src="img/muromisan.jpg"><br><br>
+Create all signs with colours, borders, shadows, layers etc. Use ASSDraw to create parts of the yellow circle to mask parts of your signs.<br>
+Change colour of the letters that are close to the yellow circle. Blur appropriate things for the glow effect.<br>
+Now mocha track over more than 100 frames, as the whole thing is zooming out with random flashes of light.<br>
+(Then change the episode title and colours every episode.)
 <br><br><br><br>
 
 
 Another example where you can combine \move and \t is when text is growing larger.<br>
 You know the trailer kind of stuff where a line appears and seems to get closer, then a few images and another line.<br>
 You'll use \t(\fs) to make the sign 'grow,' and \move to make up for any inconsistencies that may arise.<br>
-If the alignment is \an2 then the sign will only expand upward. \an5 will make it expand to all sides,<br>
-but if you're placing this above a jp sign that's already expanding, you'll need to \move up a bit,<br>
+If the alignment is \an2, then the sign will only expand upward. \an5 will make it expand to all sides,<br>
+but if you're placing this above a JP sign that's already expanding, you'll need to \move up a bit,<br>
 otherwise the expansion of both signs may bring them too close together or even overlap.<br><br>
 
 This kind of signs may also use other effects, like the line appears and then slowly gets blurry,<br>
@@ -214,15 +240,18 @@ Dialogue: 0,0:00:40.00,0:00:45.00,Default,,0000,0000,0000,,{\b1\org(640,50)\fax1
 
 
 <br><br>
-That's about all I can think of right now, the rest is up to your imagination.<br>
+That's about all I can think of right now. The rest is up to your imagination.<br>
 
-Remember though that overusing this will cause lag, so nuke any tags that you don't really need<br>
-and don't use too high values of the really laggy things like blur or all rotations at the same time.<br>
+Remember though that overusing this will cause lag, so nuke any tags that you don't really need,<br>
+and don't use too high values of the really laggy things like blur, or all rotations at the same time.<br>
 
 
 <br><br>
-If there's anything specific that I haven't mentioned anywhere, let me know.
+If there's anything specific that I haven't mentioned anywhere, let me know.<br><br><br><br>
 
+<font class="n">2018 Note: Creating transforms is done using <a target=_blank href="scripts-manuals.htm#hydra">HYDRA</a>. Just check the tags you want, and click on Transform.<br>
+With scripts like Hyperdimensional Relocator, you can also easily create \move from \pos, align a bunch of lines, move vectorial clips, and all kinds of other things.
+</font>
 
 <br><br><br><br>
 <center><a href="index.htm"><b>« Back to Typesetting Main

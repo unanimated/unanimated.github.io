@@ -11,40 +11,55 @@ b {font-weight:bold; color:556677}
 <table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=800>
 <tr><td>
 <b><font size=5 color=445566>list of functions of unanimated's <a href="scripts-unanimated.htm">Aegisub scripts</a></font><br><br>
-aka "Is there a script that does ......?"</b> (All scripts include detailed descriptions.)
+aka "Is there a script that does ......?"</b> (Detailed info in <a href="scripts-manuals.htm">the manuals</a>.)
 </td></tr>
 <tr><td>
 
 <pre>
 <b>HYDRA</b>
 add any tags
-add inline tags
-apply tags to sections of text
-add transforms (new transforms, add to existing transforms)
+add inline tags in many different ways
+apply tags to sections of text (various options)
+apply tags before every character / word
+add transforms (new transforms, add to existing transforms [several modes])
 relative transforms (transform by, rather than transform to)
+increase value of applied tags for each line
+create a gradient by character
+create a vertical/horizontal gradient
+create a gradient by line
+(various options for gradients)
 copy fscx value to fscy and vice versa
 move inline colour tags to the start (when you use the eyedropper tool but cursor isn't at the start of the editbox)
 convert between clip and iclip
+convert \s1 to selected tags and \s0 to the original state of those tags
 clean up tags / remove garbage / round numbers
 sort tags in set order (user defined)
-clean up and sort transforms (join ones without timecodes, put all at the end of the tag block)
 transform between two sets of tags back and forth (back and forth transform)
+transform \fscx\fscy based on a clip
 select overlaps
 convert clip to drawing
 convert drawing to clip
 create a checkerboard pattern clip
-create a 3D effect from a shadow (needs \xshad\yshad, creates layers to make a transition from the base to the shadow)
+change \shad to \xshad\yshad
+create a 3D effect from a shadow (needs \xshad\yshad, creates layers to fill the space between the base & the shadow)
 split line in (2 or) 3 parts based on given timecodes/durations
 
 
 <b>Hyperdimensional Relocator - Repositioning Field</b>
-align signs along the same x or y coordinate
+align signs along the same \pos x or y coordinate
 mirrored image / duplicate across the screen
 calculate \fax from \org
 calculate \fax from \clip, including different values on each end + gradient in between
 calculate \frz from \clip, including averaging between two lines
+reposition a line based on 2 clip coordinates
 shake / randomize position (+rotation)
 create a shadow layer instead of \shad
+offset position of a sign by half a shadow's length
+create lines for each letter of text, spacing them out by a given distance
+switch progression of pos X and Y for fbf lines (right<->down, up<->left, etc.)
+replicate a line X times over a given distance (can shift each by X frames and do other things)
+fbf retrack - adjust positions of fbf lines (smoothen)
+track position with points of a vectorial clip (track by clip)
 
 <b>Hyperdimensional Relocator - Soul Bilocator</b>
 create 1 line with \move from 2 static lines with \pos, including creating transforms (transmove)
@@ -54,53 +69,55 @@ reverse \move
 change starting coordinates of \move by a given amount (shiftstart)
 change ending coordinates of \move by a given amount (shiftmove)
 set target coordinates for \move (move to)
+set target coordinates for \move from a clip (clip2move) (works with \pos and \move)
 create a clip transform that follows \move (move clip)
 randomize \move, either in the same direction but different distance, or within a given radius of the start/end points
+nuke timecodes in \move or \t (kill times)
+set timecodes in \move or \t to first/last frame of the line (full times)
+set timecodes in \move or \t to any given numbers (set times)
 
 <b>Hyperdimensional Relocator - Morphing Grounds</b>
 round values for pos, move, org, clip, masks
 split/chop a line into fbf (frame by frame) segments, changing move to pos and transforms to single tags (line2fbf)
 join fbf lines by a given number, like join each 3 lines into 1
-nuke timecodes in \move (killmovetimes)
-set timecodes in \move to first/last frame of the line (fullmovetimes)
-set timecodes for a transform to first/last frame of the line (fulltranstimes)
 shift a vectorial clip based off \pos tags for fbf lines (move v. clip)
 set \org tag with current \pos coordinates (set origin)
 calculate origin point (\org) from a clip matching a tetragon on screen (calculate origin)
 calculate/create a clip transform (transform clip)
 set a \frz tag with predefined values like 30, 45, 60, 90, etc (FReeZe)
-change rotation by 180 degrees for \frz (rotate 180)
-change rotation by 180 degrees for \frx (flip hor.)
-change rotation by 180 degrees for \fry (flip vert.)
-change \frz to negative number with the same result, like 350 -> -10, to help with transforms (negative rot)
+change rotation by 180 degrees for \frz, \frx, or \fry (rotate 180)
+change rotations to negative number with the same result, like \frz350 -> \frz-10, to help with transforms (negative rot)
 convert between rectangular and vectorial clips
 set position in the middle of a rectangual clip (find centre)
 resize masks in x/y direction (extend mask)
-resize/reshape masks by multiplying values (expand mask)
 flip a mask horizontally (flip mask)
 change the shape of a mask by randomizing the points (randomask)
-randomize the values of a given tag to create chaotic effects for grad.-by-char. or fbf (randomize...)
+randomize the values of a given tag to create chaotic effects for gbc or fbf (randomize...)
 make vertical text by adding linebreaks between letters (letterbreak)
 add linebreaks between words (wordbreak)
+hide or unhide a clip (so that you can "see" the sign quickly)
 
 <b>Hyperdimensional Relocator - Cloning Laboratory</b>
-copy pos, move, org, clip tags from one line to others
-this includes stacking/combining clips in various ways
+copy pos, move, org, clip tags from one line to others (also rotations)
+(includes options to stack/combine clips in various ways, as well as to shift more with each line)
 
 <b>Hyperdimensional Relocator - Teleportation</b>
 shift pos, move, org, clip, mask by a given amount
-'mod' can shift by an additional amount for each new line
+'warp' can shift by an additional amount for each new line, or each new frame
+change position by 1 px in each of 4 directions (4 separate macros)
 
 
-<b>Colorize</b> (everything selectable for \c, \2c, \3c, \4c)
-alternate between 2-5 colours letter by letter / word by word
+<b>Colourise</b> (everything is selectable for \c, \2c, \3c, \4c)
+alternate between 2-7 colours letter by letter / word by word
 shift colours by a letter / word
-set a given mumber of colours (2-10) evenly across the line (3 = start, middle, before last character)
-adjust RGB channels
-adjust Hue/Saturation/Brightness
-randomize RGB/HSB (each of the 6)
+set a given mumber of colours (2-7) evenly across the line (3 = start, middle, before last character)
+adjust RGB channels (options: only tags outside transforms, only tags inside transforms, all)
+adjust hue/saturation/lightness (options: only tags outside transforms, only tags inside transforms, all)
+randomize RGB/HSL (each of the 6)
 match colours between primary, outline, and shadow
-create RGB and HSB colour gradients
+create RGB and HSL colour gradients
+tune/adjust existing colours in the line (options: only tags outside transforms, only tags inside transforms, all)
+tune/adjust/replace existing colours in current selection
 
 
 <b>Blur and Glow</b>
@@ -118,14 +135,17 @@ clear actor / effect field
 raise dialogue layer by 5
 clean up tags / remove garbage / round numbers
 delete specific tags or groups of related tags (colours, alphas, rotations...)
+delete specific tags only from transforms
 remove linebreaks
+hide/unhide any tags from start tags, or all inline tags
 
 
 <b>Recalculator</b>
-multiply values of tags
-add to or subtract from values of tags
+multiply values of tags (options: only tags outside transforms, only tags inside transforms, all)
+add to or subtract from values of tags (options: only tags outside transforms, only tags inside transforms, all)
 resize clips / drawings
 shift karaoke (by changing value for the first \k tag in line)
+recalculate gradients for already existing tags
 
 
 <b>Selectricks</b>
@@ -135,14 +155,18 @@ sort by width of text (in pixels)
 move the last line in a selection to the top of selection and vice versa
 select lines with the same text as the current one
 move selection up or down
+recalculate values for layer, margins, start/end time, number patterns in text, actor, effect
 
 
-<b>Multi-line Editor</b>
+<b>Multi-Line Editor</b>
 edit multiple lines at once (text, style, actor, effect)
 replace function for selected lines, including regexp
 check duration, character count, and cps of a line
 count characters / words in a selection
-change capitalization
+change case / capitalisation
+move the last word on active line to the start of next line
+move the first word on the next line to the end of active line
+reverse line order of text, effect, actor, etc. (all fields) for selected lines
 
 
 <b>MultiCopy</b>
@@ -158,69 +182,71 @@ paste over of selected fields (layer, effect, text...)
 copy from one column (layer, effect, text...) to another
 
 
-<b>Time signs from timecodes</b>
+<b>Time Signs</b>
+time signs from timecodes, including shifting times, adding blur, and snapping to keyframes
 
 
 <b>ShiftCut</b> (TPP with more options)
-add or cut lead in or lead out
-shift times
+add or cut lead in or lead out (ms or frames)
+shift times (ms or frames)
+shift each line by X frames
 link lines
 fix overlaps
 snap to keyframes
+shift selection so that the active line ENDS at current frame
 
 
-<b>Apply fade</b>
-create alpha transforms from fade
-create colour transforms from fade
-create blur transforms from fade
+<b>FadeWorkS</b>
+apply fade
+create fade-based alpha transforms
+create fade-based colour transforms
+create fade-based transforms for other transformable tags
 create fades letter by letter, including right to left
 make text appear letter by letter or word by word using \ko
 create a fade across multiple lines
 set fades as fractions of duration
 set negative fades (counting from the other end of the line)
 set fade in/out to current video frame
+create complex fade in/out effects by adding new lines at either end
 
 
-<b>Change Capitalization</b>
+<b>Change Case</b>
 change text to lowercase / uppercase
-capitalize lines, sentences, or titles
+capitalise lines, sentences, or titles
 
 
-<b>Unimportant</b>
+<b>Significance</b>
 export complex signs to a saved file (any number of lines, basically works like a template)
 import signs from a saved file
 import chapters from xml
 a complex function to update lyrics
 make chapters (includes subchapters)
 set chapter markers (like make selected line a 'Part A' chapter)
-number lines in actor/effect field (also layers) by various patterns
-add markers to numbers in actor/effect (like ab01cd)
-lua replacer - replace function with regexp
+number lines in actor/effect field (also layer and margins) by various patterns
+add markers to numbers in actor/effect (like ab01cd) (this also allows to add comments to text)
+lua replacer - replace function with lua matching patterns
 perl replacer - same with full regexp
-lua calculator - perform basic math operations on matched numbers (for example multiply font size by 1.5)
-jump to the next line with a different actor/effect/layer/style/text than the current one
-make text appear letter by letter using alpha (shift alpha FF tag line by line)
-merge two lines with the same text but different tags to include all tags from both lines
-add a given comment at the end of all selected lines
-add a list of comments line by line
+lua calculator - perform basic math operations on matched numbers (experimental and pretty useless)
 uncomment commented text (nuke { })
 switch commented / visible text
 reverse text character by character
 reverse text word by word
-reverse trasnforms (\bord3\t(\bord5) -> \bord5\t(\bord3); only initial tags, one transform per tag)
+reverse transforms (\bord3\t(\bord5) -> \bord5\t(\bord3); only initial tags, one transform per tag)
 fake capitalisation of uppercase text using higher \fs for the first letter of each word
 format dates to one of 4 patterns: "January 1", "January 1st", "1st of January", "1st January"
 split into letters (one line per character; other characters are alpha'd out)
 explode (split into letters + characters randomly move and fade away)
 dissolve text (make text disappear in segments in various ways)
+duplicate and shift lines - for all selected lines, adds one or multiple frames before and/or after
 randomized transforms - different values for each line (includes randomized fade, duration, move)
 clone clip (replicates an existing clip given amount of times in rows/columns)
 transform kara tags (\k, \kf, \ko) into alpha transforms (FF->00)
-motion blur
+adjust kara tags for split lines (karaoke with fbf)
 comment honorifics
 convert framerate
 stats: video name, script resolution, colorspace, styles used, # of dialogue lines, # of selected lines, selection duration
 active line statistics: # in script, style, font, weight, fnot size, border, shadow, duration, characters, cps, default position
+make a new style from active line, using tags in the line
 
 
 <b>Masquerade</b>
@@ -228,22 +254,26 @@ create a mask with a predefined shape (includes 2 alignment grids)
 create a mask from clipped area
 save/load custom masks
 shift tags left or right by letters or words
-recalculate fscx / fsxy for a given \fs (mocha scale)
+motion blur
+merge tags for 2 lines with same text but different inline tags (including gradients)
 make text appear letter by letter using alpha (shift alpha FF tag line by line)
 alpha time line(s) (splits text by given markers, times evenly)
-transform underline/strikeout tags into alpha tags, as well as @30@ -> \\alpha&H30& etc. (strikealpha)
+transform underline/strikeout tags into alpha tags, as well as @30@ -> \alpha&H30& etc. (strikealpha)
+(many transformations/replacements/conversions available)
 
 
-<b>Copyfax This</b>
-set \fax
+<b>NecrosCopy</b>
 calculate \fax from a clip, including different values on each end + gradient in between
+calculate \frz from a clip
 copy initial block of tags from line 1 to others
-copy text after initial block of tags from line 1 to others
-copy clip, shifting it by a given value line by line
-copy colours from line 1 to others
+copy text after initial block of tags from line 1 to others (also clean text without tags/comments)
+copy colours/alphas from line 1 to others
 copy anything available from one line to others
 copy tags from start tags to after linebreaks
-split by linebreaks (keeps times)
+create a 3D shadow
+split by linebreaks (keeps times; also splits by spaces and by tags; keeps position for segments under common conditions)
+arrange text along a path set by a clip, one word for each clip segment between two points (only straight clips)
+split into letters (one line for each letter)
 
 
 <b>Line Breaker</b>
@@ -251,18 +281,14 @@ insert linebreak in a meaningful place
 shift linebreak by 1 word (right or left)
 
 
-<b>Join / Split</b>
+<b>Join / Split / Snap</b>
 join active line with the following one (tries to handle text / tags intelligently)
 split a line at first linebreak / period / excl./quest. mark / comma, and adjust timing for each line
-
-
-<b>Snap</b>
 snap selected lines to keyframes / adjacent lines based on numbers in settings (TPP snapping for hotkeying)
 
 
-<b>Re-Split</b>
-move the last word on active line to the start of next line
-move the first word on the next line to the end of active line
+<b>Jump to Next</b>
+jump to next/previous line with a different actor/effect/layer/style/text from the current one, or to next commented line
 
 
 <b>Reset Style</b>
@@ -273,9 +299,17 @@ choose a style to set for \r tag
 change \r[style] to tags with the [style]'s properties
 
 
+<b>Aladin's Lamp</b>
+deal with right-to-left tags by:
+- fixing inline tags
+- fixing line breaks
+- fixing punctuation
+
+
 <b>Encode - Hardsub</b>
 encode a clip for mocha
 hardsub a clip or whole video using one or two subtitle files
+mux audio for encoded clip
 
 
 <b>Multiplexer</b>

@@ -9,7 +9,7 @@ b {color:667788}
 <body topmargin=0><center><br>
 <table align=center bgcolor=101316 cellpadding=15 cellspacing=2 width=800>
 <tr><td>
-<center><font size=5 color=446677><b>Typesetting Faster
+<center><b><font size=5 color=446677>Typesetting Faster
 </center></td></tr>
 
 <tr><td><br>
@@ -39,7 +39,7 @@ Look at next timecode [right under the Start Time field where you're typing], ty
 This will time all signs to one frame based on the timecodes from the pad. Good enough for rough timing and it's <b>fast</b>.<br>
 Makes no difference that it's only timed to 1 frame because you need to fine time it anyway.<br><br>
 
-Update: now you can forget about that and just use , which gets this round down to 2 seconds.
+Update: now you can forget about that and just use <a href="time_signs2.lua">Time signs</a>, which gets this round down to 2 seconds.
 <br><br><br>
 
 
@@ -48,7 +48,13 @@ Update: now you can forget about that and just use , which gets this round down 
 This is unfortunatelly a lot slower since you need to find the exact start/end frames. Basically you click on each line, left arrow back to find the start, set start, right arrow to the end, set end.<br>
 Probably the only thing that helps you here is that many signs start/end on keyframes. If you can see on the audio track that it's likely to be the case, or you know from previous episodes which signs tend to be like that, you can just click on the yellow icon [between the ones for start/end frame and the one for shifting] which will set start to previous keyframe and end to next keyframe. [The "Time Signs" script will also snap to nearby keyframes.]<br>
 Other than that this is pretty slow, but again, at least much better in 3.0 because of much faster seeking.<br>
-While encoding keyframes is usually something timers do, it's useful to have keyframes for timing signs as well, especially when you have a lot of signs, since many if not most signs start/end at keyframes.<br><br><br>
+While encoding keyframes is usually something timers do, it's useful to have keyframes for timing signs as well, especially when you have a lot of signs, since many if not most signs start/end at keyframes.<br><br>
+It can be useful to disable autoseek:<br><br>
+<img src="../px/autoseek.png"><br><br>
+so that the video doesn't keep jumping to the first frame of the sign.<br>
+I actually toggle this on/off pretty often, depending on what I'm doing.<br><br>
+It is also useful to hotkey 3 things: go to start time, go to end time, and that 'snap start/end to keyframes' thing.<br>
+If you set hotkeys under Subtitle Grid and Video, you can use simple keys without Ctrl/Alt/Shift, so for example numpad keys are useful for this.<br><br><br>
 
 
 <b>4. add blur</b><br><br>
@@ -61,9 +67,9 @@ For that, and other things, you can use <a href="script_cleanup.lua">this script
 <br><br><br>
 
 
-<b>5. round 3 - set colors</b><br><br>
+<b>5. round 3 - set colours</b><br><br>
 
-Next round of going through the signs you use the eyedropper and set correct primary/outline[/shadow] colors for each line.<br>
+Next round of going through the signs you use the eyedropper and set correct primary/outline[/shadow] colours for each line.<br>
 While you could do other tasks along with that, I recommend doing this alone as it involves just mouse clicking and no typing so it can go pretty fast like that.<br>
 <font class="n">2015 Note: I don't really do that anymore, but it's up to you.</font><br><br><br>
 
@@ -71,13 +77,14 @@ While you could do other tasks along with that, I recommend doing this alone as 
 <b>6. round 4 - typesetting</b><br><br>
 
 At this point it's probably no use splitting the tasks any more. <br>
-For the easy signs you pick a style [that includes a font], set font size [or just using the scaling tool as it's faster than typing numbers], set border size, set position, use <a href="blur-and-glow.lua">Blur and Glow</a> in most cases, and you're pretty much done. These days you can use scripts for just about any task, so do it.<br>
-You may want to do all mocha tracking in one batch or leave other specific kinds of signs last or do them first. I actually prefer to go sign by sign with each of them being different, as I get bored with too much repetition.<br><br><br>
+For the easy signs, you pick a style [that includes a font], set font size [or just using the scaling tool as it's faster than typing numbers], set border size, set position, use <a href="blur-and-glow.lua">Blur and Glow</a> in most cases, and you're pretty much done. These days you can use scripts for just about any task, so do it.<br>
+You may want to do all mocha tracking in one batch or leave other specific kinds of signs last or do them first. I actually prefer to go sign by sign with each of them being different, as I get bored with too much repetition.<br>
+<font class="n">The one reason to do mocha tracking last is that as it adds hundreds of lines, it becomes hard to find anything.</font><br><br><br>
 
 
 <b>7. round 5 - checking</b><br><br>
 
-When you're done with everything [and have sorted the script by time], you seriously need to make one more round, click on each sign, go one frame back to make sure it doesn't appear too late, right arrow to the end to make sure it doesn't end late or early and that nothing breaks in between [mocha, layers, movement start/end times, \t tags, nobody walks in front of the sign etc.]. <a href="next.lua">This script</a> can help you do it faster.<br><br><br><br>
+When you're done with everything [and have sorted the script by time], you seriously need to make one more round, click on each sign, go one frame back to make sure it doesn't appear too late, right arrow to the end to make sure it doesn't end late or early and that nothing breaks in between [mocha, layers, movement start/end times, \t tags, nobody walks in front of the sign etc.]. <a href="scripts-manuals.htm#next">This script</a> can help you do it faster.<br><br><br><br>
 
 
 
@@ -86,20 +93,20 @@ There are now scripts for almost anything you can think of, so you pretty much d
 Get familiar with all the scripts that are available.<br><br>
 
 Know your keyboard shortcuts, like ctrl+D for frame-by-framing by hand. Know that in Aegi 3.0 you can drag multiple signs on the screen at once, therefore you can frame-by-frame 5 signs on the screen all at once quite easily.<br>
-The other tools can be used for multiple sigs at once too - rotation, scaling.<br><br>
+The other tools can be used for multiple signs at once too - rotation, scaling.<br><br>
 
 <b>Bind your automation scripts to hotkeys.</b><br>
-This will improve your speed a lot. Go to Preferences-Interface-Hotkeys. I prefer to set the shortcuts under "Default," but be aware that these will work even when typing in the Subtitle Edit Box, so don't make shortcuts that you might actually need for typing, like Shift+letter. If you want such shortcuts, instead of Default put them under Subtitle Grid, since that's where you'll usually be. Add a hotkey you want, and under "Command" type "auto" and aegi will autocomplete and give you a list of the available scripts, so just choose the right one from there. With Ctrl+letter, Alt+letter, or any combinations of Ctrl/Alt/Shift+letter you have tons of options, so you can usually assign scripts to logical letters, like Alt+B for Bold, Alt+I for Italics, Alt+8 for adding \an8, etc. For some scripts I just set a single letter under Subtitle Grid.<br><br>
+This will improve your speed <b>a lot</b>. Go to Preferences-Interface-Hotkeys. I prefer to set the shortcuts under "Default," but be aware that these will work even when typing in the Subtitle Edit Box, so don't make shortcuts that you might actually need for typing, like Shift+letter. If you want such shortcuts, instead of Default put them under Subtitle Grid, since that's where you'll usually be. Add a hotkey you want, and under "Command" type "auto" and aegi will autocomplete and give you a list of the available scripts, so just choose the right one from there. With Ctrl+letter, Alt+letter, or any combinations of Ctrl/Alt/Shift+letter you have tons of options, so you can usually assign scripts to logical letters, like Alt+B for Bold, Alt+I for Italics, Alt+8 for adding \an8, etc. For many scripts I just set a single letter under Subtitle Grid and Video.<br><br>
 
 <b>Modify your scripts.</b><br>
-If you see you're doing a specific task often, and there's theoretically a way to make it faster or do it in fewer steps, modify an automation script or <a href="lua/ts-auto_tutorial.htm">write your own</a>. If you're using my scripts and think something could be improved about them, let me know and i'll upgrade the script if it's reasonably doable.
+If you see you're doing a specific task often, and there's theoretically a way to make it faster or do it in fewer steps, modify an automation script or <a href="lua/ts-auto_tutorial.htm">write your own</a>. If you're using my scripts and think something could be improved about them, let me know, and I'll upgrade the script if it's reasonably doable.
 
 
 <br><br>
 
 If you have a sign that repeats itself every episode [titles and such] that needs mocha tracking, don't track it every time but copy from previous ep and shift. <br>
 Even titles that don't move but just have a lot of tags are faster to copy from last ep and shift than redoing them every time [actually I hope nobody's doing that].<br>
-In fact, what I usually do is open last ep's TS file, save under new episode name, and delete all the non-repeating stuff, thus leaving titles, eyecatches, and whatever else repeats itself every episode. Then I shift the signs to where they should be this episode and see if they need any modifications. Eyecatches tend to change position on the screen, ep titles may change colors, fades, etc.<br><br>
+In fact, what I usually do is open last ep's TS file, save under new episode name, and delete all the non-repeating stuff, thus leaving titles, eyecatches, and whatever else repeats itself every episode. Then I shift the signs to where they should be this episode and see if they need any modifications. Eyecatches tend to change position on the screen, ep titles may change colours, fades, etc.<br><br>
 
 If you're using a lot of styles, it might be good to name them so that you can easily tell them apart, and not just sign1, sign 2 etc.<br>
 You can use the actor field for some notes regarding what you need to do later so you don't forget. For example I sometimes type "mocha" in there to make sure I don't forget that I need to track that sign later.<br>

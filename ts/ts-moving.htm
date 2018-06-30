@@ -19,7 +19,7 @@ Linear movement is simple. You use \move(x1,y1, x2, y2).<br>
 Let's say you want that fish on the bottom right follow the kanji moving to the left.
 
 <br><br>
-<img src="move1.jpg"><br><br>
+<img src="img/move1.jpg"><br><br>
 First you use the Drag tool and position the fish in the first frame. Then you click the blue arrow that the other blue arrow is pointing at.<br>
 That switches from \pos to \move. Then you click on the right green arrow the other green arrow is pointing at. That gets you to the last frame of this fish.<br>
 That is assuming you've timed your fish correctly. If you haven't, then you're dumb, because what are you gonna do with a timeless fish? Anyway...<br>
@@ -27,7 +27,7 @@ When on the last frame, you grab the circle that appeared over the square (on th
 
 
 <br><br>
-<img src="move2.jpg"><br><br>
+<img src="img/move2.jpg"><br><br>
 Like there^. You'll get a tag like this: {\move(1195,650,1009,652,0,799)}<°)))><<br>
 Now when you see the vertical coordinates are 650 and 652, you did it wrong.<br>
 The fish is supposed to be swimming just horizontally, not up and down, so the coordinates have to be the same. So you'll correct whichever one is wrong.<br><br>
@@ -53,24 +53,26 @@ This will place the starting point of the fish there, while keeping the movement
 Then just click a few times until you get it positioned exactly where you need it.<br><br><br>
 
 
-
-Make sure to check the video once you're finished so that you don't end up like dickpants with the sign starting god knows where<br>
+Make sure to check the video once you're finished, so that you don't end up like dickpants with the sign starting god knows where<br>
 and moving in the opposite direction than it was supposed to...<br>
 
 <br><br>
-<img src="movejdp.jpg"><br><br>
+<img src="img/movejdp.jpg"><br><br>
 If you haven't done anything incredibly dumb like this, you'll still check if the fish is swimming at the right speed.<br>
 If it seems like it's getting closer to the kanji, then you change the ending X coordinate to higher value [ie. more to the right]. If fast then other way round.<br>
 <br>
 
+<font class="n">2018 Note: There's a function called "clip2move" in <a target=_blank href="scripts-manuals.htm#relocator">Relocator</a>. You can use a clip to mark the start and end point for a move. So with that fish thing above, you'd mark the circle at the end of the kanji on first frame and last frame with 2 points of the clip, and the move coordinates will be derived from the clip and current \pos.</font><br><br><br>
+
+
 OK, so... that was the easy part.<br>
-The trouble comes when the movement is not constant and linear. If that happens, you have several options.<br><br>
+The trouble comes when the movement is not constant / linear. If that happens, you have several options.<br><br>
 
 1. Quit fansubbing.<br>
 2. \an8<br>
 3. Ignore the inconsistencies and use linear movement even if it doesn't match.<br>
 4. Use \move but split it into several phases to decrease the inconsistencies to minimum.<br>
-5. Do it right, ie. frame by frame, either using a tracking software or by hand.<br><br>
+5. Do it right, ie. frame by frame, either using a tracking software <font class="n">(yes)</font> or by hand <font class="n">(no)</font>.<br><br>
 
 ad 1. Good Bye<br><br>
 
@@ -79,7 +81,7 @@ ad 2. Nope. See point 1.<br><br>
 ad 3. This may be ok when the actual movement is not too far from a linear one and there won't be significant inconsistencies.<br>
 For example if the movement is generally linear but a bit twitchy. Otherwise this option would be pretty dumb.<br><br>
 
-ad 4. This is kind of the middle way. The more phases you split it into, the better it'll look, so it's just up to you and how much time you wanna spend on it.<br>
+ad 4. <font class="n">Nope. Don't do this. Don't even read this. Skip to 5.</font> <s>This is kind of the middle way. The more phases you split it into, the better it'll look, so it's just up to you and how much time you wanna spend on it.<br>
 This will mostly be useful for movement that is pretty much linear in direction, but accelerates/decelerates.<br>
 What you do is duplicate the line a few times, and time all the lines to make a sequence. So if it's 5 seconds, you can split into 5 lines,<br>
 and time them (in seconds) 00-01, 01-02, etc. In reality you will need like 2-3 segments per second to make it look somewhat decent.<br>
@@ -92,7 +94,7 @@ Dialogue: 0,0:17:16.44,0:17:17.05,Default,,0000,0000,0000,,{\move(377,315,465,31
 Dialogue: 0,0:17:17.05,0:17:17.61,Default,,0000,0000,0000,,{\move(467,315,508,315)}text
 Dialogue: 0,0:17:17.61,0:17:18.16,Default,,0000,0000,0000,,{\move(511,315,542,315)}text
 Dialogue: 0,0:17:18.16,0:17:18.68,Default,,0000,0000,0000,,{\move(544,315,552,315)}text
-</pre>
+</pre></s>
 
 [Note: It's 2013. We don't do this shit anymore. Use mocha.]<br><br>
 
@@ -109,22 +111,22 @@ This way you'll be getting consecutive frames, each timed to 1 frame, which is e
 After that you go through all the frames and adjust position with the Drag tool.<br><br>
 
 The interesting thing is that while this method produces the best results, it's not even difficult. Pretty much all you need to be able to do<br>
-is time the lines and set \pos, which is really the very basics. The problem is that it's quite time consuming and somewhat tedious.<br><br>
+is time the lines and set \pos, which is really the very basics. The problem is that it's quite time consuming and somewhat tedious. <font class="n">And may kill your wrists.</font><br><br>
 <br>
 
 
 
 One more thing to cover is signs that rotate, expand etc. You could still do this frame by frame, but usually there's a better option.<br>
-You can use the \t tag, which allows you to apply gradual change for specific tags. How it works is described <a target="_blank"href="http://docs.aegisub.org/manual/ASS_Tags"><b>here.</b></a><br>
+You can use the \t tag, which allows you to apply gradual change for specific tags. How it works is described <a target="_blank" href="http://docs.aegisub.org/3.1/ASS_Tags/"><b>here.</b></a><br>
 If you need the sign to spin 360 degrees, you'll use \t(\frz360). If you need it to spin twice, it's \t(\frz720).<br>
 To spin and stop after 1 second it's \t(0,1000,\frz360). To do the same but start spinning slowly and accelerate it's \t(0,1000,3,\frz360).<br>
 So you have \t(start time, end time, acceleration,\tag1\tag2\tag3...) as explained in the link.<br>
 If you need it to rotate around a different point, you'll use \org for that (described in <a href="ts-alignment.htm"><b>Aligning Signs</a></b>).<br>
 You can combine this with \move, so it can be moving and spinning.<br><br>
 
-Other tags you can use with \t are \fscx \fscy \fsp \fs \blur and a few others, including colors. It doesn't work with everything, like \pos \org etc.<br>
+Other tags you can use with \t are \fscx \fscy \fsp \fs \blur and a few others, including colours. It doesn't work with everything, like \pos \org etc.<br>
 Experiment with this to find out what works well and what doesn't. You can use several tags at once.<br>
-You can achieve all kinds of things with the \t tag. The main downside is that if you use too much of it, playback will lag. And it can lag A LOT.<br><br>
+You can achieve all kinds of things with the \t tag. The main downside is that if you use too much of it, playback will lag. And it can lag A LOT. <font class="n">Nah.</font><br><br>
 
 A few more related things wil be explained further.
 

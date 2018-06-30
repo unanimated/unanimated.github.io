@@ -2,6 +2,13 @@
 script_description="Quality Check"
 script_author="unanimated"
 script_version="2.9"
+script_namespace="ua.QC"
+
+local haveDepCtrl,DependencyControl,depRec=pcall(require,"l0.DependencyControl")
+if haveDepCtrl then
+  script_version="2.9.0"
+  depRec=DependencyControl{feed="https://raw.githubusercontent.com/TypesettingTools/unanimated-Aegisub-Scripts/master/DependencyControl.json"}
+end
 
 clipboard=require("aegisub.clipboard")
 
@@ -27,35 +34,35 @@ cont={"im","youre","hes","shes","theyre","isnt","arent","wasnt","werent","didnt"
         if subs[i].class=="dialogue" then
             line=subs[i]
 		line.actor=line.actor
-		:gsub("%s?%.%.%.timer pls","")
-		:gsub("%s?%[time gap %d+ms%]","")
-		:gsub("%s?%[overlap %d+ms%]","")
-		:gsub("%s?%[negative duration%]","")
-		:gsub("%s?%[zero time%]","")
-		:gsub("%s?%[0 time%]","")
+		:gsub(" ?%.%.%.timer pls","")
+		:gsub(" ?%[time gap %d+ms%]","")
+		:gsub(" ?%[overlap %d+ms%]","")
+		:gsub(" ?%[negative duration%]","")
+		:gsub(" ?%[zero time%]","")
+		:gsub(" ?%[0 time%]","")
 		line.effect=line.effect
-		:gsub("%s?%[malformed tags%d?%]","")
-		:gsub("%s?%[disjointed tags%]","")
-		:gsub("%s?%[redundant tags%]","")
-		:gsub("%s?%[parentheses fail%]","")
-		:gsub("%s?%.%.%.sort by time pls","")
-		:gsub("%s?%[doublespace%]","")
-		:gsub("%s?%[double word.-%]","")
-		:gsub("%s?%[repeated text%]","")
-		:gsub("%s?%[missing apostrophe%]","")
-		:gsub("%s?%[notanemdash%]","")
-		:gsub("%s?%[italics fail%]","")
-		:gsub(" {\\Stupid","")
-		:gsub("%s?%[stupid contractions%]","")
-		:gsub("%s?%-MISSING BLUR%-","")
-		:gsub("%s?%[%.%.%]","")
-		:gsub("%s?%[hard to read%??%]","")
-		:gsub("%s?%[unreadable.*%]","")
-		:gsub("%s?%[UNREADABLE!+%]","")
-		:gsub("%s?%[under 0%.5s%]","")
-		:gsub("%s?%[3%-liner%]","")
-		:gsub("%s?%[\"%]","")
-		:gsub("%s?%[%d+ cps%]","")
+		:gsub(" ?%[malformed tags%d?%]","")
+		:gsub(" ?%[disjointed tags%]","")
+		:gsub(" ?%[redundant tags%]","")
+		:gsub(" ?%[parentheses fail%]","")
+		:gsub(" ?%.%.%.sort by time pls","")
+		:gsub(" ?%[doublespace%]","")
+		:gsub(" ?%[double word.-%]","")
+		:gsub(" ?%[repeated text%]","")
+		:gsub(" ?%[missing apostrophe%]","")
+		:gsub(" ?%[notanemdash%]","")
+		:gsub(" ?%[italics fail%]","")
+		:gsub(" ?{\\Stupid","")
+		:gsub(" ?%[stupid contractions%]","")
+		:gsub(" ?%-MISSING BLUR%-","")
+		:gsub(" ?%[%.%.%]","")
+		:gsub(" ?%[hard to read%??%]","")
+		:gsub(" ?%[unreadable.*%]","")
+		:gsub(" ?%[UNREADABLE!+%]","")
+		:gsub(" ?%[under 0%.5s%]","")
+		:gsub(" ?%[3%-liner%]","")
+		:gsub(" ?%[\"%]","")
+		:gsub(" ?%[%d+ cps%]","")
             subs[i]=line
         end
     end
@@ -73,27 +80,26 @@ cont={"im","youre","hes","shes","theyre","isnt","arent","wasnt","werent","didnt"
 	table.insert(styletab,subs[i])
 	if subs[i].name=="Default" then dstyleref=subs[i] end
 	fname=subs[i].fontname
-	fnam=esc(fname)
- 	if not fontlist:match(fnam) then fontlist=fontlist..fname.."\n" table.insert(fontable,fname) end
+ 	if not fontlist:match(esc(fname)) then fontlist=fontlist..fname.."\n" table.insert(fontable,fname) end
 	styles=styles..st..", "
 	redstyles=styles
 	if st:match("^ ") or st:match(" $") then spacestyle=spacestyle.."\""..st.."\" " end
       end
       if subs[i].class=="info" then
-	    local k=subs[i].key
-	    local v=subs[i].value
-	    if k=="Title" then stitle=v end
-	    if k=="Video File" then video=v end
-	    if k=="YCbCr Matrix" then colorspace=v end
-	    if k=="PlayResX" then resx=v end
-	    if k=="PlayResY" then resy=v end
+	local k=subs[i].key
+	local v=subs[i].value
+	if k=="Title" then stitle=v end
+	if k=="Video File" then video=v end
+	if k=="YCbCr Matrix" then colorspace=v end
+	if k=="PlayResX" then resx=v end
+	if k=="PlayResY" then resy=v end
       end
       if video==nil then prop=aegisub.project_properties() video=prop.video_file:gsub("^.*\\","") end
       if subs[i].class=="dialogue" then break end
     end
     
     if res.distill=="" then distill="xxxxxxxx" else distill=res.distill end
-
+    
     for x,i in ipairs(sel) do
 	if aegisub.progress.is_cancelled() then aegisub.cancel() end
 	aegisub.progress.title(string.format("Checking line: %d/%d",x,#sel))
@@ -139,7 +145,7 @@ cont={"im","youre","hes","shes","theyre","isnt","arent","wasnt","werent","didnt"
       if not line.comment and line.effect~="qcd" then
 	-- check for blur			[non-default]
 	if res["blur"] and def==0 and visible~="" and not text:match("\\blur") and not text:match("\\be") and endt>0 then
-		if res.bloped then  
+		if res.bloped then 
 		  eff(" -MISSING BLUR-") mblur=mblur+1
 		  if oped==1 then bloped=bloped+1 end
 		else
@@ -595,32 +601,20 @@ function dial5(subs)
     end
 end
 
-function stylechk(stylename)
+function stylechk(sn)
     for i=1,#styletab do
-	if stylename==styletab[i].name then
-	    styleref=styletab[i]
+	if sn==styletab[i].name then
+	    sr=styletab[i]
 	    if styletab[i].name=="Default" then defaref=styletab[i] end
 	end
     end
-    return styleref
+    if sr==nil then t_error("Style '"..sn.."' doesn't exist.",1) end
+    return sr
 end
 
 function eff(x) effect=effect..x end
 
-function esc(str)
-str=str
-:gsub("%%","%%%%")
-:gsub("%(","%%%(")
-:gsub("%)","%%%)")
-:gsub("%[","%%%[")
-:gsub("%]","%%%]")
-:gsub("%.","%%%.")
-:gsub("%*","%%%*")
-:gsub("%-","%%%-")
-:gsub("%+","%%%+")
-:gsub("%?","%%%?")
-return str
-end
+function esc(str) str=str:gsub("[%%%(%)%[%]%.%-%+%*%?%^%$]","%%%1") return str end
 
 qderp={"Fuck this","Yeah, no","pls no","Get out","QC my ass","Derp","Shut up","nope.avi",". . .","???","No, wait...","button"}
 
@@ -699,4 +693,4 @@ function kyuusii(subs,sel)
     return sel
 end
 
-aegisub.register_macro(script_name, script_description, kyuusii)
+if haveDepCtrl then depRec:registerMacro(kyuusii) else aegisub.register_macro(script_name,script_description,kyuusii) end
