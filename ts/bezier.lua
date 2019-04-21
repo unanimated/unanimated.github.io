@@ -93,7 +93,7 @@ end
 
 --Creates lines.
 l = table.copy(line)
-	l.text = string.format("{\\pos(%d,%d)\\frz%d}{%d}%s", x_c[g], y_c[g], -theta*(180/math.pi), #p, syl.text_stripped)
+	l.text = string.format("{\\pos(%.2f,%.2f)\\frz%.2f}{%d}%s", x_c[g], y_c[g], -theta*(180/math.pi), #p, syl.text_stripped)
 	l.start_time=line.start_time
     l.end_time=line.end_time
     l.layer = 1
