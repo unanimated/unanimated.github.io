@@ -726,8 +726,8 @@ GUI={
 {x=8,y=12,height=2,class="checkbox",name="hidline",label="hide\ninline",hint='Hide ALL inline tags'},
 }
 	P,res=ADD(GUI,
-	{"Run selected","Comments","Tags","Dial 5","Clean Tags","^ Kill Tags","Hide Tags","Cancer"},{ok='Run selected',cancel='Cancer'})
-	if P=="Cancer" then ak() end
+	{"Run selected","Comments","Tags","Dial 5","Clean Tags","^ Kill Tags","Hide Tags","Cancel"},{ok='Run selected',cancel='Cancel'})
+	if P=="Cancel" then ak() end
 	if P=="^ Kill Tags" then killemall(subs,sel) end
 	if P=="Hide Tags" then hide_tags(subs,sel) end
 	if P=="Comments" then res.nocom=true cleanlines(subs,sel) end
